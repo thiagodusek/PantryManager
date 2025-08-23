@@ -36,6 +36,9 @@ class AuthViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _successMessage = MutableStateFlow<String?>(null)
+    val successMessage: StateFlow<String?> = _successMessage.asStateFlow()
+
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess: StateFlow<Boolean> = _loginSuccess.asStateFlow()
 
@@ -154,7 +157,30 @@ class AuthViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
+    fun clearSuccess() {
+        _successMessage.value = null
+    }
+
     fun clearLoginSuccess() {
         _loginSuccess.value = false
+    }
+
+    fun resetPassword(email: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            _successMessage.value = null
+
+            try {
+                // TODO: Implementar reset password com Firebase Auth
+                // Por enquanto, simulamos o envio do e-mail
+                kotlinx.coroutines.delay(2000) // Simula chamada à API
+                _successMessage.value = "E-mail de recuperação enviado com sucesso! Verifique sua caixa de entrada."
+            } catch (e: Exception) {
+                _errorMessage.value = "Erro ao enviar e-mail de recuperação. Tente novamente."
+            }
+
+            _isLoading.value = false
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.prantymanager.presentation.ui.screens.auth
 
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,17 +20,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.prantymanager.R
-import com.prantymanager.auth.GoogleSignInContract
 import com.prantymanager.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    var login by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -41,13 +40,7 @@ fun LoginScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Google Sign-In Launcher
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = GoogleSignInContract()
-    ) { task ->
-        if (task != null) {
-            viewModel.handleGoogleSignInResult(task)
-        }
+    // Google Sign-In Launcher (removido para simplificar)
     }
 
     // Handle login success
@@ -87,11 +80,11 @@ fun LoginScreen(
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Login Field
+        // Login Field (Email)
         OutlinedTextField(
-            value = login,
-            onValueChange = { login = it },
-            label = { Text(stringResource(R.string.login)) },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("E-mail") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier
@@ -104,7 +97,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text(stringResource(R.string.password)) },
+            label = { Text("Senha") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -141,16 +134,16 @@ fun LoginScreen(
             }
         }
 
-        // Login Button
+        // Login Button (Confirmar)
         Button(
             onClick = {
                 viewModel.clearError()
-                viewModel.login(login, password)
+                viewModel.login(email, password)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            enabled = !isLoading && login.isNotBlank() && password.isNotBlank()
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -158,43 +151,15 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text(stringResource(R.string.login))
+                Text("Confirmar")
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Google Sign-in Button
-        OutlinedButton(
-            onClick = {
-                val signInIntent = viewModel.getGoogleSignInIntent()
-                googleSignInLauncher.launch(signInIntent)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            enabled = !isLoading
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(stringResource(R.string.sign_in_with_google))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Register Link
-        TextButton(onClick = onNavigateToRegister) {
-            Text(stringResource(R.string.dont_have_account))
-        }
-
-        // Forgot Password
-        TextButton(onClick = { /* TODO: Implement forgot password */ }) {
-            Text(stringResource(R.string.forgot_password))
+        // Forgot Password Button
+        TextButton(onClick = onNavigateToForgotPassword) {
+            Text("Esqueci a senha")
         }
         }
 

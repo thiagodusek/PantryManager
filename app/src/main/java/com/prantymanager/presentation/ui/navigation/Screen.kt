@@ -3,6 +3,7 @@ package com.prantymanager.presentation.ui.navigation
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
+    object ForgotPassword : Screen("forgot_password")
     object Home : Screen("home")
     object ProductRegister : Screen("product_register")
     object ProductManagement : Screen("product_management")

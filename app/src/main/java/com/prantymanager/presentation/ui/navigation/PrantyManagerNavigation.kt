@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prantymanager.presentation.ui.screens.auth.LoginScreen
 import com.prantymanager.presentation.ui.screens.auth.RegisterScreen
+import com.prantymanager.presentation.ui.screens.auth.ForgotPasswordScreen
 import com.prantymanager.presentation.ui.screens.home.HomeScreenWithDrawer
 import com.prantymanager.presentation.ui.screens.dashboard.DashboardScreen
 import com.prantymanager.presentation.ui.screens.product.ProductRegisterScreen
@@ -67,7 +68,10 @@ fun PrantyManagerNavigation(
     
     // Monitorar logout para redirecionar ao login
     LaunchedEffect(isLoggedIn) {
-        if (!isLoggedIn && navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.Register.route) {
+        if (!isLoggedIn && 
+            navController.currentDestination?.route != Screen.Login.route && 
+            navController.currentDestination?.route != Screen.Register.route &&
+            navController.currentDestination?.route != Screen.ForgotPassword.route) {
             navController.navigate(Screen.Login.route) {
                 popUpTo(0) { inclusive = true }
             }
@@ -89,8 +93,19 @@ fun PrantyManagerNavigation(
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
                 },
+                onNavigateToForgotPassword = {
+                    navController.navigate(Screen.ForgotPassword.route)
+                },
                 onLoginSuccess = {
                     // Navegação gerenciada pelo LaunchedEffect
+                }
+            )
+        }
+        
+        composable(Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
