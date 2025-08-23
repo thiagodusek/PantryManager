@@ -1,0 +1,103 @@
+<resources>
+    <string name="app_name">PantryManager</string>
+    
+    <!-- Authentication -->
+    <string name="login_title">Entrar</string>
+    <string name="register_title">Cadastrar</string>
+    <string name="email">E-mail</string>
+    <string name="password">Senha</string>
+    <string name="confirm_password">Confirmar Senha</string>
+    <string name="login">Login</string>
+    <string name="register">Cadastrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="sign_in_with_google">Entrar com Google</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="dont_have_account">Não tem uma conta? Cadastre-se</string>
+    <string name="already_have_account">Já tem uma conta? Faça login</string>
+    <string name="login_success">Login realizado com sucesso!</string>
+    <string name="register_success">Cadastro realizado com sucesso!</string>
+    <string name="google_signin_success">Login com Google realizado com sucesso!</string>
+    
+    <!-- Google Services -->
+    <string name="default_web_client_id">123456789012-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com</string>
+    
+    <!-- Registration form -->
+    <string name="nome">Nome</string>
+    <string name="sobrenome">Sobrenome</string>
+    <string name="cpf">CPF</string>
+    <string name="endereco">Endereço</string>
+    <string name="numero">Número</string>
+    <string name="complemento">Complemento</string>
+    <string name="cep">CEP</string>
+    <string name="cidade">Cidade</string>
+    <string name="estado">Estado</string>
+    <string name="search_radius">Raio de Busca (km)</string>
+    <string name="nfe_permissions">Autorizar acesso à NFe</string>
+    
+    <!-- Home -->
+    <string name="home_title">Home</string>
+    <string name="user_logged_success">Usuário logado com sucesso!</string>
+    <string name="welcome_user">Bem-vindo, %1$s!</string>
+    
+    <!-- Home menu options -->
+    <string name="register_products">Cadastrar Produtos</string>
+    <string name="manage_categories">Gerenciar Categorias</string>
+    <string name="manage_units">Gerenciar Unidades</string>
+    <string name="pantry_items">Itens da Despensa</string>
+    <string name="import_nfe">Importar via NFe</string>
+    <string name="shopping_lists">Listas de Compras</string>
+    <string name="recipes">Receitas</string>
+    <string name="dashboards">Dashboards</string>
+    <string name="nearby_stores">Supermercados Próximos</string>
+    <string name="promotions">Promoções</string>
+    <string name="profile">Perfil do Usuário</string>
+    <string name="settings">Configurações</string>
+    
+    <!-- Menu categories -->
+    <string name="catalog_management">Gestão de Catálogo</string>
+    <string name="pantry_management">Gestão da Despensa</string>
+    <string name="shopping_planning">Planejamento de Compras</string>
+    <string name="analytics_reports">Análises e Relatórios</string>
+    <string name="user_settings">Configurações do Usuário</string>
+    
+    <!-- Products -->
+    <string name="product_name">Nome do Produto</string>
+    <string name="product_brand">Marca</string>
+    <string name="product_category">Categoria</string>
+    <string name="product_barcode">Código de Barras</string>
+    <string name="unit_price">Preço Unitário</string>
+    
+    <!-- Pantry -->
+    <string name="pantry_title">Minha Despensa</string>
+    <string name="add_item">Adicionar Item</string>
+    <string name="item_name">Nome do Item</string>
+    <string name="quantity">Quantidade</string>
+    <string name="expiry_date">Data de Validade</string>
+    <string name="purchase_date">Data de Compra</string>
+    <string name="save">Salvar</string>
+    
+    <!-- Shopping Lists -->
+    <string name="create_shopping_list">Criar Lista de Compras</string>
+    <string name="generate_auto_list">Gerar Lista Automática</string>
+    <string name="list_name">Nome da Lista</string>
+    
+    <!-- Dashboard -->
+    <string name="expiring_products">Produtos Próximos do Vencimento</string>
+    <string name="most_consumed">Produtos Mais Consumidos</string>
+    <string name="current_stock">Estoque Atual</string>
+    <string name="best_price_stores">Melhores Preços</string>
+    <string name="price_comparison">Comparação de Preços</string>
+    
+    <!-- Common -->
+    <string name="loading">Carregando...</string>
+    <string name="error">Erro</string>
+    <string name="try_again">Tentar Novamente</string>
+    <string name="success">Sucesso</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Excluir</string>
+    <string name="back">Voltar</string>
+    <string name="next">Próximo</string>
+    <string name="finish">Finalizar</string>
+    <string name="search">Pesquisar</string>
+    <string name="filter">Filtrar</string>
+</resources>

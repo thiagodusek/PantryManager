@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background circle -->
+    <path
+        android:fillColor="@color/md_theme_light_primary"
+        android:pathData="M0,0h108v108h-108z" />
+    
+    <!-- Icon content - Kitchen/Food theme -->
+    <group android:scaleX="0.6"
+        android:scaleY="0.6"
+        android:pivotX="54"
+        android:pivotY="54">
+        
+        <!-- Plate/Bowl shape -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M54,20C35,20 20,35 20,54C20,73 35,88 54,88C73,88 88,73 88,54C88,35 73,20 54,20Z"/>
+        
+        <!-- Inner circle -->
+        <path
+            android:fillColor="@color/md_theme_light_primary"
+            android:pathData="M54,30C40,30 30,40 30,54C30,68 40,78 54,78C68,78 78,68 78,54C78,40 68,30 54,30Z"/>
+            
+        <!-- Letter P for Pantry -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M45,40L45,68L50,68L50,56L58,56C63,56 67,52 67,47C67,42 63,38 58,38L45,38ZM50,43L58,43C60,43 62,45 62,47C62,49 60,51 58,51L50,51Z"/>
+    </group>
+</vector>

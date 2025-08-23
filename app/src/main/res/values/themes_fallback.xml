@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Very basic theme as fallback -->
+    <style name="Theme.PantryManager.Fallback" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/md_theme_light_primary</item>
+        <item name="android:colorPrimaryDark">@color/md_theme_light_primary</item>
+        <item name="android:colorAccent">@color/md_theme_light_secondary</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="android:windowBackground">@color/md_theme_light_background</item>
+    </style>
+</resources>
