@@ -40,18 +40,14 @@ fun LoginScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Google Sign-In Launcher (removido para simplificar)
-    }
-
     // Handle login success
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
             snackbarHostState.showSnackbar(
-                message = "Login realizado com sucesso!", // Using hardcoded string for demo
+                message = "Login realizado com sucesso!",
                 duration = SnackbarDuration.Short
             )
-            kotlinx.coroutines.delay(1500) // Show message for a bit
-            // onLoginSuccess() // Navegação agora é gerenciada pelo sistema de navegação
+            kotlinx.coroutines.delay(1500)
             viewModel.clearLoginSuccess()
         }
     }
@@ -60,107 +56,117 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        // App Title
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+            // Title
+            Text(
+                text = "PantryManager",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
 
-        // Login Title
-        Text(
-            text = stringResource(R.string.login_title),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+            // Subtitle
+            Text(
+                text = "Faça login para continuar",
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 32.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-        // Login Field (Email)
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") },
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            singleLine = true
-        )
-
-        // Password Field
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Senha") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-            trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                    )
-                }
-            },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            singleLine = true
-        )
-
-        // Error Message
-        errorMessage?.let { error ->
-            Card(
+            // Email Field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("E-mail") },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
+                singleLine = true
+            )
+
+            // Password Field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Senha") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (passwordVisible) "Ocultar senha" else "Mostrar senha"
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                singleLine = true
+            )
+
+            // Error Message
+            errorMessage?.let { error ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            // Login Button
+            Button(
+                onClick = {
+                    viewModel.clearError()
+                    viewModel.login(email, password)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
             ) {
-                Text(
-                    text = error,
-                    modifier = Modifier.padding(16.dp),
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    textAlign = TextAlign.Center
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Confirmar")
+                }
             }
-        }
 
-        // Login Button (Confirmar)
-        Button(
-            onClick = {
-                viewModel.clearError()
-                viewModel.login(email, password)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text("Confirmar")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Forgot Password Button
+            TextButton(onClick = onNavigateToForgotPassword) {
+                Text("Esqueci a senha")
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Forgot Password Button
-        TextButton(onClick = onNavigateToForgotPassword) {
-            Text("Esqueci a senha")
-        }
+            // Register Button
+            OutlinedButton(
+                onClick = onNavigateToRegister,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Criar conta")
+            }
         }
 
         // Snackbar Host

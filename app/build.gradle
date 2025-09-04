@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'kotlin-parcelize'
@@ -42,6 +42,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = '1.7.3'
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_19
         targetCompatibility JavaVersion.VERSION_19
@@ -49,12 +55,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '19'
-    }
-    buildFeatures {
-        compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.7.0'
+        freeCompilerArgs += [
+            '-opt-in=androidx.compose.ui.ExperimentalComposeUiApi',
+            '-opt-in=androidx.compose.material3.ExperimentalMaterial3Api'
+        ]
     }
     packaging {
         resources {
@@ -64,14 +68,14 @@ android {
 }
 
 dependencies {
-    // Core library desugaring for Java 8 APIs support on older Android versions
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    // Core library desugaring for Java 8+ APIs support on older Android versions
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
     
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.5'
-    implementation 'androidx.activity:activity-compose:1.9.1'
-    implementation platform('androidx.compose:compose-bom:2024.08.00')
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.6'
+    implementation 'androidx.activity:activity-compose:1.9.2'
+    implementation platform('androidx.compose:compose-bom:2024.10.00')
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
@@ -79,62 +83,62 @@ dependencies {
     implementation 'androidx.compose.material:material-icons-extended'
     
     // ViewModel
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6'
     
     // Navigation
-    implementation 'androidx.navigation:navigation-compose:2.8.0'
+    implementation 'androidx.navigation:navigation-compose:2.8.2'
     
-    // Hilt
-    implementation 'com.google.dagger:hilt-android:2.52'
-    kapt 'com.google.dagger:hilt-compiler:2.52'
+    // Hilt - Updated to latest version
+    implementation 'com.google.dagger:hilt-android:2.53.1'
+    ksp 'com.google.dagger:hilt-compiler:2.53.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
     
-    // Firebase - versão mais recente do BOM
-    implementation platform('com.google.firebase:firebase-bom:33.2.0')
+    // Firebase - Latest BOM
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
     
-    // Google Play Services - versões mais recentes
+    // Google Play Services - Latest versions
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
     
-    // Room - versão mais recente
+    // Room - Latest version
     implementation 'androidx.room:room-runtime:2.6.1'
     implementation 'androidx.room:room-ktx:2.6.1'
-    kapt 'androidx.room:room-compiler:2.6.1'
+    ksp 'androidx.room:room-compiler:2.6.1'
     
-    // Retrofit - versões mais recentes
+    // Retrofit - Latest versions
     implementation 'com.squareup.retrofit2:retrofit:2.11.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
     
-    // Coroutines - versão mais recente
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1'
+    // Coroutines - Latest version
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0'
     
-    // Image loading - versão mais recente
+    // Image loading - Latest version
     implementation 'io.coil-kt:coil-compose:2.7.0'
     
     // Date picker
     implementation 'io.github.vanpra.compose-material-dialogs:datetime:0.9.0'
     
-    // Permissions - versão mais recente do Accompanist
-    implementation 'com.google.accompanist:accompanist-permissions:0.35.1-alpha'
+    // Permissions - Latest version
+    implementation 'com.google.accompanist:accompanist-permissions:0.36.0'
     
-    // Datastore
+    // Datastore - Latest version
     implementation 'androidx.datastore:datastore-preferences:1.1.1'
     
-    // Testing - versões mais recentes
+    // Testing - Latest versions
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'io.mockk:mockk:1.13.12'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
+    testImplementation 'io.mockk:mockk:1.13.13'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    androidTestImplementation platform('androidx.compose:compose-bom:2024.08.00')
+    androidTestImplementation platform('androidx.compose:compose-bom:2024.10.00')
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
