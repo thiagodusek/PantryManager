@@ -1,5 +1,6 @@
 package com.pantrymanager.presentation.ui.screens.auth
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pantrymanager.R
+import com.pantrymanager.auth.GoogleSignInContract
 import com.pantrymanager.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +43,15 @@ fun LoginScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Google Sign-In launcher
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = GoogleSignInContract()
+    ) { task ->
+        if (task != null) {
+            viewModel.handleGoogleSignInResult(task)
+        }
+    }
+
     // Handle login success
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
@@ -48,6 +60,7 @@ fun LoginScreen(
                 duration = SnackbarDuration.Short
             )
             kotlinx.coroutines.delay(1500)
+            onLoginSuccess()
             viewModel.clearLoginSuccess()
         }
     }
@@ -148,6 +161,50 @@ fun LoginScreen(
                     )
                 } else {
                     Text("Confirmar")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Divider with "OU"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f))
+                Text(
+                    text = "OU",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Google Sign-In Button
+            OutlinedButton(
+                onClick = {
+                    viewModel.clearError()
+                    val signInIntent = viewModel.getGoogleSignInIntent()
+                    googleSignInLauncher.launch(signInIntent)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = !isLoading,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text("Entrar com Google")
                 }
             }
 
