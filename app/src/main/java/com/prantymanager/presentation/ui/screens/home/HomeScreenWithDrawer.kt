@@ -113,23 +113,28 @@ fun HomeScreenWithDrawer(
                 )
             }
         ) { paddingValues ->
-            // Reuse the content from HomeScreenWithMenu
-            HomeScreenWithMenu(
-                navController = navController,
-                onNavigateToProductRegister = onNavigateToProductRegister,
-                onNavigateToCategoryRegister = onNavigateToCategoryRegister,
-                onNavigateToUnitRegister = onNavigateToUnitRegister,
-                onNavigateToPantryItems = onNavigateToPantryItems,
-                onNavigateToNFeImport = onNavigateToNFeImport,
-                onNavigateToShoppingLists = onNavigateToShoppingLists,
-                onNavigateToRecipes = onNavigateToRecipes,
-                onNavigateToDashboard = onNavigateToDashboard,
-                onNavigateToNearbyStores = onNavigateToNearbyStores,
-                onNavigateToPromotions = onNavigateToPromotions,
-                onNavigateToProfile = onNavigateToProfile,
-                onNavigateToSettings = onNavigateToSettings,
-                viewModel = viewModel
-            )
+            // Apply padding to avoid content being obscured by drawer
+            Box(
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                // Reuse the content from HomeScreenWithMenu
+                HomeScreenWithMenu(
+                    navController = navController,
+                    onNavigateToProductRegister = onNavigateToProductRegister,
+                    onNavigateToCategoryRegister = onNavigateToCategoryRegister,
+                    onNavigateToUnitRegister = onNavigateToUnitRegister,
+                    onNavigateToPantryItems = onNavigateToPantryItems,
+                    onNavigateToNFeImport = onNavigateToNFeImport,
+                    onNavigateToShoppingLists = onNavigateToShoppingLists,
+                    onNavigateToRecipes = onNavigateToRecipes,
+                    onNavigateToDashboard = onNavigateToDashboard,
+                    onNavigateToNearbyStores = onNavigateToNearbyStores,
+                    onNavigateToPromotions = onNavigateToPromotions,
+                    onNavigateToProfile = onNavigateToProfile,
+                    onNavigateToSettings = onNavigateToSettings,
+                    viewModel = viewModel
+                )
+            }
         }
     }
 }

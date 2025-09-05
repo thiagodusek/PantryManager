@@ -20,6 +20,15 @@
     <!-- Notification permission -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Hardware features -->
+    <!-- Camera is not required, making the app compatible with devices without camera -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
     <application
         android:name=".PantryManagerApplication"
         android:allowBackup="true"
