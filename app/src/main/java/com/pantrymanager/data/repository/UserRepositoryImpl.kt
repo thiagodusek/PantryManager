@@ -1,11 +1,15 @@
 package com.pantrymanager.data.repository
 
+import android.content.Context
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pantrymanager.domain.entity.User
 import com.pantrymanager.domain.entity.Address
 import com.pantrymanager.domain.repository.UserRepository
+import com.pantrymanager.utils.NetworkUtils
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -17,8 +21,47 @@ import javax.inject.Singleton
 @Singleton
 class UserRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firebaseFirestore: FirebaseFirestore
+    private val firebaseFirestore: FirebaseFirestore,
+    @ApplicationContext private val context: Context,
+    private val networkUtils: NetworkUtils
 ) : UserRepository {
+    
+    // Função para verificar conectividade de rede
+    private fun checkNetworkConnection(): Boolean {
+        if (!networkUtils.isNetworkAvailable(context)) {
+            throw Exception("Sem conexão com a internet. Verifique sua rede e tente novamente.")
+        }
+        return true
+    }
+    
+    // Função para verificar conectividade
+    private suspend fun ensureFirestoreConnectivity(): Boolean {
+        return try {
+            firebaseFirestore.enableNetwork().await()
+            true
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to enable Firestore network", e)
+            false
+        }
+    }
+    
+    // Função para tentar reconectar
+    private suspend fun retryWithConnection(operation: suspend () -> Unit) {
+        try {
+            operation()
+        } catch (e: Exception) {
+            if (e.message?.contains("offline") == true) {
+                Log.w("UserRepository", "Client offline, attempting to reconnect...")
+                if (ensureFirestoreConnectivity()) {
+                    operation() // Retry once
+                } else {
+                    throw Exception("Não foi possível conectar ao servidor. Verifique sua conexão com a internet.")
+                }
+            } else {
+                throw e
+            }
+        }
+    }
     
     override suspend fun registerUser(user: User, password: String): Result<User> {
         return try {
@@ -61,17 +104,26 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun loginWithEmailAndPassword(email: String, password: String): Result<User> {
         return try {
+            // Verificar conectividade de rede primeiro
+            checkNetworkConnection()
+            
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user ?: throw Exception("Usuário não encontrado")
             
-            // Get user data from Firestore
-            val userDoc = firebaseFirestore.collection("users")
-                .document(firebaseUser.uid)
-                .get()
-                .await()
+            // Ensure Firestore connectivity
+            ensureFirestoreConnectivity()
             
-            if (userDoc.exists()) {
-                val userData = userDoc.data!!
+            // Get user data from Firestore with retry logic
+            var userDoc: com.google.firebase.firestore.DocumentSnapshot? = null
+            retryWithConnection {
+                userDoc = firebaseFirestore.collection("users")
+                    .document(firebaseUser.uid)
+                    .get()
+                    .await()
+            }
+            
+            if (userDoc?.exists() == true) {
+                val userData = userDoc!!.data!!
                 val endereco = userData["endereco"] as? Map<String, Any> ?: emptyMap()
                 val user = User(
                     id = userData["id"] as? String ?: firebaseUser.uid,

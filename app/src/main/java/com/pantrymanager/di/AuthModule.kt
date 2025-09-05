@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.FirebaseApp
 import com.pantrymanager.auth.GoogleSignInHelper
+import com.pantrymanager.utils.NetworkUtils
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,6 +39,24 @@ object AuthModule {
     fun provideFirebaseFirestore(@ApplicationContext context: Context): FirebaseFirestore {
         try {
             val firestore = FirebaseFirestore.getInstance()
+            
+            // Configurações para melhor conectividade
+            val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true) // Cache local
+                .setCacheSizeBytes(com.google.firebase.firestore.FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                .build()
+            
+            firestore.firestoreSettings = settings
+            
+            // Force network connectivity
+            firestore.enableNetwork().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("AuthModule", "Firestore network enabled successfully")
+                } else {
+                    Log.e("AuthModule", "Failed to enable Firestore network", task.exception)
+                }
+            }
+            
             Log.d("AuthModule", "Firebase Firestore inicializado com sucesso")
             return firestore
         } catch (e: Exception) {
@@ -52,4 +71,8 @@ object AuthModule {
         @ApplicationContext context: Context,
         firebaseAuth: FirebaseAuth
     ): GoogleSignInHelper = GoogleSignInHelper(context, firebaseAuth)
+    
+    @Provides
+    @Singleton
+    fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
 }
