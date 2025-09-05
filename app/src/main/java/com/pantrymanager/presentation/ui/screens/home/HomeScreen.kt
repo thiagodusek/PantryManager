@@ -22,6 +22,7 @@ import com.pantrymanager.presentation.viewmodel.AuthViewModel
 import com.pantrymanager.presentation.ui.components.ModernMenuCard
 import com.pantrymanager.presentation.ui.components.ModernWelcomeCard
 import com.pantrymanager.presentation.ui.theme.PantryGradients
+import com.pantrymanager.presentation.ui.components.CompactVersionFooter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,6 +170,9 @@ fun HomeScreen(
                         )
                     }
                 }
+                
+                // Compact Version Footer
+                CompactVersionFooter()
             }
         }
 }

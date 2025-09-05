@@ -22,6 +22,7 @@ import com.pantrymanager.presentation.ui.components.StateDropdownField
 import com.pantrymanager.presentation.viewmodel.ProfileViewModel
 import com.pantrymanager.utils.CepUtils
 import com.pantrymanager.utils.CpfUtils
+import com.pantrymanager.presentation.ui.components.CompactVersionFooter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -453,6 +454,11 @@ fun ProfileScreen(
             )
             Text("Cancelar")
         }
+
+        // Compact Version Footer
+        CompactVersionFooter(
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
     }

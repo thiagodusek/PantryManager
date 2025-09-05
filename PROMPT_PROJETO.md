@@ -15,6 +15,7 @@ Desenvolva um **aplicativo Android nativo moderno** chamado **PantryManager** - 
 ### **Últimas Funcionalidades Implementadas (V1.3.0):**
 
 - ✅ **Sistema de Login Aprimorado** (Tratamento específico de erros de autenticação)
+- ✅ **Recuperação de Senha Completa** (Tela dedicada com Firebase Auth integrado)
 - ✅ **Google Sign-In Inteligente** (Redirecionamento automático para cadastro se dados incompletos)
 - ✅ **Interface Padronizada Material Design 3** (Botões consistentes e performance otimizada)
 - ✅ **Feedback Visual Melhorado** (Cards de erro com ícones e ações)
@@ -159,15 +160,46 @@ object PantryColors {
 // Implementar AuthViewModel com:
 class AuthViewModel @Inject constructor(
     private val signInUseCase: SignInUseCase,
-    private val googleSignInUseCase: GoogleSignInUseCase
+    private val googleSignInUseCase: GoogleSignInUseCase,
+    private val passwordResetUseCase: PasswordResetUseCase
 ) : ViewModel() {
     
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState = _authState.asStateFlow()
     
-    // Métodos: signInWithEmail, signInWithGoogle, logout
+    // Métodos: signInWithEmail, signInWithGoogle, sendPasswordResetEmail, logout
 }
 ```
+
+#### **✅ IMPLEMENTADO - Funcionalidades de Autenticação (V1.3.0)**
+
+1. **Login Aprimorado**:
+   - Tratamento específico de erros Firebase (invalid-email, user-not-found, etc.)
+   - Mensagens de erro em português claro ("Email ou senha inválidos")
+   - Proteção anti-brute force ("Muitas tentativas. Tente novamente mais tarde")
+   - Estados de loading visuais
+
+2. **Recuperação de Senha Completa** ⭐ **NOVO**:
+   - **Tela dedicada**: `ForgotPasswordScreen.kt` com Material Design 3
+   - **Integração Firebase**: `sendPasswordResetEmail()` nativo
+   - **Estados visuais inteligentes**:
+     - Campo email com validação em tempo real
+     - Loading spinner durante envio
+     - Card de sucesso verde com ícone CheckCircle
+     - Card de erro vermelho com detalhes específicos
+   - **UX otimizada**:
+     - Mensagem contextual: "Digite seu email para receber as instruções"
+     - Botão dinâmico: "Cancelar" → "Voltar ao Login" após envio
+     - Snackbar de confirmação
+     - Desabilitação de botões durante loading
+   - **Navegação integrada**: Link direto do `LoginScreen` com rota `forgot_password`
+   - **Tratamento de erros específicos** em português
+   - **Layout responsivo** sem rolagem, com footer de versão
+
+3. **Google Sign-In Inteligente**:
+   - Verificação de completude do cadastro
+   - Redirecionamento automático para tela de cadastro se dados incompletos
+   - Pré-preenchimento com dados do Google (nome, sobrenome, email)
 
 ### **CRUD Completo - Produtos**
 
@@ -1598,7 +1630,7 @@ class ValidateUserCredentialsUseCase @Inject constructor(
             val existingCpf = userRepository.getUserByCpf(cpf)
             val existingUsername = userRepository.getUserByUsername(username)
             
-            val errors = mutableListOf<String>()
+            val errors = mutableListOf()
             
             if (existingEmail.isSuccess && existingEmail.getOrNull() != null) {
                 errors.add("E-mail já cadastrado")
@@ -1799,3 +1831,76 @@ data class RegisterUiState(
 ```
 
 ---
+
+## 🔐 **IMPLEMENTAÇÃO TÉCNICA - ESQUECI MINHA SENHA (V1.3.0)**
+
+### **Estrutura de Arquivos Implementada**
+
+```
+app/src/main/java/com/pantrymanager/
+├── presentation/ui/screens/auth/
+│   └── ForgotPasswordScreen.kt          # Tela dedicada
+├── presentation/viewmodel/
+│   └── AuthViewModel.kt                 # Método sendPasswordResetEmail
+└── presentation/ui/navigation/
+    ├── Screen.kt                        # Rota forgot_password
+    └── PantryManagerNavigation.kt       # Navegação integrada
+```
+
+### **AuthViewModel - Método de Recuperação**
+
+```kotlin
+// ✅ IMPLEMENTADO - Método para recuperação de senha
+fun sendPasswordResetEmail(email: String, onResult: (Boolean) -> Unit) {
+    viewModelScope.launch {
+        _isLoading.value = true
+        _errorMessage.value = null
+        
+        try {
+            val auth = Firebase.auth
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task =>
+                    _isLoading.value = false
+                    if (task.isSuccessful) {
+                        onResult(true)
+                    } else {
+                        val errorMsg = when (task.exception?.message) {
+                            contains("invalid-email", ignoreCase = true) -> "Email inválido"
+                            contains("user-not-found", ignoreCase = true) -> "Email não cadastrado"
+                            contains("network", ignoreCase = true) -> "Erro de conexão"
+                            else -> "Erro ao enviar email de recuperação"
+                        }
+                        _errorMessage.value = errorMsg
+                        onResult(false)
+                    }
+                }
+        } catch (e: Exception) {
+            _isLoading.value = false
+            _errorMessage.value = "Erro inesperado: ${e.message}"
+            onResult(false)
+        }
+    }
+}
+```
+
+### **ForgotPasswordScreen - Estados Visuais**
+
+```kotlin
+// ✅ IMPLEMENTADO - Tela completa com todos os estados
+@Composable
+fun ForgotPasswordScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
+    var email by remember { mutableStateOf("") }
+    var emailSent by remember { mutableStateOf(false) }
+    
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    
+    // Estados visuais implementados:
+    // 1. Campo Email com validação
+    // 2. Estado Loading com CircularProgressIndicator
+    // 3. Estado Sucesso com Card verde e CheckCircle
+    // 4. Estado Erro com Card vermelho e botão fechar
+    // 5. Botão dinâmico (Cancelar → Voltar ao Login)

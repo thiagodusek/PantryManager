@@ -288,22 +288,47 @@ class AuthViewModel @Inject constructor(
         _googleUserData.value = null
     }
 
-    fun resetPassword(email: String) {
+    fun sendPasswordResetEmail(email: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
-            _successMessage.value = null
 
-            try {
-                // TODO: Implementar reset password com Firebase Auth
-                // Por enquanto, simulamos o envio do e-mail
-                kotlinx.coroutines.delay(2000) // Simula chamada à API
-                _successMessage.value = "E-mail de recuperação enviado com sucesso! Verifique sua caixa de entrada."
-            } catch (e: Exception) {
-                _errorMessage.value = "Erro ao enviar e-mail de recuperação. Tente novamente."
+            // Integração com Firebase Auth para envio de email de recuperação
+            val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    _isLoading.value = false
+                    if (task.isSuccessful) {
+                        onResult(true)
+                    } else {
+                        val errorMsg = when {
+                            task.exception?.message?.contains("no user record", ignoreCase = true) == true -> 
+                                "Email não encontrado. Verifique se o email está correto."
+                            task.exception?.message?.contains("badly formatted", ignoreCase = true) == true -> 
+                                "Email inválido. Verifique o formato do email."
+                            task.exception?.message?.contains("network", ignoreCase = true) == true -> 
+                                "Erro de conexão. Verifique sua internet."
+                            else -> 
+                                "Erro ao enviar email de recuperação. Tente novamente."
+                        }
+                        _errorMessage.value = errorMsg
+                        onResult(false)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    _isLoading.value = false
+                    _errorMessage.value = "Erro ao enviar email de recuperação. Verifique sua conexão."
+                    onResult(false)
+                }
+        }
+    }
+
+    // Método legado - manter compatibilidade
+    fun resetPassword(email: String) {
+        sendPasswordResetEmail(email) { success ->
+            if (success) {
+                _successMessage.value = "Email de recuperação enviado com sucesso!"
             }
-
-            _isLoading.value = false
         }
     }
 }

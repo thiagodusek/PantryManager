@@ -27,6 +27,7 @@ import com.pantrymanager.presentation.viewmodel.AuthViewModel
 import com.pantrymanager.presentation.viewmodel.RegisterViewModel
 import com.pantrymanager.utils.CepUtils
 import com.pantrymanager.utils.CpfUtils
+import com.pantrymanager.presentation.ui.components.AppVersionFooter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -548,6 +549,12 @@ fun RegisterScreen(
         TextButton(onClick = onNavigateToLogin) {
             Text(stringResource(R.string.already_have_account))
         }
+
+        // App Version Footer
+        AppVersionFooter(
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+            showAppName = false
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
     }

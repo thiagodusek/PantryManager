@@ -24,6 +24,27 @@
 - ✅ **Interface Visual Melhorada**: Cards de erro com ícones e botão de fechar
 - ✅ **Estados de Loading**: Indicadores visuais durante todas as operações
 
+#### 🔑 **Recuperação de Senha Completa** ⭐ **NOVO**
+
+- ✅ **Interface Moderna**: Tela dedicada com Material Design 3 e gradientes suaves
+- ✅ **Integração Firebase Auth**: `sendPasswordResetEmail()` nativo do Firebase
+- ✅ **Estados Visuais Inteligentes**:
+  - **Campo Email**: Validação em tempo real com ícone Email
+  - **Estado Loading**: CircularProgressIndicator durante envio
+  - **Estado Sucesso**: Card verde com ícone CheckCircle e mensagem clara
+  - **Estado Erro**: Card vermelho com detalhes específicos e botão fechar
+- ✅ **UX Otimizada**:
+  - Mensagens contextuais ("Digite seu email para receber as instruções")
+  - Botão dinâmico ("Cancelar" → "Voltar ao Login" após envio)
+  - Snackbar de confirmação ("Email de recuperação enviado!")
+  - Desabilitação de botões durante loading
+- ✅ **Navegação Integrada**: Link direto do LoginScreen com rota `forgot_password`
+- ✅ **Tratamento de Erros Específicos**:
+  - Email inválido, usuário não encontrado, problemas de rede
+  - Mensagens em português claro e objetivo
+- ✅ **Responsividade**: Layout compacto sem rolagem, footer de versão incluído
+- ✅ **Acessibilidade**: ContentDescriptions em todos os ícones
+
 #### 🔄 **Google Sign-In Inteligente**
 - ✅ **Verificação de Completude**: Sistema detecta se usuário tem cadastro completo
 - ✅ **Redirecionamento Automático**: Para cadastro se dados estão incompletos
