@@ -349,3 +349,5 @@ Este projeto está licenciado sob a **MIT License**.
   <p><strong>Feito com ❤️ e muito ☕</strong></p>
   <p>Se este projeto te ajudou, considere dar uma ⭐!</p>
 </div>
+#   P a n t r y M a n a g e r  
+ 
