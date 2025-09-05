@@ -172,7 +172,7 @@ cd PantryManager
 ### **2. Configuração do Firebase**
 
 1. Crie um projeto no [Firebase Console](https://console.firebase.google.com/)
-2. Adicione um app Android com o package name `com.prantymanager`
+2. Adicione um app Android com o package name `com.pantrymanager`
 3. Baixe o arquivo `google-services.json` e coloque em `app/`
 4. Ative Authentication, Firestore e Storage no console
 
@@ -236,7 +236,7 @@ cd PantryManager
 ```
 PantryManager/
 ├── 📁 app/
-│   ├── 📁 src/main/java/com/prantymanager/
+│   ├── 📁 src/main/java/com/pantrymanager/
 │   │   ├── 🎨 presentation/        # UI e ViewModels
 │   │   │   ├── ui/screens/        # Telas por feature
 │   │   │   ├── ui/components/     # Componentes reutilizáveis
