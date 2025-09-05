@@ -28,6 +28,6 @@ abstract class PantryManagerDatabase : RoomDatabase() {
     abstract fun unitDao(): UnitDao
     
     companion object {
-        const val DATABASE_NAME = "pranty_manager_db"
+        const val DATABASE_NAME = "pantry_manager_db"
     }
 }

@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:513859885488:android:abcd1234abcd1234abcd12",
         "android_client_info": {
-          "package_name": "com.prantymanager"
+          "package_name": "com.pantrymanager"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "513859885488-7vqhetijef1amff36nuhquvribj61krt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.prantymanager",
+            "package_name": "com.pantrymanager",
             "certificate_hash": "364cc4f8b3b98e2b0c6d1a2308bb91c0d080faf5"
           }
         },
