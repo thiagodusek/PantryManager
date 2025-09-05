@@ -224,7 +224,7 @@ echo ❌ Caches do Gradle/Kotlin
 echo ❌ Arquivos duplicados/obsoletos
 echo ❌ Guias antigos de configuração
 echo ❌ Scripts de teste obsoletos  
-echo ❌ Referências incorretas de nome (PrantyManager → PantryManager)
+echo ❌ Referências incorretas de nome (PantryManager já padronizado)
 echo ❌ Cache de IDEs
 echo ❌ gradle_new.properties (consolidado)
 echo.
