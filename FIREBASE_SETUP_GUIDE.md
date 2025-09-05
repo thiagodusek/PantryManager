@@ -17,7 +17,7 @@ Este erro ocorre quando as chaves do Firebase/Google não estão configuradas co
 1. Na aba **"Seus aplicativos"**
 2. Clique em **"Adicionar app"** → **Android**
 3. Configure:
-   - **Nome do pacote**: `com.pantrymanager`
+   - **Nome do pacote**: `com.prantymanager`
    - **Apelido do app**: `PantryManager`
    - **SHA-1**: (opcional para desenvolvimento)
 
@@ -69,7 +69,7 @@ No **Google Cloud Console** (https://console.cloud.google.com/):
       "client_info": {
         "mobilesdk_app_id": "SEU_MOBILE_SDK_APP_ID",
         "android_client_info": {
-          "package_name": "com.pantrymanager"
+          "package_name": "com.prantymanager"
         }
       },
       "oauth_client": [...],
@@ -113,7 +113,7 @@ FIREBASE_API_KEY=SUA_CHAVE_FIREBASE_AQUI
 ### Se o erro persistir:
 
 1. **Verifique o package name**:
-   - Deve ser exatamente: `com.pantrymanager`
+   - Deve ser exatamente: `com.prantymanager`
 
 2. **SHA-1 Fingerprint** (para produção):
    ```bash

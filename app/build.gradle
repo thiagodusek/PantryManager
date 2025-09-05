@@ -16,11 +16,11 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.pantrymanager'
+    namespace 'com.prantymanager'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.pantrymanager"
+        applicationId "com.prantymanager"
         minSdk 24
         targetSdk 35
         versionCode 1
