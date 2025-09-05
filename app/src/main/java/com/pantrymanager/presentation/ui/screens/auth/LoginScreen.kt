@@ -1,6 +1,7 @@
 package com.pantrymanager.presentation.ui.screens.auth
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -28,8 +29,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pantrymanager.R
 import com.pantrymanager.auth.GoogleSignInContract
 import com.pantrymanager.presentation.viewmodel.AuthViewModel
-import com.pantrymanager.presentation.ui.components.ModernPrimaryButton
-import com.pantrymanager.presentation.ui.components.ModernSecondaryButton
 import com.pantrymanager.presentation.ui.theme.PantryGradients
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +37,7 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit,
+    onNavigateToRegisterWithGoogleData: (String, String, String) -> Unit = { _, _, _ -> },
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     var email by remember { mutableStateOf("") }
@@ -47,6 +47,8 @@ fun LoginScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val loginSuccess by viewModel.loginSuccess.collectAsState()
+    val needsRegistration by viewModel.needsRegistration.collectAsState()
+    val googleUserData by viewModel.googleUserData.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -69,6 +71,20 @@ fun LoginScreen(
             kotlinx.coroutines.delay(1500)
             onLoginSuccess()
             viewModel.clearLoginSuccess()
+        }
+    }
+
+    // Handle Google user needs registration
+    LaunchedEffect(needsRegistration) {
+        if (needsRegistration) {
+            val userData = googleUserData
+            if (userData != null) {
+                onNavigateToRegisterWithGoogleData(userData.nome, userData.sobrenome, userData.email)
+            } else {
+                onNavigateToRegister()
+            }
+            viewModel.clearNeedsRegistration()
+            viewModel.clearGoogleUserData()
         }
     }
 
@@ -159,6 +175,48 @@ fun LoginScreen(
                 }
             }
 
+            // Error Message Card
+            errorMessage?.let { error ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(end = 12.dp)
+                        )
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = { viewModel.clearError() }
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Fechar erro",
+                                tint = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
+            }
+
             // Form Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -232,27 +290,47 @@ fun LoginScreen(
                     )
 
                     // Login Button
-                    ModernPrimaryButton(
-                        text = stringResource(R.string.login),
+                    Button(
                         onClick = { 
                             if (email.isNotBlank() && password.isNotBlank()) {
+                                viewModel.clearError()
                                 viewModel.login(email, password)
                             }
                         },
-                        isLoading = isLoading,
-                        enabled = email.isNotBlank() && password.isNotBlank(),
-                        icon = Icons.Default.Login,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(bottom = 16.dp),
+                        enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.login),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                     
                     // Forgot Password Button
                     TextButton(
                         onClick = onNavigateToForgotPassword,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(bottom = 8.dp),
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = stringResource(R.string.forgot_password),
                             color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -281,13 +359,41 @@ fun LoginScreen(
                     }
                     
                     // Google Sign-In Button
-                    ModernSecondaryButton(
-                        text = stringResource(R.string.sign_in_with_google),
-                        onClick = { googleSignInLauncher.launch(viewModel.getGoogleSignInIntent()) },
+                    OutlinedButton(
+                        onClick = { 
+                            viewModel.clearError()
+                            googleSignInLauncher.launch(viewModel.getGoogleSignInIntent()) 
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(bottom = 24.dp),
                         enabled = !isLoading,
-                        icon = Icons.Default.AccountCircle,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(
+                            1.dp, 
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 8.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(R.string.sign_in_with_google),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                 }
             }
             

@@ -20,7 +20,6 @@ import com.pantrymanager.R
 import com.pantrymanager.domain.entity.Category
 import com.pantrymanager.domain.entity.MeasurementUnit as UnitEntity
 import com.pantrymanager.presentation.viewmodel.ProductViewModel
-import com.pantrymanager.presentation.ui.components.DatePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +31,6 @@ fun ProductRegisterScreen(
     viewModel: ProductViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var showDatePicker by remember { mutableStateOf(false) }
 
     // Load product for editing if productIdToEdit is provided
     LaunchedEffect(productIdToEdit) {
@@ -141,78 +139,6 @@ fun ProductRegisterScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3
-            )
-
-            // Quantity Field (Required)
-            OutlinedTextField(
-                value = state.quantity,
-                onValueChange = viewModel::onQuantityChanged,
-                label = { Text(stringResource(R.string.product_quantity)) },
-                placeholder = { Text(stringResource(R.string.product_quantity_hint)) },
-                leadingIcon = { 
-                    Icon(
-                        Icons.Default.Scale, 
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    ) 
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = state.validationErrors.quantityError != null,
-                supportingText = state.validationErrors.quantityError?.let { error ->
-                    { Text(error, color = MaterialTheme.colorScheme.error) }
-                }
-            )
-
-            // Batch Field (Optional)
-            OutlinedTextField(
-                value = state.batch,
-                onValueChange = viewModel::onBatchChanged,
-                label = { Text(stringResource(R.string.product_batch)) },
-                placeholder = { Text(stringResource(R.string.product_batch_hint)) },
-                leadingIcon = { 
-                    Icon(
-                        Icons.Default.Numbers, 
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    ) 
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            // Expiry Date Field (Optional)
-            OutlinedTextField(
-                value = state.expiryDate,
-                onValueChange = viewModel::onExpiryDateChanged,
-                label = { Text(stringResource(R.string.product_expiry_date)) },
-                placeholder = { Text(stringResource(R.string.product_expiry_date_hint)) },
-                leadingIcon = { 
-                    Icon(
-                        Icons.Default.CalendarToday, 
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    ) 
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { showDatePicker = true }
-                    ) {
-                        Icon(
-                            Icons.Default.DateRange,
-                            contentDescription = stringResource(R.string.select_date),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = state.validationErrors.expiryDateError != null,
-                supportingText = state.validationErrors.expiryDateError?.let { error ->
-                    { Text(error, color = MaterialTheme.colorScheme.error) }
-                }
             )
 
             // Category Dropdown (Required)
@@ -326,17 +252,6 @@ fun ProductRegisterScreen(
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
-    }
-    
-    // Date Picker Dialog
-    if (showDatePicker) {
-        DatePickerDialog(
-            onDateSelected = { date ->
-                viewModel.onExpiryDateChanged(date)
-                showDatePicker = false
-            },
-            onDismiss = { showDatePicker = false }
-        )
     }
 }
 

@@ -18,24 +18,34 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import com.pantrymanager.R
 import com.pantrymanager.domain.entity.Address
 import com.pantrymanager.domain.entity.User
+import com.pantrymanager.presentation.ui.components.StateDropdownField
 import com.pantrymanager.presentation.viewmodel.AuthViewModel
+import com.pantrymanager.presentation.viewmodel.RegisterViewModel
+import com.pantrymanager.utils.CepUtils
+import com.pantrymanager.utils.CpfUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    registerViewModel: RegisterViewModel = hiltViewModel(),
+    prefilledNome: String = "",
+    prefilledSobrenome: String = "",
+    prefilledEmail: String = ""
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     
     // Form fields state
-    var nome by remember { mutableStateOf("") }
-    var sobrenome by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var nome by remember { mutableStateOf(prefilledNome) }
+    var sobrenome by remember { mutableStateOf(prefilledSobrenome) }
+    var email by remember { mutableStateOf(prefilledEmail) }
     var cpf by remember { mutableStateOf("") }
     var endereco by remember { mutableStateOf("") }
     var numero by remember { mutableStateOf("") }
@@ -52,15 +62,31 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // Auth ViewModel states
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val loginSuccess by viewModel.loginSuccess.collectAsState()
+
+    // Register ViewModel states
+    val isLoadingCep by registerViewModel.isLoadingCep.collectAsState()
+    val addressData by registerViewModel.addressData.collectAsState()
+    val cepError by registerViewModel.cepError.collectAsState()
 
     // Handle registration success
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
             onRegisterSuccess()
             viewModel.clearLoginSuccess()
+        }
+    }
+
+    // Handle address data from CEP
+    LaunchedEffect(addressData) {
+        addressData?.let { address ->
+            endereco = address.endereco
+            cidade = address.cidade
+            estado = address.estado
+            complemento = address.complemento ?: ""
         }
     }
 
@@ -76,8 +102,41 @@ fun RegisterScreen(
             text = stringResource(R.string.register_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
+
+        // Google Data Info (if prefilled)
+        if (prefilledEmail.isNotBlank()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        text = "Complete seu cadastro com as informações do Google",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Personal Information Section
         Card(
@@ -126,13 +185,47 @@ fun RegisterScreen(
 
                 OutlinedTextField(
                     value = cpf,
-                    onValueChange = { cpf = it },
+                    onValueChange = { newCpf ->
+                        // Permite apenas números e limita a 11 dígitos
+                        val digitsOnly = newCpf.filter { it.isDigit() }.take(11)
+                        cpf = digitsOnly
+                    },
                     label = { Text(stringResource(R.string.cpf) + " *") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
-                    singleLine = true
+                    singleLine = true,
+                    supportingText = {
+                        when {
+                            cpf.isBlank() -> {
+                                Text(
+                                    text = "Digite 11 números do CPF",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            cpf.length < 11 -> {
+                                Text(
+                                    text = "Digite mais ${11 - cpf.length} números",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            cpf.length == 11 -> {
+                                if (CpfUtils.isValidCpf(cpf)) {
+                                    Text(
+                                        text = "CPF: ${CpfUtils.formatCpf(cpf)}",
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                } else {
+                                    Text(
+                                        text = "CPF inválido",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    placeholder = { Text("12345678901") }
                 )
             }
         }
@@ -151,6 +244,69 @@ fun RegisterScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                // CEP Field (primeiro campo)
+                OutlinedTextField(
+                    value = cep,
+                    onValueChange = { newCep ->
+                        // Permite apenas números e limita a 8 dígitos
+                        val digitsOnly = newCep.filter { it.isDigit() }.take(8)
+                        cep = digitsOnly
+                        
+                        // Busca automaticamente quando tiver 8 dígitos
+                        if (digitsOnly.length == 8) {
+                            registerViewModel.searchAddressByCep(digitsOnly)
+                        } else if (digitsOnly.length < 8) {
+                            // Limpa dados se CEP estiver incompleto
+                            registerViewModel.clearAddressData()
+                        }
+                    },
+                    label = { Text(stringResource(R.string.cep) + " *") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    singleLine = true,
+                    trailingIcon = {
+                        if (isLoadingCep) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    },
+                    supportingText = {
+                        cepError?.let { error ->
+                            Text(
+                                text = error,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } ?: run {
+                            // Mostra dica de formato quando não há erro
+                            when {
+                                cep.isBlank() -> {
+                                    Text(
+                                        text = "Digite 8 números do CEP",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                cep.length < 8 -> {
+                                    Text(
+                                        text = "Digite mais ${8 - cep.length} números",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                cep.length == 8 -> {
+                                    Text(
+                                        text = "CEP: ${CepUtils.formatCep(cep)}", 
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    placeholder = { Text("12345678") }
+                )
+
                 OutlinedTextField(
                     value = endereco,
                     onValueChange = { endereco = it },
@@ -158,7 +314,8 @@ fun RegisterScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoadingCep
                 )
 
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -183,17 +340,6 @@ fun RegisterScreen(
                     )
                 }
 
-                OutlinedTextField(
-                    value = cep,
-                    onValueChange = { cep = it },
-                    label = { Text(stringResource(R.string.cep) + " *") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    singleLine = true
-                )
-
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = cidade,
@@ -202,17 +348,19 @@ fun RegisterScreen(
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 8.dp, bottom = 8.dp),
-                        singleLine = true
+                        singleLine = true,
+                        enabled = !isLoadingCep
                     )
 
-                    OutlinedTextField(
-                        value = estado,
-                        onValueChange = { estado = it },
-                        label = { Text(stringResource(R.string.estado) + " *") },
+                    // ComboBox de Estados
+                    StateDropdownField(
+                        selectedState = estado,
+                        onStateSelected = { estado = it },
+                        label = stringResource(R.string.estado) + " *",
                         modifier = Modifier
                             .weight(1f)
                             .padding(bottom = 8.dp),
-                        singleLine = true
+                        enabled = !isLoadingCep
                     )
                 }
             }
@@ -335,16 +483,18 @@ fun RegisterScreen(
         Button(
             onClick = {
                 viewModel.clearError()
+                val cleanCep = CepUtils.cleanCep(cep)
+                val cleanCpf = CpfUtils.cleanCpf(cpf)
                 val user = User(
                     nome = nome,
                     sobrenome = sobrenome,
                     email = email,
-                    cpf = cpf,
+                    cpf = cleanCpf,
                     endereco = Address(
                         endereco = endereco,
                         numero = numero,
                         complemento = complemento.ifBlank { null },
-                        cep = cep,
+                        cep = cleanCep,
                         cidade = cidade,
                         estado = estado
                     ),
@@ -361,10 +511,10 @@ fun RegisterScreen(
                     nome.isNotBlank() && 
                     sobrenome.isNotBlank() && 
                     email.isNotBlank() && 
-                    cpf.isNotBlank() && 
+                    CpfUtils.isValidCpf(cpf) && 
                     endereco.isNotBlank() && 
                     numero.isNotBlank() && 
-                    cep.isNotBlank() && 
+                    CepUtils.cleanCep(cep).length == 8 && 
                     cidade.isNotBlank() && 
                     estado.isNotBlank() && 
                     login.isNotBlank() && 

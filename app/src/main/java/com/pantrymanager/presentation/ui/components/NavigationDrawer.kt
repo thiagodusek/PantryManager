@@ -73,7 +73,7 @@ fun NavigationDrawerContent(
                     isSelected = currentRoute == "product_management"
                 ),
                 DrawerMenuItem(
-                    title = stringResource(R.string.manage_categories),
+                    title = "Cadastrar Categoria",
                     icon = Icons.Default.Category,
                     onClick = {
                         onNavigateToCategoryRegister()
