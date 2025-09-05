@@ -71,8 +71,4 @@ object AuthModule {
         @ApplicationContext context: Context,
         firebaseAuth: FirebaseAuth
     ): GoogleSignInHelper = GoogleSignInHelper(context, firebaseAuth)
-    
-    @Provides
-    @Singleton
-    fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
 }
