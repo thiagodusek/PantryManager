@@ -49,6 +49,12 @@ freeline.py
 freeline/
 freeline_project_description.json
 
+# Documentation and temporary files
+*.md~
+*.md.bak
+.DS_Store
+Thumbs.db
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html

@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class ProductState(
@@ -29,6 +31,10 @@ data class ProductState(
     val unitId: Long? = null,
     val observation: String = "",
     val imageUrl: String? = null,
+    // Campos de estoque
+    val quantity: String = "",
+    val batch: String = "",
+    val expiryDate: String = "",
     val categories: List<Category> = emptyList(),
     val units: List<UnitEntity> = emptyList(),
     val isLoading: Boolean = false,
@@ -41,9 +47,12 @@ data class ProductState(
 )
 
 data class ProductValidationErrors(
+    val eanError: String? = null,
     val nameError: String? = null,
+    val quantityError: String? = null,
     val categoryError: String? = null,
-    val unitError: String? = null
+    val unitError: String? = null,
+    val expiryDateError: String? = null
 )
 
 @HiltViewModel
@@ -186,7 +195,7 @@ class ProductViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     isSuccess = true,
-                    errorMessage = "Produto cadastrado com sucesso!"
+                    errorMessage = "Produto cadastrado com sucesso! Quantidade: ${_state.value.quantity}, Lote: ${_state.value.batch.takeIf { it.isNotBlank() } ?: "N/A"}, Validade: ${_state.value.expiryDate.takeIf { it.isNotBlank() } ?: "N/A"}"
                 )
                 clearForm()
             } catch (e: Exception) {
@@ -277,7 +286,7 @@ class ProductViewModel @Inject constructor(
     fun onEanChanged(ean: String) {
         _state.value = _state.value.copy(
             ean = ean,
-            validationErrors = _state.value.validationErrors.copy()
+            validationErrors = _state.value.validationErrors.copy(eanError = null)
         )
     }
 
@@ -312,6 +321,24 @@ class ProductViewModel @Inject constructor(
 
     fun onImageSelected(imageUrl: String) {
         _state.value = _state.value.copy(imageUrl = imageUrl)
+    }
+
+    fun onQuantityChanged(quantity: String) {
+        _state.value = _state.value.copy(
+            quantity = quantity,
+            validationErrors = _state.value.validationErrors.copy(quantityError = null)
+        )
+    }
+
+    fun onBatchChanged(batch: String) {
+        _state.value = _state.value.copy(batch = batch)
+    }
+
+    fun onExpiryDateChanged(date: String) {
+        _state.value = _state.value.copy(
+            expiryDate = date,
+            validationErrors = _state.value.validationErrors.copy(expiryDateError = null)
+        )
     }
 
     fun startEdit(product: Product) {
@@ -421,6 +448,9 @@ class ProductViewModel @Inject constructor(
             unitId = null,
             observation = "",
             imageUrl = null,
+            quantity = "",
+            batch = "",
+            expiryDate = "",
             isEditing = false,
             validationErrors = ProductValidationErrors()
         )
@@ -435,30 +465,78 @@ class ProductViewModel @Inject constructor(
     }
 
     private fun validateProduct(): Boolean {
+        var eanError: String? = null
         var nameError: String? = null
+        var quantityError: String? = null
         var categoryError: String? = null
         var unitError: String? = null
+        var expiryDateError: String? = null
         var hasErrors = false
 
+        // EAN é obrigatório
+        if (_state.value.ean.isBlank()) {
+            eanError = "Código EAN é obrigatório"
+            hasErrors = true
+        }
+
+        // Nome é obrigatório
         if (_state.value.name.isBlank()) {
             nameError = "Nome é obrigatório"
             hasErrors = true
         }
 
+        // Quantidade é obrigatória e deve ser um número positivo
+        if (_state.value.quantity.isBlank()) {
+            quantityError = "Quantidade é obrigatória"
+            hasErrors = true
+        } else {
+            try {
+                val quantity = _state.value.quantity.toDouble()
+                if (quantity <= 0) {
+                    quantityError = "Quantidade deve ser um número positivo"
+                    hasErrors = true
+                }
+            } catch (e: NumberFormatException) {
+                quantityError = "Quantidade deve ser um número válido"
+                hasErrors = true
+            }
+        }
+
+        // Validação de data de validade (opcional, mas se preenchida deve ser válida)
+        if (_state.value.expiryDate.isNotBlank()) {
+            try {
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                val date = LocalDate.parse(_state.value.expiryDate, formatter)
+                // Verificar se a data não é no passado
+                if (date.isBefore(LocalDate.now())) {
+                    expiryDateError = "Data de validade não pode ser anterior à data atual"
+                    hasErrors = true
+                }
+            } catch (e: Exception) {
+                expiryDateError = "Data inválida. Use o formato dd/mm/aaaa"
+                hasErrors = true
+            }
+        }
+
+        // Categoria é obrigatória
         if (_state.value.categoryId == null) {
             categoryError = "Categoria é obrigatória"
             hasErrors = true
         }
 
+        // Unidade é obrigatória
         if (_state.value.unitId == null) {
             unitError = "Unidade de medida é obrigatória"
             hasErrors = true
         }
 
         val errors = ProductValidationErrors(
+            eanError = eanError,
             nameError = nameError,
+            quantityError = quantityError,
             categoryError = categoryError,
-            unitError = unitError
+            unitError = unitError,
+            expiryDateError = expiryDateError
         )
         
         _state.value = _state.value.copy(validationErrors = errors)

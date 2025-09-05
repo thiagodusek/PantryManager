@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -137,7 +138,7 @@ fun NavigationDrawerContent(
             items = listOf(
                 DrawerMenuItem(
                     title = stringResource(R.string.shopping_lists),
-                    icon = Icons.Default.List,
+                    icon = Icons.AutoMirrored.Filled.List,
                     onClick = {
                         onNavigateToShoppingLists()
                         onCloseDrawer()
@@ -146,7 +147,7 @@ fun NavigationDrawerContent(
                 ),
                 DrawerMenuItem(
                     title = stringResource(R.string.recipes),
-                    icon = Icons.Default.MenuBook,
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
                     onClick = {
                         onNavigateToRecipes()
                         onCloseDrawer()
@@ -210,7 +211,7 @@ fun NavigationDrawerContent(
 
             // User Settings Section
             item {
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
                     text = stringResource(R.string.user_settings),
                     style = MaterialTheme.typography.labelLarge,
@@ -242,7 +243,7 @@ fun NavigationDrawerContent(
                 )
                 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Logout, contentDescription = null) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
                     label = { Text("Sair") },
                     selected = false,
                     onClick = {

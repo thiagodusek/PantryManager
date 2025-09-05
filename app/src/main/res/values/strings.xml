@@ -49,9 +49,28 @@
     <string name="recipes">Receitas</string>
     <string name="dashboards">Dashboards</string>
     <string name="nearby_stores">Supermercados Próximos</string>
-    <string name="promotions">Promoções</string>
     <string name="profile">Perfil do Usuário</string>
     <string name="settings">Configurações</string>
+    
+    <!-- Menu descriptions -->
+    <string name="desc_register_products">Cadastrar novos produtos no sistema</string>
+    <string name="desc_manage_categories">Organizar categorias de produtos</string>
+    <string name="desc_manage_units">Configurar unidades de medida</string>
+    <string name="desc_pantry_items">Visualizar itens da despensa</string>
+    <string name="desc_import_nfe">Importar compras via NFe</string>
+    <string name="desc_shopping_lists">Criar e gerenciar listas</string>
+    <string name="desc_recipes">Descobrir receitas incríveis</string>
+    <string name="desc_dashboards">Acompanhar estatísticas</string>
+    <string name="desc_nearby_stores">Encontrar supermercados próximos</string>
+    
+    <!-- UI Messages -->
+    <string name="welcome_back">Bem-vindo de volta!</string>
+    <string name="login_subtitle">Entre com sua conta para continuar</string>
+    <string name="or_continue_with">Ou continue com</string>
+    <string name="dont_have_account_question">Não tem uma conta?</string>
+    <string name="create_account">Criar conta</string>
+    <string name="email_hint">seu@email.com</string>
+    <string name="password_hint">Digite sua senha</string>
     
     <!-- Menu categories -->
     <string name="catalog_management">Gestão de Catálogo</string>
@@ -61,9 +80,7 @@
     <string name="user_settings">Configurações do Usuário</string>
     
     <!-- Products -->
-    <string name="product_name">Nome do Produto</string>
     <string name="product_brand">Marca</string>
-    <string name="product_category">Categoria</string>
     <string name="product_barcode">Código de Barras</string>
     <string name="unit_price">Preço Unitário</string>
     
@@ -88,6 +105,45 @@
     <string name="best_price_stores">Melhores Preços</string>
     <string name="price_comparison">Comparação de Preços</string>
     
+    <!-- Dashboards -->
+    <string name="dashboard_consumo">Dashboard de Consumo</string>
+    <string name="dashboard_desperdicio">Dashboard de Desperdício</string>
+    <string name="dashboard_financeiro">Dashboard Financeiro</string>
+    
+    <!-- Product Registration -->
+    <string name="product_registration_title">Cadastrar Produto</string>
+    <string name="ean_code_required">Código EAN *</string>
+    <string name="ean_code_hint">Digite o código de barras (obrigatório)</string>
+    <string name="product_name">Nome do Produto *</string>
+    <string name="product_description">Descrição</string>
+    <string name="product_quantity">Quantidade *</string>
+    <string name="product_quantity_hint">Ex: 2.5</string>
+    <string name="product_batch">Lote</string>
+    <string name="product_batch_hint">Número do lote (opcional)</string>
+    <string name="product_expiry_date">Data de Validade</string>
+    <string name="product_expiry_date_hint">dd/mm/aaaa (opcional)</string>
+    <string name="product_observation">Observação</string>
+    <string name="product_category">Categoria *</string>
+    <string name="product_unit">Unidade de Medida *</string>
+    <string name="add_product">Cadastrar Produto</string>
+    <string name="clear_form">Limpar Formulário</string>
+    <string name="required_fields">* Campos obrigatórios</string>
+    <string name="select_date">Selecionar Data</string>
+    
+    <!-- Validation messages -->
+    <string name="error_ean_required">Código EAN é obrigatório</string>
+    <string name="error_name_required">Nome do produto é obrigatório</string>
+    <string name="error_quantity_required">Quantidade é obrigatória</string>
+    <string name="error_quantity_invalid">Quantidade deve ser um número positivo</string>
+    <string name="error_category_required">Categoria é obrigatória</string>
+    <string name="error_unit_required">Unidade de medida é obrigatória</string>
+    <string name="error_date_invalid">Data inválida</string>
+    
+    <!-- Product Inventory -->
+    <string name="inventory_management">Gerenciamento de Estoque</string>
+    <string name="add_to_pantry">Adicionar ao Estoque</string>
+    <string name="product_added_success">Produto cadastrado e adicionado ao estoque com sucesso!</string>
+    
     <!-- Common -->
     <string name="loading">Carregando...</string>
     <string name="error">Erro</string>
@@ -100,4 +156,13 @@
     <string name="finish">Finalizar</string>
     <string name="search">Pesquisar</string>
     <string name="filter">Filtrar</string>
+    
+    <!-- Navigation and Actions -->
+    <string name="confirm">Confirmar</string>
+    <string name="ok">OK</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    
+    <!-- Store and Shopping -->
+    <string name="promotions">Promoções</string>
 </resources>

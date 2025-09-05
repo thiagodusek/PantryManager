@@ -19,6 +19,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.pantrymanager.R
 import com.pantrymanager.presentation.viewmodel.AuthViewModel
+import com.pantrymanager.presentation.ui.components.ModernMenuCard
+import com.pantrymanager.presentation.ui.components.ModernWelcomeCard
+import com.pantrymanager.presentation.ui.theme.PantryGradients
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,59 +41,77 @@ fun HomeScreen(
     val currentUser by viewModel.currentUser.collectAsState()
     
     val menuItems = listOf(
+        // Gestão de Catálogo
         HomeMenuItem(
             title = stringResource(R.string.register_products),
             icon = Icons.Default.Add,
-            description = "Cadastrar novos produtos",
-            onClick = onNavigateToProductRegister
+            description = "Cadastrar novos produtos no sistema",
+            onClick = onNavigateToProductRegister,
+            gradientColors = PantryGradients.CategoryGradients["fruits"] ?: PantryGradients.PrimaryGradient
         ),
         HomeMenuItem(
             title = stringResource(R.string.manage_categories),
             icon = Icons.Default.Category,
-            description = "Gerenciar categorias",
-            onClick = onNavigateToCategoryRegister
+            description = "Organizar categorias de produtos",
+            onClick = onNavigateToCategoryRegister,
+            gradientColors = PantryGradients.CategoryGradients["bakery"] ?: PantryGradients.PrimaryGradient
         ),
         HomeMenuItem(
             title = stringResource(R.string.manage_units),
             icon = Icons.Default.Scale,
-            description = "Gerenciar unidades de medida",
-            onClick = onNavigateToUnitRegister
+            description = "Configurar unidades de medida",
+            onClick = onNavigateToUnitRegister,
+            gradientColors = PantryGradients.CategoryGradients["pantry"] ?: PantryGradients.PrimaryGradient
         ),
+        
+        // Gestão da Despensa
+        HomeMenuItem(
+            title = stringResource(R.string.pantry_items),
+            icon = Icons.Default.Inventory,
+            description = "Visualizar itens da despensa",
+            onClick = {}, // TODO: Implementar navegação
+            gradientColors = PantryGradients.CategoryGradients["frozen"] ?: PantryGradients.PrimaryGradient
+        ),
+        
+        // Importação e Compras
         HomeMenuItem(
             title = stringResource(R.string.import_nfe),
             icon = Icons.Default.Receipt,
-            description = "Importar via NFe",
-            onClick = onNavigateToNFeImport
+            description = "Importar compras via NFe",
+            onClick = onNavigateToNFeImport,
+            gradientColors = PantryGradients.CategoryGradients["cleaning"] ?: PantryGradients.PrimaryGradient
         ),
         HomeMenuItem(
             title = stringResource(R.string.shopping_lists),
-            icon = Icons.Default.List,
-            description = "Gerenciar listas de compras",
-            onClick = onNavigateToShoppingLists
+            icon = Icons.Default.ShoppingCart,
+            description = "Criar e gerenciar listas",
+            onClick = onNavigateToShoppingLists,
+            gradientColors = PantryGradients.CategoryGradients["beverages"] ?: PantryGradients.PrimaryGradient
         ),
+        
+        // Planejamento
         HomeMenuItem(
             title = stringResource(R.string.recipes),
             icon = Icons.Default.MenuBook,
-            description = "Gerenciar receitas",
-            onClick = onNavigateToRecipes
-        ),
-        HomeMenuItem(
-            title = stringResource(R.string.dashboards),
-            icon = Icons.Default.Dashboard,
-            description = "Visualizar dashboards",
-            onClick = onNavigateToDashboard
+            description = "Descobrir receitas incríveis",
+            onClick = onNavigateToRecipes,
+            gradientColors = PantryGradients.CategoryGradients["meat"] ?: PantryGradients.PrimaryGradient
         ),
         HomeMenuItem(
             title = stringResource(R.string.nearby_stores),
             icon = Icons.Default.Store,
-            description = "Encontrar lojas próximas",
-            onClick = onNavigateToNearbyStores
+            description = "Encontrar supermercados próximos",
+            onClick = onNavigateToNearbyStores,
+            gradientColors = PantryGradients.CategoryGradients["dairy"] ?: PantryGradients.PrimaryGradient
         ),
+        
+        // Análises
         HomeMenuItem(
-            title = stringResource(R.string.promotions),
-            icon = Icons.Default.LocalOffer,
-            description = "Ver promoções",
-            onClick = onNavigateToPromotions
+            title = stringResource(R.string.dashboards),
+            icon = Icons.Default.Analytics,
+            description = "Acompanhar estatísticas",
+            onClick = onNavigateToDashboard,
+            gradientColors = PantryGradients.SecondaryGradient
         )
     )
 
@@ -116,111 +137,38 @@ fun HomeScreen(
                     }
                 }
             )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            // Welcome message
-            Card(
+        }        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Welcome message usando o novo componente
+                currentUser?.let { user ->
+                    ModernWelcomeCard(
+                        userName = user.nome,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
+
+                // Menu grid com novos cards
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(bottom = 8.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    
-                    Text(
-                        text = stringResource(R.string.user_logged_success),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    
-                    currentUser?.let { user ->
-                        Text(
-                            text = stringResource(R.string.welcome_user, user.nome),
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(top = 8.dp)
+                    items(menuItems) { menuItem ->
+                        ModernMenuCard(
+                            title = menuItem.title,
+                            description = menuItem.description,
+                            icon = menuItem.icon,
+                            onClick = menuItem.onClick,
+                            gradientColors = menuItem.gradientColors
                         )
                     }
                 }
             }
-
-            // Menu grid
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(menuItems) { menuItem ->
-                    MenuItemCard(
-                        title = menuItem.title,
-                        icon = menuItem.icon,
-                        onClick = menuItem.onClick
-                    )
-                }
-            }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MenuItemCard(
-    title: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(bottom = 12.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
 }

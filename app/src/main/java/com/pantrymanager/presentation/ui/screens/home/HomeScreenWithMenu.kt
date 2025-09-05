@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.pantrymanager.R
 import com.pantrymanager.presentation.viewmodel.AuthViewModel
+import com.pantrymanager.presentation.ui.theme.PantryGradients
 
 data class MenuCategory(
     val title: String,
@@ -30,7 +32,8 @@ data class HomeMenuItem(
     val title: String,
     val icon: ImageVector,
     val description: String,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    val gradientColors: List<androidx.compose.ui.graphics.Color>
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,19 +65,22 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.register_products),
                     icon = Icons.Default.Add,
                     description = "Cadastrar novos produtos com EAN, nome, categoria e unidade",
-                    onClick = onNavigateToProductRegister
+                    onClick = onNavigateToProductRegister,
+                    gradientColors = PantryGradients.PrimaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.manage_categories),
                     icon = Icons.Default.Category,
                     description = "Gerenciar categorias de produtos",
-                    onClick = onNavigateToCategoryRegister
+                    onClick = onNavigateToCategoryRegister,
+                    gradientColors = PantryGradients.SecondaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.manage_units),
                     icon = Icons.Default.Scale,
                     description = "Gerenciar unidades de medida",
-                    onClick = onNavigateToUnitRegister
+                    onClick = onNavigateToUnitRegister,
+                    gradientColors = PantryGradients.AccentGradient
                 )
             )
         ),
@@ -86,13 +92,15 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.pantry_items),
                     icon = Icons.Default.Inventory2,
                     description = "Visualizar e gerenciar itens da sua despensa",
-                    onClick = onNavigateToPantryItems
+                    onClick = onNavigateToPantryItems,
+                    gradientColors = PantryGradients.PrimaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.import_nfe),
                     icon = Icons.Default.Receipt,
                     description = "Importar produtos via Nota Fiscal Eletrônica",
-                    onClick = onNavigateToNFeImport
+                    onClick = onNavigateToNFeImport,
+                    gradientColors = PantryGradients.SecondaryGradient
                 )
             )
         ),
@@ -102,27 +110,31 @@ fun HomeScreenWithMenu(
             items = listOf(
                 HomeMenuItem(
                     title = stringResource(R.string.shopping_lists),
-                    icon = Icons.Default.List,
+                    icon = Icons.AutoMirrored.Filled.List,
                     description = "Criar e gerenciar suas listas de compras",
-                    onClick = onNavigateToShoppingLists
+                    onClick = onNavigateToShoppingLists,
+                    gradientColors = PantryGradients.AccentGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.recipes),
                     icon = Icons.Default.MenuBook,
                     description = "Gerenciar suas receitas favoritas",
-                    onClick = onNavigateToRecipes
+                    onClick = onNavigateToRecipes,
+                    gradientColors = PantryGradients.PrimaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.nearby_stores),
                     icon = Icons.Default.Store,
                     description = "Encontrar supermercados próximos",
-                    onClick = onNavigateToNearbyStores
+                    onClick = onNavigateToNearbyStores,
+                    gradientColors = PantryGradients.SecondaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.promotions),
                     icon = Icons.Default.LocalOffer,
                     description = "Visualizar promoções e ofertas",
-                    onClick = onNavigateToPromotions
+                    onClick = onNavigateToPromotions,
+                    gradientColors = PantryGradients.AccentGradient
                 )
             )
         ),
@@ -134,7 +146,8 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.dashboards),
                     icon = Icons.Default.Dashboard,
                     description = "Visualizar relatórios e estatísticas",
-                    onClick = onNavigateToDashboard
+                    onClick = onNavigateToDashboard,
+                    gradientColors = PantryGradients.PrimaryGradient
                 )
             )
         ),
@@ -146,13 +159,15 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.profile),
                     icon = Icons.Default.AccountCircle,
                     description = "Editar informações do perfil",
-                    onClick = onNavigateToProfile
+                    onClick = onNavigateToProfile,
+                    gradientColors = PantryGradients.SecondaryGradient
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.settings),
                     icon = Icons.Default.Settings,
                     description = "Configurações do aplicativo",
-                    onClick = onNavigateToSettings
+                    onClick = onNavigateToSettings,
+                    gradientColors = PantryGradients.AccentGradient
                 )
             )
         )

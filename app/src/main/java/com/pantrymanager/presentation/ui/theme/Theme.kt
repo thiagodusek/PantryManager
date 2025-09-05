@@ -15,23 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryBlueDark,
-    secondary = SecondaryTealDark,
-    background = BackgroundDark,
-    surface = SurfaceDark,
-    onSurface = OnSurfaceDark,
-    error = ErrorRed
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = PrimaryBlue,
-    secondary = SecondaryTeal,
-    background = BackgroundLight,
-    surface = SurfaceLight,
-    onSurface = OnSurfaceLight,
-    error = ErrorRed
-)
+// Usando ColorSchemes definidos no PantryColors.kt
+// private val DarkColorScheme e LightColorScheme foram movidos para PantryColors.kt
 
 @Composable
 fun PantryManagerTheme(
@@ -46,8 +31,8 @@ fun PantryManagerTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> PantryDarkColorScheme
+        else -> PantryLightColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {

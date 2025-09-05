@@ -1,73 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Basic colors for XML resources when needed -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Material 3 Light Theme Colors -->
-    <color name="md_theme_light_primary">#1976D2</color>
-    <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#BBDEFB</color>
-    <color name="md_theme_light_onPrimaryContainer">#0D47A1</color>
+    <!-- PantryManager brand colors (matching PantryColors.kt) -->
+    <color name="pantry_primary">#2E7D32</color>
+    <color name="pantry_primary_variant">#1B5E20</color>
+    <color name="pantry_secondary">#FF8F00</color>
+    <color name="pantry_secondary_variant">#EF6C00</color>
+    <color name="pantry_background">#F8F9FA</color>
+    <color name="pantry_surface">#FFFFFF</color>
+    <color name="pantry_surface_variant">#E8F5E8</color>
     
-    <color name="md_theme_light_secondary">#03DAC6</color>
-    <color name="md_theme_light_onSecondary">#000000</color>
-    <color name="md_theme_light_secondaryContainer">#B2DFDB</color>
-    <color name="md_theme_light_onSecondaryContainer">#004D40</color>
+    <!-- Status bar and navigation colors -->
+    <color name="status_bar">@color/pantry_primary_variant</color>
+    <color name="navigation_bar">@color/pantry_surface</color>
     
-    <color name="md_theme_light_tertiary">#FF9800</color>
-    <color name="md_theme_light_onTertiary">#FFFFFF</color>
-    <color name="md_theme_light_tertiaryContainer">#FFE0B2</color>
-    <color name="md_theme_light_onTertiaryContainer">#E65100</color>
+    <!-- Category colors -->
+    <color name="category_fruits_vegetables">#4CAF50</color>
+    <color name="category_meat">#E53935</color>
+    <color name="category_dairy">#2196F3</color>
+    <color name="category_bakery">#FF8F00</color>
+    <color name="category_beverages">#9C27B0</color>
+    <color name="category_pantry">#795548</color>
+    <color name="category_frozen">#607D8B</color>
+    <color name="category_cleaning">#00BCD4</color>
     
-    <color name="md_theme_light_error">#B00020</color>
-    <color name="md_theme_light_onError">#FFFFFF</color>
-    <color name="md_theme_light_errorContainer">#FFCDD2</color>
-    <color name="md_theme_light_onErrorContainer">#8B0000</color>
+    <!-- Material theme mappings for XML compatibility -->
+    <color name="md_theme_light_primary">@color/pantry_primary</color>
+    <color name="md_theme_light_secondary">@color/pantry_secondary</color>
+    <color name="md_theme_light_background">@color/pantry_background</color>
     
-    <color name="md_theme_light_background">#FFFBFE</color>
-    <color name="md_theme_light_onBackground">#1C1B1F</color>
-    <color name="md_theme_light_surface">#FFFBFE</color>
-    <color name="md_theme_light_onSurface">#1C1B1F</color>
-    <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
-    <color name="md_theme_light_onSurfaceVariant">#49454F</color>
-    <color name="md_theme_light_outline">#79747E</color>
-    <color name="md_theme_light_outlineVariant">#CAC4D0</color>
-    <color name="md_theme_light_scrim">#000000</color>
-    <color name="md_theme_light_inverseSurface">#313033</color>
-    <color name="md_theme_light_inverseOnSurface">#F4EFF4</color>
-    <color name="md_theme_light_inversePrimary">#90CAF9</color>
-    
-    <!-- Material 3 Dark Theme Colors -->
-    <color name="md_theme_dark_primary">#90CAF9</color>
-    <color name="md_theme_dark_onPrimary">#0D47A1</color>
-    <color name="md_theme_dark_primaryContainer">#1565C0</color>
-    <color name="md_theme_dark_onPrimaryContainer">#BBDEFB</color>
-    
-    <color name="md_theme_dark_secondary">#80CBC4</color>
-    <color name="md_theme_dark_onSecondary">#004D40</color>
-    <color name="md_theme_dark_secondaryContainer">#00695C</color>
-    <color name="md_theme_dark_onSecondaryContainer">#B2DFDB</color>
-    
-    <color name="md_theme_dark_tertiary">#FFB74D</color>
-    <color name="md_theme_dark_onTertiary">#E65100</color>
-    <color name="md_theme_dark_tertiaryContainer">#F57C00</color>
-    <color name="md_theme_dark_onTertiaryContainer">#FFE0B2</color>
-    
-    <color name="md_theme_dark_error">#CF6679</color>
-    <color name="md_theme_dark_onError">#8B0000</color>
-    <color name="md_theme_dark_errorContainer">#B71C1C</color>
-    <color name="md_theme_dark_onErrorContainer">#FFCDD2</color>
-    
-    <color name="md_theme_dark_background">#10131C</color>
-    <color name="md_theme_dark_onBackground">#E6E1E5</color>
-    <color name="md_theme_dark_surface">#10131C</color>
-    <color name="md_theme_dark_onSurface">#E6E1E5</color>
-    <color name="md_theme_dark_surfaceVariant">#49454F</color>
-    <color name="md_theme_dark_onSurfaceVariant">#CAC4D0</color>
-    <color name="md_theme_dark_outline">#938F99</color>
-    <color name="md_theme_dark_outlineVariant">#49454F</color>
-    <color name="md_theme_dark_scrim">#000000</color>
-    <color name="md_theme_dark_inverseSurface">#E6E1E5</color>
-    <color name="md_theme_dark_inverseOnSurface">#313033</color>
-    <color name="md_theme_dark_inversePrimary">#1976D2</color>
+    <color name="md_theme_dark_primary">#81C784</color>
+    <color name="md_theme_dark_secondary">#FFB74D</color>
+    <color name="md_theme_dark_background">#1C1B1F</color>
 </resources>
