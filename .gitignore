@@ -91,3 +91,38 @@ debug.keystore
 
 # Client secrets
 client_secret*.json
+
+# PantryManager cleanup — ignore legacy/unwanted files
+BUSINESS_RULES_VALIDATION.md
+BUTTON_STANDARDIZATION_SUMMARY.md
+DIAGNOSTICO_CLIENT_OFFLINE.md
+FIREBASE_INTEGRATION_SUMMARY.md
+LIMPEZA_PROJETO.md
+LOGIN_IMPROVEMENTS_SUMMARY.md
+MELHORIAS_UX_UI.md
+PADRONIZACAO_FINAL.md
+PROFILE_FEATURE_SUMMARY.md
+RESUMO_IMPLEMENTACAO.md
+SOLUCAO_ERRO_AUTH_CREDENTIAL.md
+SOLUCAO_ERRO_FIRESTORE_OFFLINE.md
+
+# Temporary/typo paths
+app/google-services-temp.json
+app/src/main/java/com/prantymanager/
+app/src/main/res/values/themes_fallback.xml
+
+# Local scripts not to track
+clean_project.bat
+corrigir_google_signin_erro10.bat
+diagnostico_auth_credential.bat
+diagnostico_google_signin_erro10.bat
+diagnostico_ksp.bat
+fix_auth_credential_error.bat
+gerar_apk.bat
+gradle_new.properties
+
+test_build.bat
+test_button_standardization.bat
+test_login_improvements.bat
+test_profile_complete.bat
+test_profile_feature.bat
