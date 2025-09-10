@@ -13,55 +13,43 @@
 
 ---
 
-## 🚀 **VERSÃO ATUAL: 1.3.0 - DEZEMBRO 2025** ⭐ **ATUALIZADO**
+## 🚀 **VERSÃO ATUAL: 1.4.0 - SCANNER DE CÓDIGO DE BARRAS** ⭐ **NOVO - SETEMBRO 2025**
 
-### **🎯 NOVAS MELHORIAS IMPLEMENTADAS - V1.3.0**
+### **🛒 NOVA FUNCIONALIDADE PRINCIPAL: Sistema de Cadastro Inteligente de Produtos**
 
-#### 🔐 **Sistema de Login Aprimorado**
-- ✅ **Tratamento de Erros Específicos**: Mensagens claras ("Email ou senha inválidos")
-- ✅ **Proteção Anti-Brute Force**: Bloqueio temporal ("Muitas tentativas. Tente novamente mais tarde")
-- ✅ **Feedback de Conectividade**: Detecção de problemas de rede específicos
-- ✅ **Interface Visual Melhorada**: Cards de erro com ícones e botão de fechar
-- ✅ **Estados de Loading**: Indicadores visuais durante todas as operações
+#### 📱 **Scanner de Código de Barras Integrado**
+- ✅ **CameraX + ML Kit**: Scanner nativo com detecção automática de códigos EAN/UPC
+- ✅ **Interface Moderna**: Dialog com preview da câmera, flash toggle e quadro de foco
+- ✅ **Detecção Inteligente**: Processamento em tempo real com feedback visual
+- ✅ **Múltiplos Formatos**: Suporte a EAN-13, EAN-8, UPC-A, UPC-E e Code 128
+- ✅ **UX Otimizada**: Cantos de foco, instruções claras e indicador de último código lido
 
-#### 🔑 **Recuperação de Senha Completa** ⭐ **NOVO**
+#### 🔍 **Pesquisa Automática de Produtos**
+- ✅ **Base de Dados Brasileiros**: Produtos com códigos iniciados em 789 (Brasil)
+- ✅ **APIs Internacionais**: Suporte futuro a UPC Database e Open Food Facts
+- ✅ **Preenchimento Automático**: Nome, descrição, marca, preço e categoria sugerida
+- ✅ **Fallback Inteligente**: Geração de produto genérico quando não encontrado
+- ✅ **Múltiplas Fontes**: brazilian_db, international, generated com indicação da origem
 
-- ✅ **Interface Moderna**: Tela dedicada com Material Design 3 e gradientes suaves
-- ✅ **Integração Firebase Auth**: `sendPasswordResetEmail()` nativo do Firebase
-- ✅ **Estados Visuais Inteligentes**:
-  - **Campo Email**: Validação em tempo real com ícone Email
-  - **Estado Loading**: CircularProgressIndicator durante envio
-  - **Estado Sucesso**: Card verde com ícone CheckCircle e mensagem clara
-  - **Estado Erro**: Card vermelho com detalhes específicos e botão fechar
-- ✅ **UX Otimizada**:
-  - Mensagens contextuais ("Digite seu email para receber as instruções")
-  - Botão dinâmico ("Cancelar" → "Voltar ao Login" após envio)
-  - Snackbar de confirmação ("Email de recuperação enviado!")
-  - Desabilitação de botões durante loading
-- ✅ **Navegação Integrada**: Link direto do LoginScreen com rota `forgot_password`
-- ✅ **Tratamento de Erros Específicos**:
-  - Email inválido, usuário não encontrado, problemas de rede
-  - Mensagens em português claro e objetivo
-- ✅ **Responsividade**: Layout compacto sem rolagem, footer de versão incluído
-- ✅ **Acessibilidade**: ContentDescriptions em todos os ícones
+#### 👤 **Produtos por Usuário (Multi-tenant)**
+- ✅ **Isolamento Completo**: Cada usuário vê apenas seus produtos cadastrados
+- ✅ **Segurança de Dados**: Filtros automáticos por userId em todas as consultas
+- ✅ **Migration Segura**: Atualização da estrutura sem perda de dados existentes
+- ✅ **Performance Otimizada**: Índices específicos para consultas por usuário
 
-#### 🔄 **Google Sign-In Inteligente**
-- ✅ **Verificação de Completude**: Sistema detecta se usuário tem cadastro completo
-- ✅ **Redirecionamento Automático**: Para cadastro se dados estão incompletos
-- ✅ **Pré-preenchimento Inteligente**: Nome, sobrenome e email importados do Google
-- ✅ **Mensagem Contextual**: Informa sobre dados importados ("Complete seu cadastro com as informações do Google")
-- ✅ **Fluxo Unificado**: Experiência fluida entre autenticação e cadastro
+#### 🎨 **Interface de Cadastro Renovada**
+- ✅ **Material Design 3**: Componentes padronizados com elevação e cores consistentes
+- ✅ **Campos Inteligentes**: Validação em tempo real e mensagens contextuais
+- ✅ **Estados Visuais**: Loading, sucesso, erro com cards coloridos e ícones
+- ✅ **Resultado da Pesquisa**: Card informativo mostrando dados encontrados
+- ✅ **Botões Contextuais**: "Scanner" destacado, "Limpar" e "Salvar" com validação
 
-#### 🎨 **Padronização de Interface (Material Design)**
-- ✅ **Botões Material Design 3**: Remoção completa de componentes customizados desnecessários
-- ✅ **Altura Padrão**: 48.dp em todos os botões para consistência visual
-- ✅ **Hierarquia Visual Clara**: 
-  - **Primary Button**: Login (Material Button com cores primárias)
-  - **Secondary Button**: Google (OutlinedButton com ícone)
-  - **Tertiary Action**: "Esqueci minha senha" (TextButton)
-- ✅ **Código Otimizado**: Removidos ModernButtons.kt e imports obsoletos
-- ✅ **Performance Melhorada**: 30% menos componentes customizados desnecessários
-- ✅ **Manutenibilidade**: Uso direto das APIs do Jetpack Compose
+#### 🏗️ **Arquitetura Expandida**
+- ✅ **Novos Use Cases**: SearchProductByBarcodeUseCase para pesquisa externa
+- ✅ **ProductSearchService**: Abstração para APIs de produtos com implementação mock
+- ✅ **ProductRegistrationViewModel**: ViewModel específico com estados de scanner
+- ✅ **Repository Pattern**: Atualização completa com filtros por usuário
+- ✅ **Dependency Injection**: Novos módulos e bindings para services
 
 ---
 
@@ -1138,3 +1126,408 @@ TextButton(onClick = action) {
 | Imports customizados | Imports padrão do Compose | Melhor intellisense |
 
 ---
+
+## 🚀 **VERSÃO ATUAL: 1.4.0 - SCANNER DE CÓDIGO DE BARRAS** ⭐ **NOVO - SETEMBRO 2025**
+
+### **🛒 NOVA FUNCIONALIDADE PRINCIPAL: Sistema de Cadastro Inteligente de Produtos**
+
+#### 📱 **Scanner de Código de Barras Integrado**
+- ✅ **CameraX + ML Kit**: Scanner nativo com detecção automática de códigos EAN/UPC
+- ✅ **Interface Moderna**: Dialog com preview da câmera, flash toggle e quadro de foco
+- ✅ **Detecção Inteligente**: Processamento em tempo real com feedback visual
+- ✅ **Múltiplos Formatos**: Suporte a EAN-13, EAN-8, UPC-A, UPC-E e Code 128
+- ✅ **UX Otimizada**: Cantos de foco, instruções claras e indicador de último código lido
+
+#### 🔍 **Pesquisa Automática de Produtos**
+- ✅ **Base de Dados Brasileiros**: Produtos com códigos iniciados em 789 (Brasil)
+- ✅ **APIs Internacionais**: Suporte futuro a UPC Database e Open Food Facts
+- ✅ **Preenchimento Automático**: Nome, descrição, marca, preço e categoria sugerida
+- ✅ **Fallback Inteligente**: Geração de produto genérico quando não encontrado
+- ✅ **Múltiplas Fontes**: brazilian_db, international, generated com indicação da origem
+
+#### 👤 **Produtos por Usuário (Multi-tenant)**
+- ✅ **Isolamento Completo**: Cada usuário vê apenas seus produtos cadastrados
+- ✅ **Segurança de Dados**: Filtros automáticos por userId em todas as consultas
+- ✅ **Migration Segura**: Atualização da estrutura sem perda de dados existentes
+- ✅ **Performance Otimizada**: Índices específicos para consultas por usuário
+
+#### 🔐 **Sistema de Login Aprimorado**
+- ✅ **Tratamento de Erros Específicos**: Mensagens claras ("Email ou senha inválidos")
+- ✅ **Proteção Anti-Brute Force**: Bloqueio temporal ("Muitas tentativas. Tente novamente mais tarde")
+- ✅ **Feedback de Conectividade**: Detecção de problemas de rede específicos
+- ✅ **Interface Visual Melhorada**: Cards de erro com ícones e botão de fechar
+- ✅ **Estados de Loading**: Indicadores visuais durante todas as operações
+
+#### 🔑 **Recuperação de Senha Completa** ⭐ **NOVO**
+
+- ✅ **Interface Moderna**: Tela dedicada com Material Design 3 e gradientes suaves
+- ✅ **Integração Firebase Auth**: `sendPasswordResetEmail()` nativo do Firebase
+- ✅ **Estados Visuais Inteligentes**:
+  - **Campo Email**: Validação em tempo real com ícone Email
+  - **Estado Loading**: CircularProgressIndicator durante envio
+  - **Estado Sucesso**: Card verde com ícone CheckCircle e mensagem clara
+  - **Estado Erro**: Card vermelho com detalhes específicos e botão fechar
+- ✅ **UX Otimizada**:
+  - Mensagens contextuais ("Digite seu email para receber as instruções")
+  - Botão dinâmico ("Cancelar" → "Voltar ao Login" após envio)
+  - Snackbar de confirmação ("Email de recuperação enviado!")
+  - Desabilitação de botões durante loading
+- ✅ **Navegação Integrada**: Link direto do LoginScreen com rota `forgot_password`
+- ✅ **Tratamento de Erros Específicos**:
+  - Email inválido, usuário não encontrado, problemas de rede
+  - Mensagens em português claro e objetivo
+- ✅ **Responsividade**: Layout compacto sem rolagem, footer de versão incluído
+- ✅ **Acessibilidade**: ContentDescriptions em todos os ícones
+
+#### 🔄 **Google Sign-In Inteligente**
+- ✅ **Verificação de Completude**: Sistema detecta se usuário tem cadastro completo
+- ✅ **Redirecionamento Automático**: Para cadastro se dados estão incompletos
+- ✅ **Pré-preenchimento Inteligente**: Nome, sobrenome e email importados do Google
+- ✅ **Mensagem Contextual**: Informa sobre dados importados ("Complete seu cadastro com as informações do Google")
+- ✅ **Fluxo Unificado**: Experiência fluida entre autenticação e cadastro
+
+#### 🎨 **Padronização de Interface (Material Design)**
+- ✅ **Botões Material Design 3**: Remoção completa de componentes customizados desnecessários
+- ✅ **Altura Padrão**: 48.dp em todos os botões para consistência visual
+- ✅ **Hierarquia Visual Clara**: 
+  - **Primary Button**: Login (Material Button com cores primárias)
+  - **Secondary Button**: Google (OutlinedButton com ícone)
+  - **Tertiary Action**: "Esqueci minha senha" (TextButton)
+- ✅ **Código Otimizado**: Removidos ModernButtons.kt e imports obsoletos
+- ✅ **Performance Melhorada**: 30% menos componentes customizados desnecessários
+- ✅ **Manutenibilidade**: Uso direto das APIs do Jetpack Compose
+
+---
+
+## 📋 **STATUS COMPLETO - DEZEMBRO 2025**
+
+### **✅ IMPLEMENTADO E TOTALMENTE FUNCIONAL**
+
+#### 🔥 **Autenticação Completa** ⭐ **ATUALIZADO**
+- ✅ **Google Sign-In Inteligente**: Redirecionamento automático para cadastro se dados incompletos
+- ✅ **Login Aprimorado**: Tratamento específico de erros com mensagens claras
+- ✅ **Validação de Credenciais**: "Email ou senha inválidos" por segurança
+- ✅ **Proteção contra Ataques**: Bloqueio temporal para muitas tentativas
+- ✅ **Feedback de Conexão**: Mensagens específicas para problemas de rede
+- ✅ **Interface Visual**: Cards de erro com ícones e botão de fechar
+- ✅ **Cadastro Pré-preenchido**: Dados do Google automaticamente inseridos
+- ✅ **Recuperação de Senha**: Sistema completo
+- ✅ **Gerenciamento de Sessão**: Persistência automática
+- ✅ **Logout Completo**: Firebase + Google desconectados
+
+#### 🎨 **Interface Moderna (Jetpack Compose)** ⭐ **ATUALIZADO**
+- ✅ **Material Design 3**: Botões padronizados sem componentes desnecessários
+- ✅ **Navegação Fluida**: Navigation Drawer e Bottom Navigation
+- ✅ **Temas Personalizados**: PantryColors com paleta verde/laranja
+- ✅ **Componentes Otimizados**: Remoção de ModernButtons customizados desnecessários
+- ✅ **Estados Reativos**: Loading, error, success com feedback visual
+- ✅ **Responsividade**: Adaptável a diferentes tamanhos de tela
+- ✅ **Padronização**: Botões com altura uniforme (48.dp) e estilo consistente
+
+#### 📦 **CRUD Completo - Produtos**
+- ✅ **Cadastro**: EAN (código de barras), nome, descrição
+- ✅ **Categorização**: Dropdown de categorias obrigatório
+- ✅ **Unidades**: Sistema flexível de medidas
+- ✅ **Gerenciamento**: Lista interativa com edição/exclusão
+- ✅ **Validações**: Em tempo real com mensagens de erro
+- ✅ **Observações**: Campo adicional para detalhes
+
+#### 🏷️ **CRUD Completo - Categorias**
+- ✅ **Cadastro Rápido**: Modal simplificado
+- ✅ **Gerenciamento**: Lista com cores personalizadas
+- ✅ **Edição Inline**: Edição direta na lista
+- ✅ **Exclusão Segura**: Com confirmação
+- ✅ **Cores por Categoria**: Visual diferenciado
+
+#### 📏 **CRUD Completo - Unidades**
+- ✅ **Tipos Flexíveis**: Peso, volume, unidade, comprimento
+- ✅ **Cadastro**: Nome e abreviação únicos
+- ✅ **Gerenciamento**: Lista com edição/exclusão
+- ✅ **Validação**: Unicidade de nomes e abreviações
+- ✅ **Uso nos Produtos**: Integração completa
+
+#### 👤 **CRUD Completo - Usuários/Perfil** ⭐ **NOVO**
+- ✅ **Cadastro Completo**: Nome, email, telefone, endereço
+- ✅ **Estados Brasileiros**: ComboBox com 27 estados (apenas sigla)
+- ✅ **CEP Inteligente**: Busca automática via API ViaCEP
+- ✅ **Validação em Tempo Real**: Formatação e validação de dados
+- ✅ **Endereço Automático**: Preenchimento de logradouro, cidade e estado
+
+#### 🌐 **Integração ViaCEP** ⭐ **NOVO**
+- ✅ **Busca Automática**: CEP com 8 dígitos dispara busca
+- ✅ **API Pública**: ViaCEP sem necessidade de chave
+- ✅ **Preenchimento Inteligente**: Logradouro, cidade, estado automáticos
+- ✅ **Tratamento de Erros**: "CEP não encontrado" com feedback visual
+- ✅ **Loading States**: Indicador visual durante busca
+- ✅ **Cadastro**: Nome e abreviação
+- ✅ **Tipos Diversos**: Peso, volume, unidade, etc.
+- ✅ **Gerenciamento**: Modal de edição/exclusão
+- ✅ **Validações**: Unicidade de nomes e abreviações
+
+#### 🏗️ **Arquitetura Sólida**
+- ✅ **Clean Architecture**: Camadas bem definidas
+- ✅ **MVVM Pattern**: ViewModels reativos
+- ✅ **Repository Pattern**: Abstração de dados
+- ✅ **Dependency Injection**: Hilt configurado
+- ✅ **Use Cases**: Lógica de negócio encapsulada
+- ✅ **StateFlow**: Gerenciamento de estado reativo
+
+### **🚧 EM DESENVOLVIMENTO**
+
+#### 📊 **Sistema de Despensa**
+- 🔄 **Controle de Estoque**: Quantidades e validades
+- 🔄 **Alertas de Vencimento**: Notificações inteligentes
+- 🔄 **Histórico de Consumo**: Padrões de uso
+
+#### 🧾 **Integração NFe**
+- 🔄 **QR Code Scanner**: Leitura de notas fiscais
+- 🔄 **Parsing XML**: Extração automática de produtos
+- 🔄 **Atualização de Estoque**: Adição automática
+
+#### 🗺️ **Funcionalidades Avançadas**
+- 🔄 **Google Maps**: Localização de lojas próximas
+- 🔄 **Sistema de Receitas**: Sugestões baseadas em estoque
+- 🔄 **Listas de Compras**: Geração automática
+- 🔄 **Análises e Dashboards**: Relatórios de consumo
+
+---
+
+## 🏗️ **ARQUITETURA**
+
+O PantryManager segue rigorosamente os princípios de **Clean Architecture** e **SOLID**:
+
+```
+app/
+├── 📱 presentation/           # UI Layer - Jetpack Compose
+│   ├── ui/
+│   │   ├── screens/          # 15+ telas organizadas por feature
+│   │   │   ├── auth/         # Login, Register, ForgotPassword
+│   │   │   ├── product/      # ProductRegister, ProductManagement
+│   │   │   ├── category/     # CategoryRegister, CategoryManagement
+│   │   │   ├── unit/         # UnitRegister, UnitManagement
+│   │   │   ├── home/         # HomeScreen, HomeWithDrawer, HomeWithMenu
+│   │   │   ├── pantry/       # PantryItems (placeholder)
+│   │   │   └── dashboard/    # DashboardScreen (placeholder)
+│   │   ├── components/       # Componentes reutilizáveis
+│   │   │   ├── NavigationDrawer.kt
+│   │   │   ├── ModernComponents.kt
+│   │   │   └── DatePickerDialog.kt
+│   │   ├── navigation/       # Sistema de rotas
+│   │   │   ├── Screen.kt     # 25 rotas definidas
+│   │   │   └── PantryManagerNavigation.kt
+│   │   └── theme/            # Material Design 3
+│   │       ├── PantryColors.kt  # Paleta personalizada
+│   │       ├── Theme.kt
+│   │       └── Type.kt
+│   └── viewmodel/            # ViewModels com StateFlow
+│       ├── AuthViewModel.kt
+│       ├── ProductViewModel.kt
+│       ├── CategoryViewModel.kt
+│       └── UnitViewModel.kt
+├── 🧠 domain/                # Business Logic Layer
+│   ├── entity/              # 9 entidades de domínio
+│   │   ├── Product.kt
+│   │   ├── Category.kt
+│   │   ├── Unit.kt
+│   │   ├── PantryItem.kt
+│   │   ├── User.kt
+│   │   ├── ShoppingList.kt
+│   │   ├── Recipe.kt
+│   │   ├── Store.kt
+│   │   └── NFeItem.kt
+│   ├── repository/          # 9 interfaces de repositório
+│   │   ├── ProductRepository.kt
+│   │   ├── CategoryRepository.kt
+│   │   ├── UnitRepository.kt
+│   │   ├── PantryItemRepository.kt
+│   │   ├── UserRepository.kt
+│   │   ├── ShoppingListRepository.kt
+│   │   ├── RecipeRepository.kt
+│   │   ├── StoreRepository.kt
+│   │   └── NFeRepository.kt
+│   └── usecase/             # 25+ casos de uso CRUD
+│       ├── auth/            # RegisterUser, Login, GoogleSignIn
+│       ├── product/         # Add, Update, Delete, GetAll, GetById
+│       ├── category/        # Add, Update, Delete, GetAll, GetById
+│       ├── unit/           # Add, Update, Delete, GetAll, GetById
+│       └── shoppinglist/    # GenerateAutomatic
+├── 💾 data/                 # Data Access Layer
+│   ├── repository/          # Implementações dos repositórios
+│   │   ├── ProductRepositoryImpl.kt
+│   │   ├── CategoryRepositoryImpl.kt
+│   │   ├── UnitRepositoryImpl.kt
+│   │   ├── PantryItemRepositoryImpl.kt
+│   │   └── UserRepositoryImpl.kt
+│   ├── datasource/          # Room DAOs
+│   │   ├── PantryManagerDatabase.kt
+│   │   ├── ProductDao.kt
+│   │   ├── CategoryDao.kt
+│   │   ├── UnitDao.kt
+│   │   └── PantryItemDao.kt
+│   └── dto/                 # Data Transfer Objects
+│       ├── ProductEntity.kt
+│       ├── CategoryEntity.kt
+│       ├── UnitEntity.kt
+│       └── PantryItemEntity.kt
+├── 🔧 di/                   # Dependency Injection (Hilt)
+│   ├── AuthModule.kt        # Firebase Auth e GoogleSignInHelper
+│   ├── DatabaseModule.kt    # Room database e DAOs
+│   ├── RepositoryModule.kt  # Repositórios e UseCases
+│   └── NetworkModule.kt     # ⭐ NOVO: Retrofit e ViaCEP API
+├── 🔐 auth/                 # Sistema de Autenticação
+│   ├── GoogleSignInHelper.kt # Helper completo para Google Auth
+│   └── GoogleSignInContract.kt # Activity Result Contract
+├── 🧾 nfe/                  # Integração NFe (futuro)
+├── 🗺️ maps/                 # Google Maps (futuro)
+└── 🛠️ utils/               # Utilitários ⭐ EXPANDIDO
+    ├── NetworkUtils.kt      # Verificação de conectividade
+    ├── BrazilianStates.kt   # ⭐ NOVO: Estados brasileiros (27 estados)
+    ├── CepUtils.kt          # ⭐ NOVO: Validação e formatação CEP
+    └── CepUtilsExamples.kt  # ⭐ NOVO: Exemplos e testes CEP
+```
+
+### 🎯 **Princípios Aplicados**
+
+- **Single Responsibility**: Cada classe tem uma responsabilidade
+- **Open/Closed**: Aberto para extensão, fechado para modificação
+- **Liskov Substitution**: Subtipos substituíveis pelos tipos base
+- **Interface Segregation**: Interfaces específicas e coesas
+- **Dependency Inversion**: Dependência de abstrações, não concreções
+- **MVVM Pattern**: Separação clara entre UI e lógica de negócio
+- **Repository Pattern**: Abstração completa da camada de dados
+- **Use Cases**: Encapsulamento da lógica de negócio
+
+---
+
+## 🛠️ **TECNOLOGIAS E DEPENDÊNCIAS**
+
+### **📱 Core Android**
+- ![Kotlin](https://img.shields.io/badge/Kotlin-1.9.10-0095D5?logo=kotlin&logoColor=white) - Linguagem principal
+- ![Android SDK](https://img.shields.io/badge/Android%20SDK-35-3DDC84?logo=android&logoColor=white) - API Level 24-35
+- ![JDK](https://img.shields.io/badge/JDK-19-ED8B00?logo=openjdk&logoColor=white) - Java Development Kit
+- ![Gradle](https://img.shields.io/badge/Gradle-8.7-02303A?logo=gradle&logoColor=white) - Build System
+
+### **🎨 UI/UX**
+- ![Jetpack Compose](https://img.shields.io/badge/Compose-2024.12.01-4285F4?logo=jetpackcompose&logoColor=white) - UI Toolkit moderno
+- ![Material 3](https://img.shields.io/badge/Material%203-1.3.1-757575?logo=material-design&logoColor=white) - Design System
+- ![Material Icons](https://img.shields.io/badge/Icons%20Extended-1.7.6-757575?logo=material-design&logoColor=white) - Ícones Material
+
+### **🏗️ Arquitetura**
+- ![Hilt](https://img.shields.io/badge/Hilt-2.54-FF6F00?logo=dagger&logoColor=white) - Dependency Injection
+- ![Navigation](https://img.shields.io/badge/Navigation-2.8.4-4CAF50?logo=android&logoColor=white) - Navegação Compose
+- ![ViewModel](https://img.shields.io/badge/ViewModel-2.8.7-2196F3?logo=android&logoColor=white) - Gerenciamento de estado
+- ![StateFlow](https://img.shields.io/badge/StateFlow-1.10.1-9C27B0?logo=kotlin&logoColor=white) - Estado reativo
+
+### **💾 Dados**
+- ![Room](https://img.shields.io/badge/Room-2.6.1-FF9800?logo=sqlite&logoColor=white) - Banco de dados local
+- ![Firebase](https://img.shields.io/badge/Firebase-33.7.0-FFCA28?logo=firebase&logoColor=black) - Backend como serviço
+  - ![Auth](https://img.shields.io/badge/Auth-33.7.0-FFCA28?logo=firebase&logoColor=black) - Autenticação
+  - ![Firestore](https://img.shields.io/badge/Firestore-33.7.0-FFCA28?logo=firebase&logoColor=black) - NoSQL Database
+  - ![Storage](https://img.shields.io/badge/Storage-33.7.0-FFCA28?logo=firebase&logoColor=black) - Armazenamento de arquivos
+- ![DataStore](https://img.shields.io/badge/DataStore-1.1.1-4CAF50?logo=android&logoColor=white) - Preferências
+- ![KSP](https://img.shields.io/badge/KSP-1.9.10-0095D5?logo=kotlin&logoColor=white) - Kotlin Symbol Processing
+
+### **🌐 Rede e APIs**
+- ![Retrofit](https://img.shields.io/badge/Retrofit-2.11.0-48B983?logo=square&logoColor=white) - Cliente HTTP
+- ![OkHttp](https://img.shields.io/badge/OkHttp-4.12.0-48B983?logo=square&logoColor=white) - Interceptor de logs
+- ![Gson](https://img.shields.io/badge/Gson-2.11.0-4285F4?logo=google&logoColor=white) - JSON Converter
+- ![Coroutines](https://img.shields.io/badge/Coroutines-1.10.1-9C27B0?logo=kotlin&logoColor=white) - Programação assíncrona
+- ![ViaCEP](https://img.shields.io/badge/ViaCEP%20API-v1-00D4AA?logo=api&logoColor=white) - ⭐ NOVO: Busca de endereços por CEP
+
+### **🔗 Integração Google**
+- ![Google Auth](https://img.shields.io/badge/Play%20Auth-21.3.0-4285F4?logo=google&logoColor=white) - Google Sign-In
+- ![Google Maps](https://img.shields.io/badge/Maps-19.0.0-4285F4?logo=googlemaps&logoColor=white) - Mapas e localização
+- ![Location Services](https://img.shields.io/badge/Location-21.3.0-4285F4?logo=google&logoColor=white) - Serviços de localização
+
+### **📸 Recursos Especiais**
+- ![Coil](https://img.shields.io/badge/Coil-2.7.0-FF5722?logo=image&logoColor=white) - Carregamento de imagens
+- ![Accompanist](https://img.shields.io/badge/Permissions-0.36.0-4CAF50?logo=android&logoColor=white) - Gerenciamento de permissões
+- ![Date Picker](https://img.shields.io/badge/DateTime-0.9.0-FF9800?logo=calendar&logoColor=white) - Seletor de data
+
+### **🧪 Testes**
+- ![JUnit](https://img.shields.io/badge/JUnit-4.13.2-25A162?logo=junit5&logoColor=white) - Testes unitários
+- ![MockK](https://img.shields.io/badge/MockK-1.13.14-FF6F00?logo=kotlin&logoColor=white) - Mocking framework
+- ![Espresso](https://img.shields.io/badge/Espresso-3.6.1-6DB33F?logo=android&logoColor=white) - Testes UI
+- ![Compose Test](https://img.shields.io/badge/Compose%20Test-2024.12.01-4285F4?logo=jetpackcompose&logoColor=white) - Testes Compose
+
+---
+
+## 🔥 **INTEGRAÇÃO FIREBASE**
+
+### **📊 Estrutura Firestore - Dados do Usuário**
+
+```json
+{
+  "users": {
+    "{userId}": {
+      "id": "string",
+      "nome": "João",
+      "sobrenome": "Silva",
+      "email": "joao@email.com",
+      "cpf": "12345678901",
+      "endereco": {
+        "endereco": "Rua das Flores",
+        "numero": "123",
+        "complemento": "Apto 45",
+        "cep": "01234567",
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "latitude": -23.5505,
+        "longitude": -46.6333
+      },
+      "login": "joaosilva",
+      "nfePermissions": true,
+      "searchRadius": 10.0,
+      "profileImageUrl": null,
+      "createdAt": 1698756000000,
+      "updatedAt": 1698756000000
+    }
+  }
+}
+```
+
+### **🔐 Validações de Cadastro**
+
+```kotlin
+// Validações implementadas no AuthViewModel
+suspend fun register(user: User, password: String, confirmPassword: String) {
+    // 1. Validação de email único
+    val emailInUse = validateUserCredentialsUseCase.isEmailInUse(user.email)
+    
+    // 2. Validação de CPF único (com dígito verificador)
+    val cpfInUse = validateUserCredentialsUseCase.isCpfInUse(user.cpf)
+    
+    // 3. Validação de login único  
+    val loginInUse = validateUserCredentialsUseCase.isLoginInUse(user.login)
+    
+    // 4. Criação no Firebase Auth
+    val authResult = registerUserUseCase(user, password, confirmPassword)
+    
+    // 5. Salvamento no Firestore
+    val firestoreResult = saveUserUseCase(user)
+}
+```
+
+### **🛡️ Regras de Segurança Firestore**
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && resource.data.id == request.auth.uid;
+    }
+  }
+}
+```
+
+### **📋 Fluxo de Cadastro com Firebase**
+
+1. **Preenchimento**: Usuário preenche formulário de registro
+2. **Validação Local**: Campos obrigatórios, formato CEP e CPF
+3. **Validação Remota**: Email/CPF/login únicos no Firestore
+4. **Autenticação**: Criação de conta no Firebase Auth
+5. **Persistência**: Salvamento completo dos dados no Firestore
+6. **Sincronização**: Login automático e state management
+7. **Feedback

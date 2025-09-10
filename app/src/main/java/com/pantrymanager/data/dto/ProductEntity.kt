@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.pantrymanager.domain.entity.Product
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity(
     tableName = "products",
@@ -17,7 +17,7 @@ import java.time.LocalDate
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = UnitDbEntity::class,
+            entity = MeasurementUnitEntity::class,
             parentColumns = ["id"],
             childColumns = ["unitId"],
             onDelete = ForeignKey.CASCADE
@@ -26,53 +26,57 @@ import java.time.LocalDate
     indices = [
         Index(value = ["categoryId"]),
         Index(value = ["unitId"]),
-        Index(value = ["ean"])
+        Index(value = ["ean"]),
+        Index(value = ["userId"])
     ]
 )
 data class ProductEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val userId: String, // ID do usuário dono do produto
     val ean: String? = null,
     val name: String,
     val description: String? = null,
     val categoryId: Long,
     val unitId: Long,
+    val brandId: Long? = null,
     val observation: String? = null,
     val imageUrl: String? = null,
-    val brand: String? = null,
     val averagePrice: Double = 0.0,
-    val createdAt: String,
-    val updatedAt: String
+    val createdAt: String, // LocalDateTime as String
+    val updatedAt: String  // LocalDateTime as String
 )
 
 fun ProductEntity.toDomain(): Product {
     return Product(
         id = id,
+        userId = userId,
         ean = ean,
         name = name,
         description = description,
         categoryId = categoryId,
         unitId = unitId,
+        brandId = brandId,
         observation = observation,
         imageUrl = imageUrl,
-        brand = brand,
         averagePrice = averagePrice,
-        createdAt = LocalDate.parse(createdAt),
-        updatedAt = LocalDate.parse(updatedAt)
+        createdAt = LocalDateTime.parse(createdAt),
+        updatedAt = LocalDateTime.parse(updatedAt)
     )
 }
 
 fun Product.toEntity(): ProductEntity {
     return ProductEntity(
         id = id,
+        userId = userId,
         ean = ean,
         name = name,
         description = description,
         categoryId = categoryId,
         unitId = unitId,
+        brandId = brandId,
         observation = observation,
         imageUrl = imageUrl,
-        brand = brand,
         averagePrice = averagePrice,
         createdAt = createdAt.toString(),
         updatedAt = updatedAt.toString()

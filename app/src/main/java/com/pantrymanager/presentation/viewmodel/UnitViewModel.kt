@@ -3,11 +3,8 @@ package com.pantrymanager.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pantrymanager.domain.entity.MeasurementUnit as UnitEntity
-import com.pantrymanager.domain.usecase.unit.AddUnitUseCase
-import com.pantrymanager.domain.usecase.unit.GetAllUnitsUseCase
-import com.pantrymanager.domain.usecase.unit.UpdateUnitUseCase
-import com.pantrymanager.domain.usecase.unit.DeleteUnitUseCase
-import com.pantrymanager.domain.usecase.unit.GetUnitByIdUseCase
+import com.pantrymanager.domain.usecase.unit.AddMeasurementUnitUseCase
+import com.pantrymanager.domain.usecase.unit.GetAllMeasurementUnitsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,11 +34,8 @@ data class UnitValidationErrors(
 
 @HiltViewModel
 class UnitViewModel @Inject constructor(
-    private val addUnitUseCase: AddUnitUseCase,
-    private val getAllUnitsUseCase: GetAllUnitsUseCase,
-    private val updateUnitUseCase: UpdateUnitUseCase,
-    private val deleteUnitUseCase: DeleteUnitUseCase,
-    private val getUnitByIdUseCase: GetUnitByIdUseCase
+    private val addMeasurementUnitUseCase: AddMeasurementUnitUseCase,
+    private val getAllMeasurementUnitsUseCase: GetAllMeasurementUnitsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UnitState())

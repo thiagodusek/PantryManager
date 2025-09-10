@@ -11,11 +11,13 @@ import com.pantrymanager.domain.usecase.product.GetProductByIdUseCase
 import com.pantrymanager.domain.usecase.product.UpdateProductUseCase
 import com.pantrymanager.domain.usecase.product.DeleteProductUseCase
 import com.pantrymanager.domain.usecase.category.GetAllCategoriesUseCase
-import com.pantrymanager.domain.usecase.unit.GetAllUnitsUseCase
+import com.pantrymanager.domain.usecase.unit.GetAllMeasurementUnitsUseCase
+import com.pantrymanager.domain.usecase.auth.GetCurrentUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -63,14 +65,28 @@ class ProductViewModel @Inject constructor(
     private val updateProductUseCase: UpdateProductUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
-    private val getAllUnitsUseCase: GetAllUnitsUseCase
+    private val getAllMeasurementUnitsUseCase: GetAllMeasurementUnitsUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProductState())
     val state: StateFlow<ProductState> = _state.asStateFlow()
+    
+    // Current user ID for filtering products
+    private var currentUserId: String = ""
 
     init {
         loadInitialData()
+    }
+    
+    private suspend fun loadCurrentUser() {
+        try {
+            val user = getCurrentUserUseCase().first()
+            currentUserId = user?.id ?: ""
+        } catch (e: Exception) {
+            // Handle error silently for now - use empty userId as fallback
+            currentUserId = ""
+        }
     }
 
     // CRUD Operations
@@ -80,7 +96,7 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
-                val products = getAllProductsUseCase()
+                val products = getAllProductsUseCase(currentUserId)
                 _state.value = _state.value.copy(
                     products = products,
                     isLoading = false
@@ -105,7 +121,7 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
-                val product = getProductByIdUseCase(productId)
+                val product = getProductByIdUseCase(productId, currentUserId)
                 product?.let {
                     _state.value = _state.value.copy(
                         currentProduct = it,
@@ -134,7 +150,7 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true)
             
             try {
-                val product = getProductByIdUseCase(productId)
+                val product = getProductByIdUseCase(productId, currentUserId)
                 product?.let { p ->
                     _state.value = _state.value.copy(
                         currentProduct = p,
@@ -180,7 +196,9 @@ class ProductViewModel @Inject constructor(
                     categoryId = _state.value.categoryId!!,
                     unitId = _state.value.unitId!!,
                     observation = _state.value.observation.takeIf { it.isNotBlank() },
-                    imageUrl = _state.value.imageUrl
+                    imageUrl = _state.value.imageUrl,
+                    userId = currentUserId
+                )
                 )
                 
                 val result = addProductUseCase(product)
@@ -223,7 +241,8 @@ class ProductViewModel @Inject constructor(
                     categoryId = _state.value.categoryId!!,
                     unitId = _state.value.unitId!!,
                     observation = _state.value.observation.takeIf { it.isNotBlank() },
-                    imageUrl = _state.value.imageUrl
+                    imageUrl = _state.value.imageUrl,
+                    userId = currentUserId
                 ) ?: return@launch
                 
                 val result = updateProductUseCase(product)
@@ -257,7 +276,7 @@ class ProductViewModel @Inject constructor(
             try {
                 /*
                 // Código de conexão com banco comentado
-                val result = deleteProductUseCase(product)
+                val result = deleteProductUseCase(product.id, currentUserId)
                 if (result.isSuccess) {
                     loadAllProducts() // Reload list
                 }
@@ -405,7 +424,7 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                deleteProductUseCase(productToDelete)
+                deleteProductUseCase(productToDelete.id, currentUserId)
                 _state.value = _state.value.copy(
                     isLoading = false,
                     isSuccess = true,
@@ -546,9 +565,17 @@ class ProductViewModel @Inject constructor(
     private fun loadInitialData() {
         viewModelScope.launch {
             try {
+                // Load current user first
+                loadCurrentUser()
+                
                 val categories = getAllCategoriesUseCase()
-                val units = getAllUnitsUseCase()
-                val products = getAllProductsUseCase()
+                val units = getAllMeasurementUnitsUseCase()
+                // Only load products after we have the userId
+                val products = if (currentUserId.isNotEmpty()) {
+                    getAllProductsUseCase(currentUserId)
+                } else {
+                    emptyList()
+                }
                 _state.value = _state.value.copy(
                     categories = categories,
                     units = units,

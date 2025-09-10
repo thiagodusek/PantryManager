@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetProductByIdUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
-    suspend operator fun invoke(productId: Long): Product? {
-        return productRepository.getProductById(productId).first()
+    suspend operator fun invoke(productId: Long, userId: String): Product? {
+        return productRepository.getProductById(productId, userId).first()
     }
 }

@@ -4,11 +4,12 @@ buildscript {
         compose_version = '1.7.5'
         kotlin_version = '2.0.21'
         ksp_version = '2.0.21-1.0.26'
+        hilt_version = '2.54'
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.8.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.54'
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.gms:google-services:4.4.2'
     }
 }

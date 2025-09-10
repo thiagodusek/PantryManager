@@ -16,9 +16,9 @@ class DeleteProductUseCase @Inject constructor(
         }
     }
     
-    suspend operator fun invoke(productId: Long): Result<Unit> {
+    suspend operator fun invoke(productId: Long, userId: String): Result<Unit> {
         return try {
-            productRepository.deleteProductById(productId)
+            productRepository.deleteProductById(productId, userId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

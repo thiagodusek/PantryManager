@@ -22,7 +22,7 @@ fun UnitDbEntity.toDomain(): MeasurementUnit {
     )
 }
 
-fun MeasurementUnit.toEntity(): UnitDbEntity {
+fun MeasurementUnit.toUnitDbEntity(): UnitDbEntity {
     return UnitDbEntity(
         id = id,
         name = name,

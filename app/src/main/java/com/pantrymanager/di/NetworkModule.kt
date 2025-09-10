@@ -1,6 +1,9 @@
 package com.pantrymanager.di
 
+import com.pantrymanager.data.service.ProductSearchService
+import com.pantrymanager.data.service.ProductSearchServiceImpl
 import com.pantrymanager.data.service.ViaCepService
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,4 +50,15 @@ object NetworkModule {
     fun provideViaCepService(@Named("viacep_retrofit") retrofit: Retrofit): ViaCepService {
         return retrofit.create(ViaCepService::class.java)
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class NetworkBindsModule {
+    
+    @Binds
+    @Singleton
+    abstract fun bindProductSearchService(
+        productSearchServiceImpl: ProductSearchServiceImpl
+    ): ProductSearchService
 }

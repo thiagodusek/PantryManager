@@ -15,16 +15,12 @@ class CategoryRepositoryImpl @Inject constructor(
     private val dao: CategoryDao
 ) : CategoryRepository {
     
-    override fun getAllCategories(): Flow<List<Category>> {
-        return dao.getAllCategories().map { entities ->
-            entities.map { it.toDomain() }
-        }
+    override suspend fun getAllCategories(): List<Category> {
+        return dao.getAllCategoriesSuspend().map { it.toDomain() }
     }
     
-    override fun getCategoryById(id: Long): Flow<Category?> {
-        return dao.getCategoryById(id).map { entity ->
-            entity?.toDomain()
-        }
+    override suspend fun getCategoryById(id: Long): Category? {
+        return dao.getCategoryById(id)?.toDomain()
     }
     
     override suspend fun insertCategory(category: Category): Long {
@@ -41,5 +37,18 @@ class CategoryRepositoryImpl @Inject constructor(
     
     override suspend fun deleteCategoryById(id: Long) {
         dao.deleteCategoryById(id)
+    }
+    
+    override suspend fun findByName(name: String): Category? {
+        return dao.findByName(name)?.toDomain()
+    }
+    
+    override suspend fun searchCategories(query: String): List<Category> {
+        return dao.searchCategories("%$query%").map { it.toDomain() }
+    }
+    
+    override suspend fun getCategoriesByParent(parentCategoryId: Long?): List<Category> {
+        // Para implementação futura se houver hierarquia de categorias
+        return emptyList()
     }
 }

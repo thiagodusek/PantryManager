@@ -3,14 +3,13 @@ package com.pantrymanager.domain.entity
 import java.time.LocalDateTime
 
 /**
- * Entidade que representa uma unidade de medida
+ * Entidade que representa uma marca de produto
  */
-data class MeasurementUnit(
+data class Brand(
     val id: Long = 0L,
     val name: String,
-    val abbreviation: String,
     val description: String? = null,
-    val multiplyQuantityByPrice: Boolean = false,
+    val logoUrl: String? = null,
     val isActive: Boolean = true,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()

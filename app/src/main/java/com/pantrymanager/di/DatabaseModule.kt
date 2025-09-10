@@ -2,10 +2,12 @@ package com.pantrymanager.di
 
 import android.content.Context
 import androidx.room.Room
+import com.pantrymanager.data.datasource.BrandDao
 import com.pantrymanager.data.datasource.CategoryDao
+import com.pantrymanager.data.datasource.MeasurementUnitDao
 import com.pantrymanager.data.datasource.PantryItemDao
+import com.pantrymanager.data.datasource.ProductBatchDao
 import com.pantrymanager.data.datasource.ProductDao
-import com.pantrymanager.data.datasource.UnitDao
 import com.pantrymanager.data.datasource.PantryManagerDatabase
 import dagger.Module
 import dagger.Provides
@@ -46,9 +48,19 @@ object DatabaseModule {
     fun provideProductDao(database: PantryManagerDatabase): ProductDao {
         return database.productDao()
     }
-
+    
     @Provides
-    fun provideUnitDao(database: PantryManagerDatabase): UnitDao {
-        return database.unitDao()
+    fun provideBrandDao(database: PantryManagerDatabase): BrandDao {
+        return database.brandDao()
+    }
+    
+    @Provides
+    fun provideProductBatchDao(database: PantryManagerDatabase): ProductBatchDao {
+        return database.productBatchDao()
+    }
+    
+    @Provides
+    fun provideMeasurementUnitDao(database: PantryManagerDatabase): MeasurementUnitDao {
+        return database.measurementUnitDao()
     }
 }
