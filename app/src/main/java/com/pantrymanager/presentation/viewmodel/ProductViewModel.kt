@@ -26,6 +26,8 @@ import javax.inject.Inject
 data class ProductState(
     val products: List<Product> = emptyList(),
     val currentProduct: Product? = null,
+    val selectedProducts: Set<Long> = emptySet(),
+    val isSelectionMode: Boolean = false,
     val ean: String = "",
     val name: String = "",
     val description: String = "",
@@ -45,7 +47,11 @@ data class ProductState(
     val validationErrors: ProductValidationErrors = ProductValidationErrors(),
     val isEditing: Boolean = false,
     val showDeleteDialog: Boolean = false,
-    val productToDelete: Product? = null
+    val productToDelete: Product? = null,
+    val showMultiDeleteDialog: Boolean = false,
+    // Campos para leitura de QR Code/EAN
+    val isScanning: Boolean = false,
+    val scanResult: String? = null
 )
 
 data class ProductValidationErrors(
@@ -481,6 +487,170 @@ class ProductViewModel @Inject constructor(
 
     fun loadProducts() {
         loadAllProducts()
+    }
+
+    // Multiple selection functions
+    fun toggleProductSelection(productId: Long) {
+        val currentSelection = _state.value.selectedProducts
+        val newSelection = if (currentSelection.contains(productId)) {
+            currentSelection - productId
+        } else {
+            currentSelection + productId
+        }
+        
+        _state.value = _state.value.copy(
+            selectedProducts = newSelection,
+            isSelectionMode = newSelection.isNotEmpty()
+        )
+    }
+
+    fun selectAllProducts() {
+        _state.value = _state.value.copy(
+            selectedProducts = _state.value.products.map { it.id }.toSet(),
+            isSelectionMode = true
+        )
+    }
+
+    fun clearSelection() {
+        _state.value = _state.value.copy(
+            selectedProducts = emptySet(),
+            isSelectionMode = false
+        )
+    }
+
+    fun confirmMultipleDelete() {
+        _state.value = _state.value.copy(showMultiDeleteDialog = true)
+    }
+
+    fun cancelMultipleDelete() {
+        _state.value = _state.value.copy(showMultiDeleteDialog = false)
+    }
+
+    fun deleteSelectedProducts() {
+        val selectedIds = _state.value.selectedProducts
+        if (selectedIds.isEmpty()) return
+
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            
+            try {
+                /*
+                // Código de conexão com banco comentado
+                selectedIds.forEach { productId ->
+                    deleteProductUseCase(productId, currentUserId)
+                }
+                loadProducts()
+                */
+                
+                // Simulação de delay para mostrar loading
+                kotlinx.coroutines.delay(1500)
+                
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    isSuccess = true,
+                    selectedProducts = emptySet(),
+                    isSelectionMode = false,
+                    showMultiDeleteDialog = false,
+                    errorMessage = "${selectedIds.size} produto(s) excluído(s) com sucesso!"
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    errorMessage = e.message ?: "Erro ao excluir produtos"
+                )
+            }
+        }
+    }
+
+    // QR Code/EAN scanning functions
+    fun startScanning() {
+        _state.value = _state.value.copy(isScanning = true)
+    }
+
+    fun stopScanning() {
+        _state.value = _state.value.copy(isScanning = false)
+    }
+
+    fun onScanResult(eanCode: String) {
+        _state.value = _state.value.copy(
+            ean = eanCode,
+            isScanning = false,
+            scanResult = eanCode
+        )
+        // Trigger product search after scan
+        searchProductByEAN(eanCode)
+    }
+
+    fun searchProductByEAN(eanCode: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            
+            try {
+                /*
+                // Aqui seria implementada a integração com API externa ou Copilot
+                // para buscar informações do produto pelo EAN
+                // Por enquanto, vamos simular uma busca
+                */
+                kotlinx.coroutines.delay(2000) // Simulando busca
+                
+                // Simulando dados encontrados
+                val mockProductData = generateMockProductData(eanCode)
+                
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    ean = eanCode,
+                    name = mockProductData.name,
+                    description = mockProductData.description,
+                    categoryId = mockProductData.categoryId,
+                    unitId = mockProductData.unitId,
+                    errorMessage = "Produto encontrado! Dados preenchidos automaticamente."
+                )
+                
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    ean = eanCode,
+                    errorMessage = "Não foi possível encontrar informações para este produto. Preencha os dados manualmente."
+                )
+            }
+        }
+    }
+
+    private data class MockProductData(
+        val name: String,
+        val description: String,
+        val categoryId: Long?,
+        val unitId: Long?
+    )
+
+    private fun generateMockProductData(eanCode: String): MockProductData {
+        // Simulação de dados baseados no EAN
+        return when {
+            eanCode.startsWith("789") -> MockProductData(
+                name = "Arroz Branco Tipo 1",
+                description = "Arroz branco polido tipo 1, grão longo",
+                categoryId = 1L, // Grãos e Cereais
+                unitId = 1L      // Quilograma
+            )
+            eanCode.startsWith("123") -> MockProductData(
+                name = "Leite Integral UHT",
+                description = "Leite integral UHT 1L",
+                categoryId = 2L, // Laticínios
+                unitId = 2L      // Litro
+            )
+            eanCode.startsWith("456") -> MockProductData(
+                name = "Sabonete Líquido",
+                description = "Sabonete líquido para mãos",
+                categoryId = 3L, // Higiene e Limpeza
+                unitId = 3L      // Unidade
+            )
+            else -> MockProductData(
+                name = "Produto EAN $eanCode",
+                description = "Produto identificado pelo código EAN",
+                categoryId = 1L,
+                unitId = 1L
+            )
+        }
     }
 
     private fun validateProduct(): Boolean {

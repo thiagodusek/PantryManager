@@ -1,4 +1,4 @@
-package com.pantrymanager.presentation.ui.screens.unit
+package com.pantrymanager.presentation.ui.screens.brand
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,15 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.pantrymanager.domain.entity.MeasurementUnit as UnitEntity
-import com.pantrymanager.presentation.viewmodel.UnitViewModel
-import com.pantrymanager.data.defaults.DefaultMeasurementUnits
+import com.pantrymanager.domain.entity.Brand
+import com.pantrymanager.presentation.viewmodel.BrandViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnitManagementScreen(
+fun BrandManagementScreen(
     onNavigateBack: () -> Unit,
-    viewModel: UnitViewModel = hiltViewModel()
+    viewModel: BrandViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -54,15 +53,11 @@ fun UnitManagementScreen(
 
     // Edit Dialog
     if (state.showEditDialog) {
-        EditUnitDialog(
+        EditBrandDialog(
             name = state.name,
-            abbreviation = state.abbreviation,
-            multiplyQuantityByPrice = state.multiplyQuantityByPrice,
-            validationErrors = state.validationErrors,
+            nameError = state.nameError,
             onNameChanged = viewModel::onNameChanged,
-            onAbbreviationChanged = viewModel::onAbbreviationChanged,
-            onMultiplyQuantityByPriceChanged = viewModel::onMultiplyQuantityByPriceChanged,
-            onConfirm = viewModel::updateUnit,
+            onConfirm = viewModel::updateBrand,
             onDismiss = viewModel::cancelEdit,
             isLoading = state.isLoading
         )
@@ -70,9 +65,9 @@ fun UnitManagementScreen(
 
     // Delete Multiple Dialog
     if (state.showMultiDeleteDialog) {
-        DeleteMultipleUnitsDialog(
-            selectedCount = state.selectedUnits.size,
-            onConfirm = viewModel::deleteSelectedUnits,
+        DeleteMultipleBrandsDialog(
+            selectedCount = state.selectedBrands.size,
+            onConfirm = viewModel::deleteSelectedBrands,
             onDismiss = viewModel::cancelMultipleDelete,
             isLoading = state.isLoading
         )
@@ -82,7 +77,7 @@ fun UnitManagementScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Gerenciar Unidades de Medida") },
+                title = { Text("Gerenciar Marcas") },
                 navigationIcon = {
                     IconButton(onClick = {
                         if (state.isSelectionMode) {
@@ -98,35 +93,35 @@ fun UnitManagementScreen(
                     if (state.isSelectionMode) {
                         // Selection mode actions
                         Text(
-                            text = "${state.selectedUnits.size}",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    IconButton(onClick = viewModel::selectAllUnits) {
-                        Icon(Icons.Default.SelectAll, contentDescription = "Selecionar todas")
-                    }
-                    IconButton(
-                        onClick = viewModel::confirmMultipleDelete,
-                        enabled = state.selectedUnits.isNotEmpty()
-                    ) {
-                        Icon(
-                            Icons.Default.Delete, 
-                            contentDescription = "Excluir selecionadas",
-                            tint = if (state.selectedUnits.isNotEmpty()) 
-                                MaterialTheme.colorScheme.error else 
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            text = "${state.selectedBrands.size}",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
+                        IconButton(onClick = viewModel::selectAllBrands) {
+                            Icon(Icons.Default.SelectAll, contentDescription = "Selecionar todas")
+                        }
+                        IconButton(
+                            onClick = viewModel::confirmMultipleDelete,
+                            enabled = state.selectedBrands.isNotEmpty()
+                        ) {
+                            Icon(
+                                Icons.Default.Delete, 
+                                contentDescription = "Excluir selecionadas",
+                                tint = if (state.selectedBrands.isNotEmpty()) 
+                                    MaterialTheme.colorScheme.error else 
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
+                    } else {
+                        IconButton(onClick = { /* TODO: Add brand */ }) {
+                            Icon(Icons.Default.Add, contentDescription = "Adicionar marca")
+                        }
                     }
-                } else {
-                    IconButton(onClick = { /* TODO: Add unit */ }) {
-                        Icon(Icons.Default.Add, contentDescription = "Adicionar unidade")
-                    }
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         }
     ) { paddingValues ->
@@ -137,36 +132,44 @@ fun UnitManagementScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Units Grid Section - Show all units (default + saved) with visual grid
-            val allUnits = DefaultMeasurementUnits.defaultUnits + state.units
-            
-            UnitsGridSection(
-                units = allUnits,
-                selectedUnits = state.selectedUnits,
+            // Brands Grid Section
+            BrandsGridSection(
+                brands = state.brands,
+                selectedBrands = state.selectedBrands,
                 isSelectionMode = state.isSelectionMode,
-                onUnitClick = { unit ->
+                onBrandClick = { brand ->
                     if (state.isSelectionMode) {
-                        viewModel.toggleUnitSelection(unit.id)
+                        viewModel.toggleBrandSelection(brand.id)
                     } else {
                         // Long press to start selection mode
-                        viewModel.toggleUnitSelection(unit.id)
+                        viewModel.toggleBrandSelection(brand.id)
                     }
                 },
-                onUnitLongClick = { unit ->
-                    viewModel.toggleUnitSelection(unit.id)
+                onBrandLongClick = { brand ->
+                    viewModel.toggleBrandSelection(brand.id)
                 }
+            )
+        }
+
+        // Delete confirmation dialog
+        if (state.showMultiDeleteDialog) {
+            DeleteMultipleBrandsDialog(
+                selectedCount = state.selectedBrands.size,
+                onConfirm = viewModel::deleteSelectedBrands,
+                onDismiss = viewModel::cancelMultipleDelete,
+                isLoading = state.isLoading
             )
         }
     }
 }
 
 @Composable
-fun UnitsGridSection(
-    units: List<UnitEntity>,
-    selectedUnits: Set<Long>,
+fun BrandsGridSection(
+    brands: List<Brand>,
+    selectedBrands: Set<Long>,
     isSelectionMode: Boolean,
-    onUnitClick: (UnitEntity) -> Unit,
-    onUnitLongClick: (UnitEntity) -> Unit
+    onBrandClick: (Brand) -> Unit,
+    onBrandLongClick: (Brand) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -175,9 +178,7 @@ fun UnitsGridSection(
         )
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -185,13 +186,14 @@ fun UnitsGridSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Unidades Disponíveis (${units.size})",
+                    text = "Marcas Cadastradas",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                if (isSelectionMode) {
+                
+                if (brands.isNotEmpty()) {
                     Text(
-                        text = "${selectedUnits.size} selecionada(s)",
+                        text = "${brands.size} marcas",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -206,13 +208,13 @@ fun UnitsGridSection(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(units) { unit ->
-                    UnitGridItem(
-                        unit = unit,
-                        isSelected = selectedUnits.contains(unit.id),
+                items(brands) { brand ->
+                    BrandGridItem(
+                        brand = brand,
+                        isSelected = selectedBrands.contains(brand.id),
                         isSelectionMode = isSelectionMode,
-                        onClick = { onUnitClick(unit) },
-                        onLongClick = { onUnitLongClick(unit) }
+                        onClick = { onBrandClick(brand) },
+                        onLongClick = { onBrandLongClick(brand) }
                     )
                 }
             }
@@ -222,17 +224,13 @@ fun UnitsGridSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnitGridItem(
-    unit: UnitEntity,
+fun BrandGridItem(
+    brand: Brand,
     isSelected: Boolean,
     isSelectionMode: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    // Determine if this is a default (system) unit or user-created
-    val isDefaultUnit = unit.id < 0L
-    val canBeDeleted = !isDefaultUnit
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,26 +246,23 @@ fun UnitGridItem(
             containerColor = if (isSelected) 
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
             else 
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.surface
         ),
-        border = if (isSelected) {
-            androidx.compose.foundation.BorderStroke(
-                2.dp, 
-                MaterialTheme.colorScheme.primary
-            )
-        } else null
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 8.dp else 2.dp
+        )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp)
+                .padding(12.dp),
+            contentAlignment = Alignment.Center
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Unit icon
+                // Brand icon
                 Box(
                     modifier = Modifier
                         .size(32.dp)
@@ -276,7 +271,7 @@ fun UnitGridItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Scale,
+                        imageVector = Icons.Default.Business,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
@@ -285,35 +280,15 @@ fun UnitGridItem(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Unit abbreviation
                 Text(
-                    text = unit.abbreviation,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // Unit name
-                Text(
-                    text = unit.name,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = brand.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
-                // Indicator for default units
-                if (isDefaultUnit) {
-                    Text(
-                        text = "Sistema",
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
             }
 
             // Selection indicator
@@ -341,31 +316,60 @@ fun UnitGridItem(
                     }
                 }
             }
-
-            // Multiply indicator
-            if (unit.multiplyQuantityByPrice) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .size(16.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "×",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
     }
 }
 
 @Composable
-fun DeleteMultipleUnitsDialog(
+fun EditBrandDialog(
+    name: String,
+    nameError: String?,
+    onNameChanged: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text("Editar Marca") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = onNameChanged,
+                    label = { Text("Nome da Marca") },
+                    isError = nameError != null,
+                    supportingText = nameError?.let { { Text(it) } },
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                } else {
+                    Text("Salvar")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteMultipleBrandsDialog(
     selectedCount: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
@@ -373,9 +377,9 @@ fun DeleteMultipleUnitsDialog(
 ) {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
-        title = { Text("Excluir Unidades") },
+        title = { Text("Excluir Marcas") },
         text = {
-            Text("Tem certeza que deseja excluir $selectedCount unidade(s) selecionada(s)?\n\nEsta ação não pode ser desfeita.")
+            Text("Tem certeza que deseja excluir $selectedCount marca(s) selecionada(s)?\n\nEsta ação não pode ser desfeita.")
         },
         confirmButton = {
             TextButton(

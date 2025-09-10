@@ -1,14 +1,16 @@
 package com.pantrymanager.di
 
-import com.pantrymanager.data.repository.BrandRepositoryImpl
-import com.pantrymanager.data.repository.CategoryRepositoryImpl
-import com.pantrymanager.data.repository.MeasurementUnitRepositoryImpl
+import com.pantrymanager.data.repository.BrandFirebaseRepository
+import com.pantrymanager.data.repository.CategoryFirebaseRepository
+import com.pantrymanager.data.repository.FiscalReceiptFirebaseRepository
+import com.pantrymanager.data.repository.MeasurementUnitFirebaseRepository
 import com.pantrymanager.data.repository.PantryItemRepositoryImpl
 import com.pantrymanager.data.repository.ProductBatchRepositoryImpl
-import com.pantrymanager.data.repository.ProductRepositoryImpl
+import com.pantrymanager.data.repository.ProductFirebaseRepository
 import com.pantrymanager.data.repository.UserRepositoryImpl
 import com.pantrymanager.domain.repository.BrandRepository
 import com.pantrymanager.domain.repository.CategoryRepository
+import com.pantrymanager.domain.repository.FiscalReceiptRepository
 import com.pantrymanager.domain.repository.MeasurementUnitRepository
 import com.pantrymanager.domain.repository.PantryItemRepository
 import com.pantrymanager.domain.repository.ProductBatchRepository
@@ -24,47 +26,55 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+    // Firebase-based repositories
     @Binds
     @Singleton
-    abstract fun bindPantryItemRepository(
-        pantryItemRepositoryImpl: PantryItemRepositoryImpl
-    ): PantryItemRepository
+    abstract fun bindProductRepository(
+        productFirebaseRepository: ProductFirebaseRepository
+    ): ProductRepository
 
     @Binds
     @Singleton
     abstract fun bindCategoryRepository(
-        categoryRepositoryImpl: CategoryRepositoryImpl
+        categoryFirebaseRepository: CategoryFirebaseRepository
     ): CategoryRepository
 
     @Binds
     @Singleton
-    abstract fun bindProductRepository(
-        productRepositoryImpl: ProductRepositoryImpl
-    ): ProductRepository
+    abstract fun bindBrandRepository(
+        brandFirebaseRepository: BrandFirebaseRepository
+    ): BrandRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindMeasurementUnitRepository(
+        measurementUnitFirebaseRepository: MeasurementUnitFirebaseRepository
+    ): MeasurementUnitRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindFiscalReceiptRepository(
+        fiscalReceiptFirebaseRepository: FiscalReceiptFirebaseRepository
+    ): FiscalReceiptRepository
 
     @Binds
     @Singleton
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
-    
+
+    // Room-based repositories (temporary for items that don't have Firebase implementations yet)
     @Binds
     @Singleton
-    abstract fun bindBrandRepository(
-        brandRepositoryImpl: BrandRepositoryImpl
-    ): BrandRepository
+    abstract fun bindPantryItemRepository(
+        pantryItemRepositoryImpl: PantryItemRepositoryImpl
+    ): PantryItemRepository
     
     @Binds
     @Singleton
     abstract fun bindProductBatchRepository(
         productBatchRepositoryImpl: ProductBatchRepositoryImpl
     ): ProductBatchRepository
-    
-    @Binds
-    @Singleton
-    abstract fun bindMeasurementUnitRepository(
-        measurementUnitRepositoryImpl: MeasurementUnitRepositoryImpl
-    ): MeasurementUnitRepository
 
     // TODO: Implement these repository implementations
     // @Binds

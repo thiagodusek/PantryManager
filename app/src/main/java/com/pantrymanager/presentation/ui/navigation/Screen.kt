@@ -16,6 +16,11 @@ sealed class Screen(val route: String) {
     object UnitManagement : Screen("unit_management")
     object PantryItems : Screen("pantry_items")
     object NFeImport : Screen("nfe_import")
+    object FiscalReceiptScanner : Screen("fiscal_receipt_scanner")
+    object FiscalReceiptDetails : Screen("fiscal_receipt_details/{receiptId}") {
+        fun createRoute(receiptId: Long) = "fiscal_receipt_details/$receiptId"
+    }
+    object FiscalReceiptList : Screen("fiscal_receipt_list")
     object ShoppingLists : Screen("shopping_lists")
     object Recipes : Screen("recipes")
     object Dashboard : Screen("dashboard")

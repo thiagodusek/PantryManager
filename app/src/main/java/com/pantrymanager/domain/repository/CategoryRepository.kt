@@ -14,4 +14,10 @@ interface CategoryRepository {
     suspend fun findByName(name: String): Category?
     suspend fun searchCategories(query: String): List<Category>
     suspend fun getCategoriesByParent(parentCategoryId: Long?): List<Category>
+    
+    // Métodos para exclusão múltipla
+    suspend fun deleteCategories(ids: List<Long>)
+    
+    // Método para busca ou criação automática
+    suspend fun findOrCreateCategory(name: String): Category
 }

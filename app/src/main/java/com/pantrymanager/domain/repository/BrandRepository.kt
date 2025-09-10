@@ -10,4 +10,10 @@ interface BrandRepository {
     suspend fun getAllBrands(): List<Brand>
     suspend fun findByName(name: String): Brand?
     suspend fun searchBrands(query: String): List<Brand>
+    
+    // Métodos para exclusão múltipla
+    suspend fun deleteBrands(ids: List<Long>)
+    
+    // Método para busca ou criação automática
+    suspend fun findOrCreateBrand(name: String): Brand
 }

@@ -2,6 +2,7 @@ package com.pantrymanager.di
 
 import com.pantrymanager.data.service.ProductSearchService
 import com.pantrymanager.data.service.ProductSearchServiceImpl
+import com.pantrymanager.data.service.SefazService
 import com.pantrymanager.data.service.ViaCepService
 import dagger.Binds
 import dagger.Module
@@ -49,6 +50,37 @@ object NetworkModule {
     @Singleton
     fun provideViaCepService(@Named("viacep_retrofit") retrofit: Retrofit): ViaCepService {
         return retrofit.create(ViaCepService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("sefaz_okhttp")
+    fun provideSefazOkHttpClient(): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(45, TimeUnit.SECONDS)
+            .readTimeout(45, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("sefaz_retrofit")
+    fun provideSefazRetrofit(@Named("sefaz_okhttp") okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.nfce.fazenda.gov.br/") // URL exemplo - substituir pela API real
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSefazService(@Named("sefaz_retrofit") retrofit: Retrofit): SefazService {
+        return retrofit.create(SefazService::class.java)
     }
 }
 

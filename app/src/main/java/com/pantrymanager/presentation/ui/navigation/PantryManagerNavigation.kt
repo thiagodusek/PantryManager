@@ -350,12 +350,15 @@ fun PantryManagerNavigation(
                 isLoggedIn = isLoggedIn,
                 navController = navController
             ) {
-                PlaceholderScreen(
-                    title = "Importar NFe",
-                    description = "Importar produtos via Nota Fiscal Eletrônica",
-                    icon = Icons.Default.Receipt,
+                com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScreen(
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onNavigateToDetails = { receiptId ->
+                        navController.navigate(Screen.FiscalReceiptDetails.createRoute(receiptId))
+                    },
+                    onNavigateToScanner = {
+                        navController.navigate(Screen.FiscalReceiptScanner.route)
                     }
                 )
             }
@@ -420,6 +423,64 @@ fun PantryManagerNavigation(
                     icon = Icons.Default.LocalOffer,
                     onNavigateBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+        }
+        
+        // Scanner de Cupom Fiscal
+        composable(Screen.FiscalReceiptScanner.route) {
+            ProtectedRoute(
+                isLoggedIn = isLoggedIn,
+                navController = navController
+            ) {
+                com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScannerScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onScanSuccess = { receiptId, importedCount ->
+                        navController.navigate(Screen.FiscalReceiptDetails.createRoute(receiptId)) {
+                            popUpTo(Screen.FiscalReceiptScanner.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+        }
+        
+        // Detalhes do Cupom Fiscal
+        composable(
+            route = Screen.FiscalReceiptDetails.route,
+            arguments = listOf(navArgument("receiptId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            ProtectedRoute(
+                isLoggedIn = isLoggedIn,
+                navController = navController
+            ) {
+                val receiptId = backStackEntry.arguments?.getLong("receiptId") ?: 0L
+                com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptDetailsScreen(
+                    fiscalReceiptId = receiptId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+        
+        // Lista de Cupons Fiscais
+        composable(Screen.FiscalReceiptList.route) {
+            ProtectedRoute(
+                isLoggedIn = isLoggedIn,
+                navController = navController
+            ) {
+                com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToDetails = { receiptId ->
+                        navController.navigate(Screen.FiscalReceiptDetails.createRoute(receiptId))
+                    },
+                    onNavigateToScanner = {
+                        navController.navigate(Screen.FiscalReceiptScanner.route)
                     }
                 )
             }

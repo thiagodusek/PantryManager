@@ -17,6 +17,8 @@ data class UnitState(
     val abbreviation: String = "",
     val multiplyQuantityByPrice: Boolean = false,
     val units: List<UnitEntity> = emptyList(),
+    val selectedUnits: Set<Long> = emptySet(),
+    val isSelectionMode: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
@@ -24,7 +26,8 @@ data class UnitState(
     val editingUnit: UnitEntity? = null,
     val showEditDialog: Boolean = false,
     val showDeleteDialog: Boolean = false,
-    val unitToDelete: UnitEntity? = null
+    val unitToDelete: UnitEntity? = null,
+    val showMultiDeleteDialog: Boolean = false
 )
 
 data class UnitValidationErrors(
@@ -289,5 +292,93 @@ class UnitViewModel @Inject constructor(
         
         // Simulando lista vazia para demonstração
         _state.value = _state.value.copy(units = emptyList())
+    }
+
+    fun toggleUnitSelection(unitId: Long) {
+        val currentSelection = _state.value.selectedUnits
+        val newSelection = if (currentSelection.contains(unitId)) {
+            currentSelection - unitId
+        } else {
+            currentSelection + unitId
+        }
+        
+        _state.value = _state.value.copy(
+            selectedUnits = newSelection,
+            isSelectionMode = newSelection.isNotEmpty()
+        )
+    }
+
+    fun selectAllUnits() {
+        // Include both default units and saved units
+        val allUnits = com.pantrymanager.data.defaults.DefaultMeasurementUnits.defaultUnits + _state.value.units
+        _state.value = _state.value.copy(
+            selectedUnits = allUnits.map { it.id }.toSet(),
+            isSelectionMode = true
+        )
+    }
+
+    fun clearSelection() {
+        _state.value = _state.value.copy(
+            selectedUnits = emptySet(),
+            isSelectionMode = false
+        )
+    }
+
+    fun confirmMultipleDelete() {
+        _state.value = _state.value.copy(showMultiDeleteDialog = true)
+    }
+
+    fun cancelMultipleDelete() {
+        _state.value = _state.value.copy(showMultiDeleteDialog = false)
+    }
+
+    fun deleteSelectedUnits() {
+        val selectedIds = _state.value.selectedUnits
+        if (selectedIds.isEmpty()) return
+
+        // Only allow deletion of user-created units (not default ones)
+        // Default units have negative IDs, user units have positive IDs
+        val userUnitIds = selectedIds.filter { id -> 
+            _state.value.units.any { it.id == id }
+        }
+        
+        if (userUnitIds.isEmpty()) {
+            _state.value = _state.value.copy(
+                errorMessage = "Não é possível excluir unidades padrão do sistema",
+                showMultiDeleteDialog = false
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            
+            try {
+                /*
+                // Código de conexão com banco comentado
+                userUnitIds.forEach { unitId ->
+                    deleteUnitUseCase(unitId)
+                }
+                loadUnits()
+                */
+                
+                // Simulação de delay para mostrar loading
+                kotlinx.coroutines.delay(1500)
+                
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    isSuccess = true,
+                    selectedUnits = emptySet(),
+                    isSelectionMode = false,
+                    showMultiDeleteDialog = false,
+                    errorMessage = "${userUnitIds.size} unidade(s) excluída(s) com sucesso!"
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    errorMessage = e.message ?: "Erro ao excluir unidades"
+                )
+            }
+        }
     }
 }

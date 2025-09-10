@@ -14,4 +14,6 @@ interface ProductRepository {
     suspend fun deleteProduct(product: Product)
     suspend fun deleteProductById(id: Long, userId: String)
     fun getMostConsumedProducts(userId: String, limit: Int = 10): Flow<List<Product>>
+    suspend fun deleteProducts(ids: List<Long>, userId: String)
+    suspend fun findOrCreateProductByEan(ean: String): Product?
 }

@@ -1,24 +1,33 @@
 package com.pantrymanager.presentation.ui.screens.category
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pantrymanager.domain.entity.Category
 import com.pantrymanager.presentation.viewmodel.CategoryViewModel
+import com.pantrymanager.data.defaults.DefaultCategories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +36,7 @@ fun CategoryManagementScreen(
     viewModel: CategoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Handle success state
     LaunchedEffect(state.isSuccess) {
@@ -38,6 +48,7 @@ fun CategoryManagementScreen(
     // Handle error messages
     state.errorMessage?.let { message ->
         LaunchedEffect(message) {
+            snackbarHostState.showSnackbar(message)
             viewModel.clearError()
         }
     }
@@ -54,23 +65,59 @@ fun CategoryManagementScreen(
         )
     }
 
-    // Delete Dialog
-    if (state.showDeleteDialog) {
-        DeleteCategoryDialog(
-            category = state.categoryToDelete,
-            onConfirm = viewModel::deleteCategory,
-            onDismiss = viewModel::cancelDelete,
+    // Delete Multiple Dialog
+    if (state.showMultiDeleteDialog) {
+        DeleteMultipleCategoriesDialog(
+            selectedCount = state.selectedCategories.size,
+            onConfirm = viewModel::deleteSelectedCategories,
+            onDismiss = viewModel::cancelMultipleDelete,
             isLoading = state.isLoading
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Top App Bar
-        TopAppBar(
-            title = { Text("Gerenciar Categorias") },
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Gerenciar Categorias") },
             navigationIcon = {
-                IconButton(onClick = onNavigateBack) {
+                IconButton(onClick = {
+                    if (state.isSelectionMode) {
+                        viewModel.clearSelection()
+                    } else {
+                        onNavigateBack()
+                    }
+                }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                }
+            },
+            actions = {
+                if (state.isSelectionMode) {
+                    // Selection mode actions
+                    Text(
+                        text = "${state.selectedCategories.size}",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    IconButton(onClick = viewModel::selectAllCategories) {
+                        Icon(Icons.Default.SelectAll, contentDescription = "Selecionar todas")
+                    }
+                    IconButton(
+                        onClick = viewModel::confirmMultipleDelete,
+                        enabled = state.selectedCategories.isNotEmpty()
+                    ) {
+                        Icon(
+                            Icons.Default.Delete, 
+                            contentDescription = "Excluir selecionadas",
+                            tint = if (state.selectedCategories.isNotEmpty()) 
+                                MaterialTheme.colorScheme.error else 
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        )
+                    }
+                } else {
+                    IconButton(onClick = { /* TODO: Add category */ }) {
+                        Icon(Icons.Default.Add, contentDescription = "Adicionar categoria")
+                    }
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -78,100 +125,45 @@ fun CategoryManagementScreen(
                 titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         )
-
+        }
+    ) { paddingValues ->
         // Content
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Add Category Section
-            AddCategorySection(
-                name = state.name,
-                nameError = state.nameError,
-                isLoading = state.isLoading,
-                onNameChanged = viewModel::onNameChanged,
-                onAddCategory = viewModel::addCategory
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Categories List Section
-            CategoriesListSection(
-                categories = state.categories,
-                onEditCategory = viewModel::startEditCategory,
-                onDeleteCategory = viewModel::confirmDeleteCategory
-            )
-        }
-    }
-}
-
-@Composable
-fun AddCategorySection(
-    name: String,
-    nameError: String?,
-    isLoading: Boolean,
-    onNameChanged: (String) -> Unit,
-    onAddCategory: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Adicionar Nova Categoria",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = onNameChanged,
-                label = { Text("Nome da Categoria") },
-                placeholder = { Text("Ex: Limpeza, Alimentos...") },
-                isError = nameError != null,
-                supportingText = nameError?.let { { Text(it) } },
-                leadingIcon = {
-                    Icon(Icons.Default.Category, contentDescription = null)
+            // Categories Grid Section - Show all categories (default + saved) with visual grid
+            val allCategories = DefaultCategories.defaultCategories + state.categories
+            
+            CategoriesGridSection(
+                categories = allCategories,
+                selectedCategories = state.selectedCategories,
+                isSelectionMode = state.isSelectionMode,
+                onCategoryClick = { category ->
+                    if (state.isSelectionMode) {
+                        viewModel.toggleCategorySelection(category.id)
+                    } else {
+                        // Long press to start selection mode
+                        viewModel.toggleCategorySelection(category.id)
+                    }
                 },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onAddCategory,
-                enabled = !isLoading && name.isNotBlank(),
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Adicionar")
+                onCategoryLongClick = { category ->
+                    viewModel.toggleCategorySelection(category.id)
                 }
-            }
+            )
         }
     }
 }
 
 @Composable
-fun CategoriesListSection(
+fun CategoriesGridSection(
     categories: List<Category>,
-    onEditCategory: (Category) -> Unit,
-    onDeleteCategory: (Category) -> Unit
+    selectedCategories: Set<Long>,
+    isSelectionMode: Boolean,
+    onCategoryClick: (Category) -> Unit,
+    onCategoryLongClick: (Category) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -184,30 +176,161 @@ fun CategoriesListSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Categorias Cadastradas (${categories.size})",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Categorias Disponíveis (${categories.size})",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (isSelectionMode) {
+                    Text(
+                        text = "${selectedCategories.size} selecionada(s)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (categories.isEmpty()) {
-                Text(
-                    text = "Nenhuma categoria cadastrada ainda.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(categories) { category ->
+                    CategoryGridItem(
+                        category = category,
+                        isSelected = selectedCategories.contains(category.id),
+                        isSelectionMode = isSelectionMode,
+                        onClick = { onCategoryClick(category) },
+                        onLongClick = { onCategoryLongClick(category) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryGridItem(
+    category: Category,
+    isSelected: Boolean,
+    isSelectionMode: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    val backgroundColor = try {
+        Color(android.graphics.Color.parseColor(category.color))
+    } catch (e: Exception) {
+        MaterialTheme.colorScheme.primaryContainer
+    }
+    
+    // Determine if this is a default (system) category or user-created
+    val isDefaultCategory = category.id < 0L
+    val canBeDeleted = !isDefaultCategory
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .toggleable(
+                value = isSelected,
+                onValueChange = { onClick() }
+            )
+            .clickable { 
+                if (isSelectionMode) onClick() else onLongClick() 
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) 
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+            else 
+                backgroundColor.copy(alpha = 0.1f)
+        ),
+        border = if (isSelected) {
+            androidx.compose.foundation.BorderStroke(
+                2.dp, 
+                MaterialTheme.colorScheme.primary
+            )
+        } else null
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Category icon or colored circle
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(backgroundColor.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(categories) { category ->
-                        CategoryItem(
-                            category = category,
-                            onEdit = { onEditCategory(category) },
-                            onDelete = { onDeleteCategory(category) }
+                    Icon(
+                        imageVector = Icons.Default.Category,
+                        contentDescription = null,
+                        tint = backgroundColor.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                
+                // Indicator for default categories
+                if (isDefaultCategory) {
+                    Text(
+                        text = "Sistema",
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            // Selection indicator
+            if (isSelectionMode) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isSelected) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Selecionada",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -217,123 +340,17 @@ fun CategoriesListSection(
 }
 
 @Composable
-fun CategoryItem(
-    category: Category,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = category.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = "ID: ${category.id}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Row {
-                IconButton(onClick = onEdit) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Editar categoria",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Excluir categoria",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EditCategoryDialog(
-    name: String,
-    nameError: String?,
-    onNameChanged: (String) -> Unit,
+fun DeleteMultipleCategoriesDialog(
+    selectedCount: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     isLoading: Boolean
 ) {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
-        title = { Text("Editar Categoria") },
+        title = { Text("Excluir Categorias") },
         text = {
-            Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = onNameChanged,
-                    label = { Text("Nome da Categoria") },
-                    isError = nameError != null,
-                    supportingText = nameError?.let { { Text(it) } },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isLoading
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                enabled = !isLoading && name.isNotBlank()
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                } else {
-                    Text("Salvar")
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isLoading
-            ) {
-                Text("Cancelar")
-            }
-        }
-    )
-}
-
-@Composable
-fun DeleteCategoryDialog(
-    category: Category?,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    isLoading: Boolean
-) {
-    if (category == null) return
-
-    AlertDialog(
-        onDismissRequest = { if (!isLoading) onDismiss() },
-        title = { Text("Excluir Categoria") },
-        text = {
-            Text("Tem certeza que deseja excluir a categoria \"${category.name}\"?\n\nEsta ação não pode ser desfeita.")
+            Text("Tem certeza que deseja excluir $selectedCount categoria(s) selecionada(s)?\n\nEsta ação não pode ser desfeita.")
         },
         confirmButton = {
             TextButton(
@@ -349,7 +366,7 @@ fun DeleteCategoryDialog(
                         color = MaterialTheme.colorScheme.error
                     )
                 } else {
-                    Text("Excluir")
+                    Text("Excluir Todas")
                 }
             }
         },
