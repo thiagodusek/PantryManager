@@ -57,11 +57,10 @@ fun UnitManagementScreen(
         EditUnitDialog(
             name = state.name,
             abbreviation = state.abbreviation,
-            multiplyQuantityByPrice = state.multiplyQuantityByPrice,
-            validationErrors = state.validationErrors,
+            nameError = state.validationErrors.nameError,
+            abbreviationError = state.validationErrors.abbreviationError,
             onNameChanged = viewModel::onNameChanged,
             onAbbreviationChanged = viewModel::onAbbreviationChanged,
-            onMultiplyQuantityByPriceChanged = viewModel::onMultiplyQuantityByPriceChanged,
             onConfirm = viewModel::updateUnit,
             onDismiss = viewModel::cancelEdit,
             isLoading = state.isLoading
@@ -392,6 +391,91 @@ fun DeleteMultipleUnitsDialog(
                     )
                 } else {
                     Text("Excluir Todas")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditUnitDialog(
+    name: String,
+    abbreviation: String,
+    nameError: String?,
+    abbreviationError: String?,
+    onNameChanged: (String) -> Unit,
+    onAbbreviationChanged: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text("Editar Unidade") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = onNameChanged,
+                    label = { Text("Nome da unidade") },
+                    isError = nameError != null,
+                    enabled = !isLoading,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                if (nameError != null) {
+                    Text(
+                        text = nameError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                OutlinedTextField(
+                    value = abbreviation,
+                    onValueChange = onAbbreviationChanged,
+                    label = { Text("Abreviação") },
+                    isError = abbreviationError != null,
+                    enabled = !isLoading,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                if (abbreviationError != null) {
+                    Text(
+                        text = abbreviationError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isLoading && name.isNotBlank() && abbreviation.isNotBlank() && 
+                         nameError == null && abbreviationError == null
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Salvar")
                 }
             }
         },

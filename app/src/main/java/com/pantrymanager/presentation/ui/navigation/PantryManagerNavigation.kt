@@ -225,6 +225,9 @@ fun PantryManagerNavigation(
                     },
                     onNavigateToEditProduct = { productId ->
                         navController.navigate(Screen.ProductEdit.createRoute(productId))
+                    },
+                    onNavigateToQRScanner = {
+                        navController.navigate(Screen.QRScanner.route)
                     }
                 )
             }
@@ -353,12 +356,6 @@ fun PantryManagerNavigation(
                 com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScreen(
                     onNavigateBack = {
                         navController.popBackStack()
-                    },
-                    onNavigateToDetails = { receiptId ->
-                        navController.navigate(Screen.FiscalReceiptDetails.createRoute(receiptId))
-                    },
-                    onNavigateToScanner = {
-                        navController.navigate(Screen.FiscalReceiptScanner.route)
                     }
                 )
             }
@@ -475,12 +472,6 @@ fun PantryManagerNavigation(
                 com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScreen(
                     onNavigateBack = {
                         navController.popBackStack()
-                    },
-                    onNavigateToDetails = { receiptId ->
-                        navController.navigate(Screen.FiscalReceiptDetails.createRoute(receiptId))
-                    },
-                    onNavigateToScanner = {
-                        navController.navigate(Screen.FiscalReceiptScanner.route)
                     }
                 )
             }

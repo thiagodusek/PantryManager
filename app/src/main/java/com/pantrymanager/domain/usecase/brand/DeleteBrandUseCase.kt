@@ -9,7 +9,7 @@ class DeleteBrandUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(brand: Brand): Result<Unit> {
         return try {
-            brandRepository.deleteBrand(brand)
+            brandRepository.deleteBrand(brand.id)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -18,7 +18,7 @@ class DeleteBrandUseCase @Inject constructor(
     
     suspend operator fun invoke(brandId: Long): Result<Unit> {
         return try {
-            brandRepository.deleteBrandById(brandId)
+            brandRepository.deleteBrand(brandId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -27,9 +27,7 @@ class DeleteBrandUseCase @Inject constructor(
     
     suspend fun deleteMultiple(brandIds: List<Long>): Result<Unit> {
         return try {
-            brandIds.forEach { brandId ->
-                brandRepository.deleteBrandById(brandId)
-            }
+            brandRepository.deleteBrands(brandIds)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

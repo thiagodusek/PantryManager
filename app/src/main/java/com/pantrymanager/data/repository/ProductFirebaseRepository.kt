@@ -284,7 +284,7 @@ class ProductFirebaseRepository @Inject constructor(
     /**
      * Busca ou cria um produto pelo código de barras/EAN
      */
-    suspend fun findOrCreateProductByEan(ean: String): Product? {
+    override suspend fun findOrCreateProductByEan(ean: String): Product? {
         return try {
             val userId = getCurrentUserId()
             

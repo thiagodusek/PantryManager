@@ -317,17 +317,18 @@ class FiscalReceiptFirebaseRepository @Inject constructor(
             
             // Criar/buscar entidades relacionadas
             val category = createOrFindCategory(item.category)
-            val brand = createOrFindBrand(item.brand)
             val unit = createOrFindMeasurementUnit(item.unit)
+            val brandEntity = createOrFindBrand(item.brand)
             
             // Criar novo produto
             val newProduct = Product(
+                userId = getCurrentUserId(),
                 name = item.name,
                 description = item.description,
                 ean = item.ean,
-                brand = brand?.name,
                 categoryId = category?.id ?: 0L,
                 unitId = unit?.id ?: 0L,
+                brandId = brandEntity?.id,
                 averagePrice = item.unitPrice,
                 observation = "Importado automaticamente do cupom fiscal"
             )
@@ -347,6 +348,7 @@ class FiscalReceiptFirebaseRepository @Inject constructor(
         return try {
             val batch = ProductBatch(
                 productId = product.id,
+                userId = getCurrentUserId(),
                 batchNumber = "CUPOM_${item.fiscalReceiptId}_${item.id}",
                 quantity = item.quantity,
                 expiryDate = LocalDate.now().plusMonths(6), // Data estimada

@@ -5,6 +5,7 @@ import com.pantrymanager.data.service.QrCodeProcessResult
 import com.pantrymanager.domain.entity.FiscalReceipt
 import com.pantrymanager.domain.repository.FiscalReceiptRepository
 import com.pantrymanager.domain.usecase.auth.GetCurrentUserUseCase
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -41,7 +42,8 @@ class ImportFiscalReceiptByQrCodeUseCase @Inject constructor(
     ): ImportFiscalReceiptQrResult {
         
         // Verificar usuário autenticado
-        val currentUser = getCurrentUserUseCase()
+        val currentUserFlow = getCurrentUserUseCase()
+        val currentUser = currentUserFlow.first()
         if (currentUser == null) {
             return ImportFiscalReceiptQrResult.UserNotAuthenticated
         }

@@ -1,6 +1,8 @@
 package com.pantrymanager.data.service
 
 import com.pantrymanager.data.dto.SefazResponseDto
+import com.pantrymanager.data.dto.SefazFiscalReceiptDto
+import com.pantrymanager.data.dto.toDomain
 import com.pantrymanager.domain.entity.FiscalReceipt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

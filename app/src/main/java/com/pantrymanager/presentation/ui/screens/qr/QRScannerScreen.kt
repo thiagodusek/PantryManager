@@ -18,6 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pantrymanager.presentation.viewmodel.ProductViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,8 +271,8 @@ fun QRScannerScreen(
 private fun simulateScanResult(viewModel: ProductViewModel) {
     // In a real app, this would be handled by the camera library
     // For demo, we'll simulate a scan after 3 seconds
-    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-        kotlinx.coroutines.delay(3000)
+    CoroutineScope(Dispatchers.Main).launch {
+        delay(3000)
         val mockEAN = "7891234567890" // Mock EAN code
         viewModel.onScanResult(mockEAN)
     }

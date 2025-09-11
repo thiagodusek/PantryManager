@@ -166,7 +166,7 @@ class BrandFirebaseRepository @Inject constructor(
     /**
      * Busca ou cria uma marca pelo nome
      */
-    suspend fun findOrCreateBrand(name: String): Brand {
+    override suspend fun findOrCreateBrand(name: String): Brand {
         return try {
             val userId = getCurrentUserId()
             
@@ -200,7 +200,7 @@ class BrandFirebaseRepository @Inject constructor(
     /**
      * Exclui múltiplas marcas
      */
-    suspend fun deleteBrands(ids: List<Long>) {
+    override suspend fun deleteBrands(ids: List<Long>) {
         try {
             val userId = getCurrentUserId()
             

@@ -1,16 +1,14 @@
 package com.pantrymanager.presentation.ui.screens.product
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -27,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pantrymanager.domain.entity.Product
 import com.pantrymanager.domain.entity.MeasurementUnit as UnitEntity
 import com.pantrymanager.presentation.viewmodel.ProductViewModel
+import androidx.compose.foundation.ExperimentalFoundationApi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,10 +106,11 @@ fun ProductManagementScreen(
                             enabled = state.selectedProducts.isNotEmpty()
                         ) {
                             Icon(
-                                Icons.Default.Delete, 
+                                Icons.Default.Delete,
                                 contentDescription = "Excluir selecionados",
-                                tint = if (state.selectedProducts.isNotEmpty()) 
-                                    MaterialTheme.colorScheme.error else 
+                                tint = if (state.selectedProducts.isNotEmpty())
+                                    MaterialTheme.colorScheme.error
+                                else
                                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                             )
                         }
@@ -130,7 +130,6 @@ fun ProductManagementScreen(
             )
         }
     ) { paddingValues ->
-        // Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -151,13 +150,13 @@ fun ProductManagementScreen(
                     isSelectionMode = state.isSelectionMode,
                     onProductClick = { product ->
                         if (state.isSelectionMode) {
-                            viewModel.toggleProductSelection(product.id)
+                            product.id?.let { viewModel.toggleProductSelection(it) }
                         } else {
-                            onNavigateToEditProduct(product.id)
+                            product.id?.let { onNavigateToEditProduct(it) }
                         }
                     },
                     onProductLongClick = { product ->
-                        viewModel.toggleProductSelection(product.id)
+                        product.id?.let { viewModel.toggleProductSelection(it) }
                     },
                     onAddProduct = onNavigateToAddProduct
                 )
@@ -176,7 +175,6 @@ fun ProductsListSection(
     onAddProduct: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Header with count and add button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -194,9 +192,8 @@ fun ProductsListSection(
         if (products.isEmpty()) {
             EmptyProductsState(onAddProduct = onAddProduct)
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)                ) {
-                    items(products) { product ->
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(products) { product ->
                     ProductItem(
                         product = product,
                         category = categories.find { it.id == product.categoryId },
@@ -287,7 +284,7 @@ fun ProductItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (product.ean != null) {
                     Text(
                         text = "EAN: ${product.ean}",
@@ -295,7 +292,7 @@ fun ProductItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Row {
                     category?.let { cat ->
                         Text(
@@ -304,7 +301,7 @@ fun ProductItem(
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    
+
                     unit?.let { u ->
                         Text(
                             text = if (category != null) " • ${u.abbreviation}" else u.abbreviation,
@@ -313,7 +310,7 @@ fun ProductItem(
                         )
                     }
                 }
-                
+
                 if (!product.description.isNullOrBlank()) {
                     Text(
                         text = product.description,
@@ -404,9 +401,7 @@ fun ProductsGridSection(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -417,7 +412,7 @@ fun ProductsGridSection(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 if (products.isNotEmpty()) {
                     Text(
                         text = "${products.size} produtos",
@@ -430,7 +425,6 @@ fun ProductsGridSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (products.isEmpty()) {
-                // Empty state
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -439,48 +433,56 @@ fun ProductsGridSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = null,
+                        contentDescription = "Ícone de carrinho vazio",
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.outline
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
                         text = "Nenhum produto cadastrado",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Text(
                         text = "Adicione um produto ou use o scanner de QR Code",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     FilledTonalButton(onClick = onAddProduct) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Default.Add, contentDescription = "Adicionar produto")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Adicionar Produto")
                     }
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                    columns = GridCells.Adaptive(minSize = 160.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp)
                 ) {
-                    items(products) { product =>
+                    // Use uma chave estável; se houver muitos itens com id == null,
+                    // todos cairão na mesma chave (-1L). Idealmente evite id nulo
+                    // em listas persistentes.
+                    items(
+                        items = products,
+                        key = { it.id ?: -1L }
+                    ) { product ->
                         ProductGridItem(
                             product = product,
-                            isSelected = selectedProducts.contains(product.id),
+                            isSelected = product.id?.let { selectedProducts.contains(it) } ?: false,
                             isSelectionMode = isSelectionMode,
                             onClick = { onProductClick(product) },
                             onLongClick = { onProductLongClick(product) }
@@ -492,7 +494,7 @@ fun ProductsGridSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ProductGridItem(
     product: Product,
@@ -505,17 +507,22 @@ fun ProductGridItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
-            .toggleable(
-                value = isSelected,
-                onValueChange = { onClick() }
-            )
-            .clickable { 
-                if (isSelectionMode) onClick() else onLongClick() 
-            },
+            // Usar apenas combinedClickable para evitar duplo disparo
+            .combinedClickable(
+                onClick = {
+                    // Em modo seleção: clique alterna seleção
+                    // Fora do modo seleção: clique abre edição (delegado no caller)
+                    onClick()
+                },
+                onLongClick = {
+                    // Pressão longa sempre alterna seleção
+                    onLongClick()
+                }
+            ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) 
+            containerColor = if (isSelected)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-            else 
+            else
                 MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
@@ -560,7 +567,7 @@ fun ProductGridItem(
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // EAN if available
                 product.ean?.let { ean ->
                     Text(
@@ -582,9 +589,9 @@ fun ProductGridItem(
                         .size(24.dp)
                         .clip(CircleShape)
                         .background(
-                            if (isSelected) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            if (isSelected)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                         ),
                     contentAlignment = Alignment.Center

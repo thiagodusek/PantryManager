@@ -596,7 +596,7 @@ class ProductRegistrationViewModel @Inject constructor(
     fun setEanFromScanner(ean: String) {
         _state.value = _state.value.copy(
             barcode = ean,
-            validationErrors = _state.value.validationErrors.copy(barcodeError = null)
+            barcodeError = null
         )
         // Automatically search for product information
         searchProductByEAN(ean)

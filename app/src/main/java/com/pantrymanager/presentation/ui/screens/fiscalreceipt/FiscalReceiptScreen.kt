@@ -144,9 +144,9 @@ fun FiscalReceiptScreen(
         }
         
         // Mostrar detalhes do cupom selecionado
-        if (state.selectedReceipt != null) {
+        state.selectedReceipt?.let { selectedReceipt ->
             FiscalReceiptDetailsDialog(
-                fiscalReceipt = state.selectedReceipt,
+                fiscalReceipt = selectedReceipt,
                 selectedItems = state.selectedItems,
                 isImporting = state.isImporting,
                 onDismiss = { viewModel.selectReceipt(FiscalReceipt()) },
@@ -203,7 +203,7 @@ fun FiscalReceiptCard(
             .fillMaxWidth()
             .clickable { onSelect() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) PantryColors.PrimaryContainer else PantryColors.Surface
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else PantryColors.Surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -234,7 +234,7 @@ fun FiscalReceiptCard(
                 if (showUnprocessedBadge || !fiscalReceipt.isProcessed) {
                     Badge(
                         containerColor = PantryColors.Warning,
-                        contentColor = PantryColors.OnWarning
+                        contentColor = PantryColors.OnPrimary
                     ) {
                         Text("Não Processado")
                     }
@@ -427,7 +427,7 @@ fun FiscalReceiptItemCard(
         colors = CardDefaults.cardColors(
             containerColor = when {
                 item.isImported -> PantryColors.SurfaceVariant.copy(alpha = 0.5f)
-                isSelected -> PantryColors.PrimaryContainer
+                isSelected -> MaterialTheme.colorScheme.primaryContainer
                 else -> PantryColors.Surface
             }
         ),

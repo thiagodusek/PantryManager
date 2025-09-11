@@ -66,7 +66,8 @@ class FiscalReceiptDetailsViewModel @Inject constructor(
             )
             
             try {
-                val result = importFiscalReceiptItemsUseCase(fiscalReceipt.id)
+                val itemIds = fiscalReceipt.items.map { it.id }
+                val result = importFiscalReceiptItemsUseCase(itemIds)
                 
                 if (result.isSuccess) {
                     val importedCount = result.getOrThrow().size

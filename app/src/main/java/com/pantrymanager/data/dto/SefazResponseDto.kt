@@ -124,7 +124,7 @@ fun SefazFiscalReceiptDto.toDomain(): FiscalReceipt {
 fun SefazItemDto.toDomain(): FiscalReceiptItem {
     return FiscalReceiptItem(
         productCode = productCode,
-        ean = ean?.takeIf { it.isNotBlank() },
+        ean = ean?.takeIf { it.isNotBlank() && it != "SEM GTIN" },
         name = extractProductName(description),
         description = description,
         quantity = quantity,
@@ -142,7 +142,7 @@ fun SefazItemDto.toDomain(): FiscalReceiptItem {
 private fun extractProductName(description: String): String {
     return description
         .split(" - ").firstOrNull() // Remove descrições após hífen
-        ?.split(",").firstOrNull() // Remove descrições após vírgula
+        ?.split(",")?.firstOrNull() // Remove descrições após vírgula
         ?.trim()
         ?: description
 }
@@ -198,3 +198,4 @@ private fun inferBrandFromDescription(description: String): String? {
         upperDesc.contains(brand.uppercase())
     }
 }
+
