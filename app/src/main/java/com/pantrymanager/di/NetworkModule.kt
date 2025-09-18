@@ -4,6 +4,8 @@ import com.pantrymanager.data.service.ProductSearchService
 import com.pantrymanager.data.service.ProductSearchServiceImpl
 import com.pantrymanager.data.service.SefazService
 import com.pantrymanager.data.service.ViaCepService
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -82,15 +84,18 @@ object NetworkModule {
     fun provideSefazService(@Named("sefaz_retrofit") retrofit: Retrofit): SefazService {
         return retrofit.create(SefazService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideMoshi(): Moshi {
+        return Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+    }
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class NetworkBindsModule {
-    
-    @Binds
-    @Singleton
-    abstract fun bindProductSearchService(
-        productSearchServiceImpl: ProductSearchServiceImpl
-    ): ProductSearchService
+    // Removido bindProductSearchService - já existe no ServiceBindsModule
 }

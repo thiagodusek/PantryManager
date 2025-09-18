@@ -207,6 +207,34 @@ Confirmação → Exclusão Firebase
 - [x] **Interface Moderna**: Material Design 3
 - [x] **Arquitetura Sólida**: Clean + SOLID
 
+## ⚙️ **Configuração do Projeto**
+
+### **📝 Configuração das API Keys**
+
+1. **Copie o arquivo template:**
+   ```bash
+   cp local.properties.template local.properties
+   ```
+
+2. **Configure suas chaves no arquivo `local.properties`:**
+   ```properties
+   # OpenAI API Key (obrigatório para funcionalidades de IA)
+   OPENAI_API_KEY=sk-proj-SUA_CHAVE_OPENAI_AQUI
+   
+   # Google Maps API Key (opcional)
+   GOOGLE_MAPS_API_KEY=SUA_CHAVE_GOOGLE_MAPS_AQUI
+   
+   # Firebase Web API Key (opcional)
+   FIREBASE_API_KEY=SUA_CHAVE_FIREBASE_WEB_AQUI
+   ```
+
+3. **Obtenha suas chaves:**
+   - **OpenAI API**: https://platform.openai.com/api-keys
+   - **Google Maps**: https://console.cloud.google.com/apis/credentials
+   - **Firebase**: https://console.firebase.google.com/
+
+⚠️ **IMPORTANTE**: Nunca commite o arquivo `local.properties` no Git!
+
 ## 📄 **Documentação Completa**
 
 - 📋 [FUNCIONALIDADES_IMPLEMENTADAS.md](FUNCIONALIDADES_IMPLEMENTADAS.md) - Lista completa de funcionalidades

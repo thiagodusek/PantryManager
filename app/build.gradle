@@ -34,6 +34,9 @@ android {
         // Define a placeholder for Google Maps API Key
         // You should add GOOGLE_MAPS_API_KEY=your_actual_key to local.properties
         manifestPlaceholders['GOOGLE_MAPS_API_KEY'] = localProperties.getProperty('GOOGLE_MAPS_API_KEY', 'AIzaSyDummyKeyForDevelopment_ReplaceWithRealKey')
+        
+        // OpenAI API Key from local.properties
+        buildConfigField "String", "OPENAI_API_KEY", "\"${localProperties.getProperty('OPENAI_API_KEY', 'YOUR_OPENAI_API_KEY_HERE')}\""
     }
 
     buildTypes {
@@ -43,6 +46,7 @@ android {
         }
     }
     buildFeatures {
+        buildConfig true
         compose true
     }
     composeOptions {
@@ -114,6 +118,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.11.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    
+    // Moshi - For JSON parsing in OpenAI services
+    implementation 'com.squareup.moshi:moshi:1.15.1'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.15.1'
     
     // Coroutines - Latest version
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1'
