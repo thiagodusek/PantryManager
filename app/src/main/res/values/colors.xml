@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Basic colors for XML resources when needed -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- PantryManager brand colors (matching PantryColors.kt) -->
+    <color name="pantry_primary">#2E7D32</color>
+    <color name="pantry_primary_variant">#1B5E20</color>
+    <color name="pantry_secondary">#FF8F00</color>
+    <color name="pantry_secondary_variant">#EF6C00</color>
+    <color name="pantry_background">#F8F9FA</color>
+    <color name="pantry_surface">#FFFFFF</color>
+    <color name="pantry_surface_variant">#E8F5E8</color>
+    
+    <!-- Status bar and navigation colors -->
+    <color name="status_bar">@color/pantry_primary_variant</color>
+    <color name="navigation_bar">@color/pantry_surface</color>
+    
+    <!-- Category colors -->
+    <color name="category_fruits_vegetables">#4CAF50</color>
+    <color name="category_meat">#E53935</color>
+    <color name="category_dairy">#2196F3</color>
+    <color name="category_bakery">#FF8F00</color>
+    <color name="category_beverages">#9C27B0</color>
+    <color name="category_pantry">#795548</color>
+    <color name="category_frozen">#607D8B</color>
+    <color name="category_cleaning">#00BCD4</color>
+    
+    <!-- Material theme mappings for XML compatibility -->
+    <color name="md_theme_light_primary">@color/pantry_primary</color>
+    <color name="md_theme_light_secondary">@color/pantry_secondary</color>
+    <color name="md_theme_light_background">@color/pantry_background</color>
+    
+    <color name="md_theme_dark_primary">#81C784</color>
+    <color name="md_theme_dark_secondary">#FFB74D</color>
+    <color name="md_theme_dark_background">#1C1B1F</color>
+</resources>

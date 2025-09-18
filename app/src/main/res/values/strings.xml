@@ -1,0 +1,168 @@
+<resources>
+    <string name="app_name">PantryManager</string>
+    
+    <!-- Authentication -->
+    <string name="login_title">Entrar</string>
+    <string name="register_title">Cadastrar</string>
+    <string name="email">E-mail</string>
+    <string name="password">Senha</string>
+    <string name="confirm_password">Confirmar Senha</string>
+    <string name="login">Login</string>
+    <string name="register">Cadastrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="sign_in_with_google">Entrar com Google</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="dont_have_account">Não tem uma conta? Cadastre-se</string>
+    <string name="already_have_account">Já tem uma conta? Faça login</string>
+    <string name="login_success">Login realizado com sucesso!</string>
+    <string name="register_success">Cadastro realizado com sucesso!</string>
+    <string name="google_signin_success">Login com Google realizado com sucesso!</string>
+    
+    <!-- Google Services -->
+    <string name="default_web_client_id">191359104593-ickuagntm0cto1emai6ok1bdnc3rk64l.apps.googleusercontent.com</string>
+    
+    <!-- Registration form -->
+    <string name="nome">Nome</string>
+    <string name="sobrenome">Sobrenome</string>
+    <string name="cpf">CPF</string>
+    <string name="endereco">Endereço</string>
+    <string name="numero">Número</string>
+    <string name="complemento">Complemento</string>
+    <string name="cep">CEP</string>
+    <string name="cidade">Cidade</string>
+    <string name="estado">Estado</string>
+    <string name="search_radius">Raio de Busca (km)</string>
+    <string name="nfe_permissions">Autorizar acesso à NFe</string>
+    
+    <!-- Home -->
+    <string name="home_title">Home</string>
+    <string name="user_logged_success">Usuário logado com sucesso!</string>
+    <string name="welcome_user">Bem-vindo, %1$s!</string>
+    
+    <!-- Home menu options -->
+    <string name="register_products">Cadastrar Produtos</string>
+    <string name="manage_categories">Gerenciar Categorias</string>
+    <string name="manage_units">Gerenciar Unidades</string>
+    <string name="pantry_items">Itens da Despensa</string>
+    <string name="import_nfe">Importar via NFe</string>
+    <string name="shopping_lists">Listas de Compras</string>
+    <string name="recipes">Receitas</string>
+    <string name="dashboards">Dashboards</string>
+    <string name="nearby_stores">Supermercados Próximos</string>
+    <string name="profile">Perfil do Usuário</string>
+    <string name="settings">Configurações</string>
+    
+    <!-- Menu descriptions -->
+    <string name="desc_register_products">Cadastrar novos produtos no sistema</string>
+    <string name="desc_manage_categories">Organizar categorias de produtos</string>
+    <string name="desc_manage_units">Configurar unidades de medida</string>
+    <string name="desc_pantry_items">Visualizar itens da despensa</string>
+    <string name="desc_import_nfe">Importar compras via NFe</string>
+    <string name="desc_shopping_lists">Criar e gerenciar listas</string>
+    <string name="desc_recipes">Descobrir receitas incríveis</string>
+    <string name="desc_dashboards">Acompanhar estatísticas</string>
+    <string name="desc_nearby_stores">Encontrar supermercados próximos</string>
+    
+    <!-- UI Messages -->
+    <string name="welcome_back">Bem-vindo de volta!</string>
+    <string name="login_subtitle">Entre com sua conta para continuar</string>
+    <string name="or_continue_with">Ou continue com</string>
+    <string name="dont_have_account_question">Não tem uma conta?</string>
+    <string name="create_account">Criar conta</string>
+    <string name="email_hint">seu@email.com</string>
+    <string name="password_hint">Digite sua senha</string>
+    
+    <!-- Menu categories -->
+    <string name="catalog_management">Gestão de Catálogo</string>
+    <string name="pantry_management">Gestão da Despensa</string>
+    <string name="shopping_planning">Planejamento de Compras</string>
+    <string name="analytics_reports">Análises e Relatórios</string>
+    <string name="user_settings">Configurações do Usuário</string>
+    
+    <!-- Products -->
+    <string name="product_brand">Marca</string>
+    <string name="product_barcode">Código de Barras</string>
+    <string name="unit_price">Preço Unitário</string>
+    
+    <!-- Pantry -->
+    <string name="pantry_title">Minha Despensa</string>
+    <string name="add_item">Adicionar Item</string>
+    <string name="item_name">Nome do Item</string>
+    <string name="quantity">Quantidade</string>
+    <string name="expiry_date">Data de Validade</string>
+    <string name="purchase_date">Data de Compra</string>
+    <string name="save">Salvar</string>
+    
+    <!-- Shopping Lists -->
+    <string name="create_shopping_list">Criar Lista de Compras</string>
+    <string name="generate_auto_list">Gerar Lista Automática</string>
+    <string name="list_name">Nome da Lista</string>
+    
+    <!-- Dashboard -->
+    <string name="expiring_products">Produtos Próximos do Vencimento</string>
+    <string name="most_consumed">Produtos Mais Consumidos</string>
+    <string name="current_stock">Estoque Atual</string>
+    <string name="best_price_stores">Melhores Preços</string>
+    <string name="price_comparison">Comparação de Preços</string>
+    
+    <!-- Dashboards -->
+    <string name="dashboard_consumo">Dashboard de Consumo</string>
+    <string name="dashboard_desperdicio">Dashboard de Desperdício</string>
+    <string name="dashboard_financeiro">Dashboard Financeiro</string>
+    
+    <!-- Product Registration -->
+    <string name="product_registration_title">Cadastrar Produto</string>
+    <string name="ean_code_required">Código de Barras *</string>
+    <string name="ean_code_hint">Digite o código de barras (obrigatório)</string>
+    <string name="product_name">Nome do Produto *</string>
+    <string name="product_description">Descrição</string>
+    <string name="product_quantity">Quantidade *</string>
+    <string name="product_quantity_hint">Ex: 2.5</string>
+    <string name="product_batch">Lote</string>
+    <string name="product_batch_hint">Número do lote (opcional)</string>
+    <string name="product_expiry_date">Data de Validade</string>
+    <string name="product_expiry_date_hint">dd/mm/aaaa (opcional)</string>
+    <string name="product_observation">Observação</string>
+    <string name="product_category">Categoria *</string>
+    <string name="product_unit">Unidade de Medida *</string>
+    <string name="add_product">Cadastrar Produto</string>
+    <string name="clear_form">Limpar Formulário</string>
+    <string name="required_fields">* Campos obrigatórios</string>
+    <string name="select_date">Selecionar Data</string>
+    
+    <!-- Validation messages -->
+    <string name="error_ean_required">Código de Barras é obrigatório</string>
+    <string name="error_name_required">Nome do produto é obrigatório</string>
+    <string name="error_quantity_required">Quantidade é obrigatória</string>
+    <string name="error_quantity_invalid">Quantidade deve ser um número positivo</string>
+    <string name="error_category_required">Categoria é obrigatória</string>
+    <string name="error_unit_required">Unidade de medida é obrigatória</string>
+    <string name="error_date_invalid">Data inválida</string>
+    
+    <!-- Product Inventory -->
+    <string name="inventory_management">Gerenciamento de Estoque</string>
+    <string name="add_to_pantry">Adicionar ao Estoque</string>
+    <string name="product_added_success">Produto cadastrado e adicionado ao estoque com sucesso!</string>
+    
+    <!-- Common -->
+    <string name="loading">Carregando...</string>
+    <string name="error">Erro</string>
+    <string name="try_again">Tentar Novamente</string>
+    <string name="success">Sucesso</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Excluir</string>
+    <string name="back">Voltar</string>
+    <string name="next">Próximo</string>
+    <string name="finish">Finalizar</string>
+    <string name="search">Pesquisar</string>
+    <string name="filter">Filtrar</string>
+    
+    <!-- Navigation and Actions -->
+    <string name="confirm">Confirmar</string>
+    <string name="ok">OK</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    
+    <!-- Store and Shopping -->
+    <string name="promotions">Promoções</string>
+</resources>

@@ -1,0 +1,21 @@
+## Template do arquivo local.properties
+## Copie este arquivo para 'local.properties' e configure suas chaves
+
+# SDK location (automaticamente configurado pelo Android Studio)
+sdk.dir=C:\\Users\\SEU_USUARIO\\AppData\\Local\\Android\\Sdk
+
+# Google Maps API Key (opcional)
+# Obtenha em: https://console.cloud.google.com/apis/credentials
+GOOGLE_MAPS_API_KEY=SUA_CHAVE_GOOGLE_MAPS_AQUI
+
+# Firebase Web API Key (opcional)
+FIREBASE_API_KEY=SUA_CHAVE_FIREBASE_WEB_AQUI
+
+# OpenAI API Key (obrigatório para funcionalidades de IA)
+# Obtenha em: https://platform.openai.com/api-keys
+OPENAI_API_KEY=sk-proj-SUA_CHAVE_OPENAI_AQUI
+
+# IMPORTANTE:
+# - Este arquivo NÃO deve ser commitado no Git
+# - Mantenha suas chaves privadas e seguras
+# - Nunca compartilhe suas chaves de API

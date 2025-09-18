@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- Background circle -->
+    <path
+        android:fillColor="@color/md_theme_light_primary"
+        android:pathData="M24,2A22,22 0 0,0 2,24A22,22 0 0,0 24,46A22,22 0 0,0 46,24A22,22 0 0,0 24,2Z" />
+    
+    <!-- White inner circle -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M24,8A16,16 0 0,0 8,24A16,16 0 0,0 24,40A16,16 0 0,0 40,24A16,16 0 0,0 24,8Z" />
+    
+    <!-- Blue inner circle -->
+    <path
+        android:fillColor="@color/md_theme_light_primary"
+        android:pathData="M24,12A12,12 0 0,0 12,24A12,12 0 0,0 24,36A12,12 0 0,0 36,24A12,12 0 0,0 24,12Z" />
+        
+    <!-- Letter P for Pantry -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M18,16L18,32L22,32L22,26L28,26C30.76,26 33,23.76 33,21C33,18.24 30.76,16 28,16L18,16ZM22,20L28,20C28.55,20 29,20.45 29,21C29,21.55 28.55,22 28,22L22,22Z" />
+</vector>
