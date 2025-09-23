@@ -48,6 +48,12 @@ class CategoryViewModel @Inject constructor(
     val state: StateFlow<CategoryState> = _state.asStateFlow()
 
     init {
+        // Carregar categorias padrão imediatamente
+        _state.value = _state.value.copy(
+            categories = emptyList(), // Categorias do usuário (vazias inicialmente)
+            isLoading = false
+        )
+        // Tentar carregar categorias do usuário em background
         loadCategories()
     }
 
@@ -315,15 +321,20 @@ class CategoryViewModel @Inject constructor(
 
     private fun loadCategories() {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
             try {
-                // Carregar categorias do banco de dados
-                val categories = getAllCategoriesUseCase()
-                _state.value = _state.value.copy(categories = categories)
+                // Carregar categorias do Firebase
+                val userCategories = getAllCategoriesUseCase()
+                _state.value = _state.value.copy(
+                    categories = userCategories,
+                    isLoading = false
+                )
             } catch (e: Exception) {
-                // Se houver erro no banco, mostrar pelo menos as categorias padrão
+                // Se houver erro, mostrar lista vazia (categorias padrão aparecerão na UI)
                 _state.value = _state.value.copy(
                     categories = emptyList(), // Lista das categorias personalizadas será vazia
-                    errorMessage = "Erro ao carregar categorias personalizadas: ${e.message}"
+                    isLoading = false,
+                    errorMessage = "Erro ao carregar categorias: ${e.message}"
                 )
             }
         }

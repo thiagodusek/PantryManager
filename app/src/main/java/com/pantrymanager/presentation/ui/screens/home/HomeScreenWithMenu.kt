@@ -43,6 +43,7 @@ fun HomeScreenWithMenu(
     onNavigateToProductRegister: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
+    onNavigateToUnitManagement: () -> Unit,
     onNavigateToPantryItems: () -> Unit,
     onNavigateToNFeImport: () -> Unit,
     onNavigateToShoppingLists: () -> Unit,
@@ -76,11 +77,18 @@ fun HomeScreenWithMenu(
                     gradientColors = PantryGradients.SecondaryGradient
                 ),
                 HomeMenuItem(
-                    title = stringResource(R.string.manage_units),
-                    icon = Icons.Default.Scale,
-                    description = "Gerenciar unidades de medida",
+                    title = stringResource(R.string.register_units),
+                    icon = Icons.Default.Add,
+                    description = "Cadastrar novas unidades de medida",
                     onClick = onNavigateToUnitRegister,
                     gradientColors = PantryGradients.AccentGradient
+                ),
+                HomeMenuItem(
+                    title = stringResource(R.string.manage_units),
+                    icon = Icons.Default.Scale,
+                    description = "Gerenciar unidades de medida existentes",
+                    onClick = onNavigateToUnitManagement,
+                    gradientColors = PantryGradients.PrimaryGradient
                 )
             )
         ),

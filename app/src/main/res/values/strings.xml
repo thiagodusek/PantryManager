@@ -42,6 +42,7 @@
     <!-- Home menu options -->
     <string name="register_products">Cadastrar Produtos</string>
     <string name="manage_categories">Gerenciar Categorias</string>
+    <string name="register_units">Cadastrar Unidades</string>
     <string name="manage_units">Gerenciar Unidades</string>
     <string name="pantry_items">Itens da Despensa</string>
     <string name="import_nfe">Importar via NFe</string>
@@ -55,7 +56,8 @@
     <!-- Menu descriptions -->
     <string name="desc_register_products">Cadastrar novos produtos no sistema</string>
     <string name="desc_manage_categories">Organizar categorias de produtos</string>
-    <string name="desc_manage_units">Configurar unidades de medida</string>
+    <string name="desc_register_units">Cadastrar novas unidades de medida</string>
+    <string name="desc_manage_units">Gerenciar unidades de medida existentes</string>
     <string name="desc_pantry_items">Visualizar itens da despensa</string>
     <string name="desc_import_nfe">Importar compras via NFe</string>
     <string name="desc_shopping_lists">Criar e gerenciar listas</string>

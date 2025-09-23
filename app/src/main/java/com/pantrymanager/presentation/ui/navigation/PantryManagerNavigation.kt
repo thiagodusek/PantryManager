@@ -277,6 +277,9 @@ fun PantryManagerNavigation(
                     onNavigateToUnitRegister = {
                         navController.navigate(Screen.UnitRegister.route)
                     },
+                    onNavigateToUnitManagement = {
+                        navController.navigate(Screen.UnitManagement.route)
+                    },
                     onNavigateToNFeImport = {
                         navController.navigate(Screen.NFeImport.route)
                     },

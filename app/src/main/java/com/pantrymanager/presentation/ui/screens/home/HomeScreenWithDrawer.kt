@@ -118,6 +118,7 @@ fun HomeScreenWithDrawer(
                     onNavigateToProductRegister = onNavigateToProductRegister,
                     onNavigateToCategoryRegister = onNavigateToCategoryRegister,
                     onNavigateToUnitRegister = onNavigateToUnitRegister,
+                    onNavigateToUnitManagement = onNavigateToUnitManagement,
                     onNavigateToPantryItems = onNavigateToPantryItems,
                     onNavigateToNFeImport = onNavigateToNFeImport,
                     onNavigateToShoppingLists = onNavigateToShoppingLists,

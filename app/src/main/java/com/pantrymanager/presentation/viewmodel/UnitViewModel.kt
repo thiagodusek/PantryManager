@@ -49,6 +49,12 @@ class UnitViewModel @Inject constructor(
     val state: StateFlow<UnitState> = _state.asStateFlow()
 
     init {
+        // Carregar unidades padrão imediatamente
+        _state.value = _state.value.copy(
+            units = emptyList(), // Unidades do usuário (vazias inicialmente)
+            isLoading = false
+        )
+        // Tentar carregar unidades do usuário em background
         loadUnits()
     }
 
@@ -281,15 +287,20 @@ class UnitViewModel @Inject constructor(
 
     private fun loadUnits() {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
             try {
-                // Carregar unidades do banco de dados
-                val units = getAllMeasurementUnitsUseCase()
-                _state.value = _state.value.copy(units = units)
+                // Carregar unidades do Firebase
+                val userUnits = getAllMeasurementUnitsUseCase()
+                _state.value = _state.value.copy(
+                    units = userUnits,
+                    isLoading = false
+                )
             } catch (e: Exception) {
-                // Se houver erro no banco, mostrar pelo menos as unidades padrão
+                // Se houver erro, mostrar lista vazia (unidades padrão aparecerão na UI)
                 _state.value = _state.value.copy(
                     units = emptyList(), // Lista das unidades personalizadas será vazia
-                    errorMessage = "Erro ao carregar unidades personalizadas: ${e.message}"
+                    isLoading = false,
+                    errorMessage = "Erro ao carregar unidades: ${e.message}"
                 )
             }
         }

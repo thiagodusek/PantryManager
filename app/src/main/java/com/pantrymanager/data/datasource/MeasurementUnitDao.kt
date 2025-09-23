@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.Flow
 interface MeasurementUnitDao {
     
     @Query("SELECT * FROM measurement_units ORDER BY name ASC")
-    suspend fun getAllUnits(): List<MeasurementUnitEntity>
+    suspend fun getAllMeasurementUnits(): List<MeasurementUnitEntity>
     
     @Query("SELECT * FROM measurement_units WHERE id = :id")
-    suspend fun getUnitById(id: Long): MeasurementUnitEntity?
+    suspend fun getMeasurementUnitById(id: Long): MeasurementUnitEntity?
     
     @Query("SELECT * FROM measurement_units WHERE LOWER(name) = LOWER(:name) LIMIT 1")
     suspend fun findByName(name: String): MeasurementUnitEntity?
@@ -25,17 +25,20 @@ interface MeasurementUnitDao {
     suspend fun findByAbbreviation(abbreviation: String): MeasurementUnitEntity?
     
     @Query("SELECT * FROM measurement_units WHERE name LIKE :query OR abbreviation LIKE :query ORDER BY name ASC")
-    suspend fun searchUnits(query: String): List<MeasurementUnitEntity>
+    suspend fun searchMeasurementUnits(query: String): List<MeasurementUnitEntity>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUnit(unit: MeasurementUnitEntity): Long
+    suspend fun insertMeasurementUnit(unit: MeasurementUnitEntity): Long
     
     @Update
-    suspend fun updateUnit(unit: MeasurementUnitEntity)
+    suspend fun updateMeasurementUnit(unit: MeasurementUnitEntity)
     
     @Delete
-    suspend fun deleteUnit(unit: MeasurementUnitEntity)
+    suspend fun deleteMeasurementUnit(unit: MeasurementUnitEntity)
     
     @Query("DELETE FROM measurement_units WHERE id = :id")
-    suspend fun deleteUnitById(id: Long)
+    suspend fun deleteMeasurementUnitById(id: Long)
+    
+    @Query("DELETE FROM measurement_units WHERE id IN (:ids)")
+    suspend fun deleteMeasurementUnits(ids: List<Long>)
 }

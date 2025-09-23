@@ -91,8 +91,8 @@ fun NavigationDrawerContent(
                     isSelected = currentRoute == "category_management"
                 ),
                 DrawerMenuItem(
-                    title = stringResource(R.string.manage_units),
-                    icon = Icons.Default.Scale,
+                    title = stringResource(R.string.register_units),
+                    icon = Icons.Default.Add,
                     onClick = {
                         onNavigateToUnitRegister()
                         onCloseDrawer()
@@ -100,8 +100,8 @@ fun NavigationDrawerContent(
                     isSelected = currentRoute == "unit_register"
                 ),
                 DrawerMenuItem(
-                    title = "Gerenciar Unidades",
-                    icon = Icons.Default.Settings,
+                    title = stringResource(R.string.manage_units),
+                    icon = Icons.Default.Scale,
                     onClick = {
                         onNavigateToUnitManagement()
                         onCloseDrawer()

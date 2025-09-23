@@ -108,30 +108,37 @@ class OpenAIProductSearchService @Inject constructor(
      */
     private fun buildProductSearchPrompt(ean: String): String {
         return """
-        |Pesquise informações sobre o produto com código EAN: $ean
+        |Pesquise informações sobre o produto com código EAN/código de barras: $ean
         |
-        |Sumarize em formato JSON os seguintes campos:
+        |Sumarize em uma tabela os campos: EAN (código de barras), Nome, Descrição, Foto
+        |Relacione a pesquisa aos campos de cadastro de produtos que temos no Firebase:
+        |
+        |Retorne em formato JSON:
         |{
         |    "ean": "$ean",
-        |    "name": "Nome completo do produto",
-        |    "description": "Descrição detalhada do produto",
-        |    "imageUrl": "URL de uma imagem do produto (se disponível)",
-        |    "brand": "Marca do produto",
-        |    "category": "Categoria do produto (ex: Alimentos, Bebidas, Higiene, etc.)",
-        |    "unit": "Unidade de medida (ex: Quilograma, Litro, Unidade, Grama)",
+        |    "name": "Nome completo do produto (campo 'name' no Firebase)",
+        |    "description": "Descrição detalhada do produto (campo 'description' no Firebase)", 
+        |    "imageUrl": "URL de uma foto/imagem do produto (campo 'imageUrl' no Firebase)",
+        |    "brand": "Marca/fabricante do produto (campo 'brand' no Firebase)",
+        |    "category": "Categoria do produto (campo 'category' no Firebase)",
+        |    "unit": "Unidade de medida principal (campo 'measurementUnit' no Firebase)",
         |    "unitAbbreviation": "Abreviação da unidade (ex: kg, L, un, g)",
         |    "averagePrice": valor_numerico_preco_medio_em_reais,
+        |    "weight": "Peso/volume/quantidade da embalagem (ex: 1.0 para 1kg, 500 para 500ml)",
+        |    "nutritionalInfo": "Informações nutricionais resumidas se for alimento",
         |    "found": true_ou_false
         |}
         |
-        |IMPORTANTE:
-        |- Se o produto não for encontrado, retorne found: false
-        |- Use informações de produtos vendidos no Brasil
-        |- Para categoria, use: "Alimentos e Bebidas", "Higiene e Beleza", "Limpeza", "Eletrônicos", "Roupas e Acessórios", "Casa e Jardim", "Esporte e Lazer", etc.
-        |- Para unidade, prefira: "Quilograma", "Grama", "Litro", "Mililitro", "Unidade", "Metro", "Centímetro"
-        |- O preço deve ser um valor numérico (sem R$ ou símbolos)
+        |INSTRUÇÕES IMPORTANTES:
+        |- Busque informações reais e precisas sobre produtos vendidos no Brasil
+        |- Se o produto não for encontrado ou não existir, retorne found: false
+        |- Para imageUrl, use URLs de imagens reais dos produtos quando possível
+        |- Para category, use categorias brasileiras: "Alimentos e Bebidas", "Higiene e Beleza", "Limpeza e Casa", "Eletrônicos", "Roupas e Acessórios", "Farmácia", "Pet Shop", "Bebê", "Automotivo", "Esporte e Lazer"
+        |- Para unit, use: "Quilograma", "Grama", "Litro", "Mililitro", "Unidade", "Metro", "Centímetro", "Pacote"
+        |- Para averagePrice, pesquise preços atuais em supermercados brasileiros
+        |- Para weight, extraia o peso/volume da embalagem (ex: 1 para 1kg, 0.5 para 500g, 2 para 2L)
         |
-        |Responda APENAS com o JSON, sem texto adicional.
+        |Responda APENAS com o JSON válido, sem texto adicional ou formatação markdown.
         """.trimMargin()
     }
     
@@ -186,6 +193,8 @@ class OpenAIProductSearchService @Inject constructor(
                     category = category,
                     unit = "Unidade", // Padrão
                     unitAbbreviation = "un",
+                    weight = null,
+                    nutritionalInfo = null,
                     found = true,
                     source = "openai_fallback"
                 )
@@ -204,6 +213,16 @@ class OpenAIProductSearchService @Inject constructor(
     private fun createNotFoundResult(ean: String): ProductSearchResultOpenAI {
         return ProductSearchResultOpenAI(
             ean = ean,
+            name = null,
+            description = null,
+            imageUrl = null,
+            brand = null,
+            category = null,
+            unit = null,
+            unitAbbreviation = null,
+            averagePrice = null,
+            weight = null,
+            nutritionalInfo = null,
             found = false,
             source = "openai_not_found"
         )

@@ -33,6 +33,7 @@ fun HomeScreen(
     onNavigateToProductRegister: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
+    onNavigateToUnitManagement: () -> Unit,
     onNavigateToNFeImport: () -> Unit,
     onNavigateToShoppingLists: () -> Unit,
     onNavigateToRecipes: () -> Unit,
@@ -60,11 +61,18 @@ fun HomeScreen(
             gradientColors = PantryGradients.CategoryGradients["bakery"] ?: PantryGradients.PrimaryGradient
         ),
         HomeMenuItem(
-            title = stringResource(R.string.manage_units),
-            icon = Icons.Default.Scale,
-            description = "Configurar unidades de medida",
+            title = stringResource(R.string.register_units),
+            icon = Icons.Default.Add,
+            description = "Cadastrar novas unidades de medida",
             onClick = onNavigateToUnitRegister,
             gradientColors = PantryGradients.CategoryGradients["pantry"] ?: PantryGradients.PrimaryGradient
+        ),
+        HomeMenuItem(
+            title = stringResource(R.string.manage_units),
+            icon = Icons.Default.Scale,
+            description = "Gerenciar unidades de medida existentes",
+            onClick = onNavigateToUnitManagement,
+            gradientColors = PantryGradients.CategoryGradients["canned"] ?: PantryGradients.PrimaryGradient
         ),
         
         // Gestão da Despensa

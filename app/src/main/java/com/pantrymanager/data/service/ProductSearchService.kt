@@ -2,6 +2,7 @@ package com.pantrymanager.data.service
 
 import android.util.Log
 import com.pantrymanager.data.dto.ProductSearchResult
+import com.pantrymanager.data.dto.NutritionalInfoDto
 import com.pantrymanager.domain.usecase.product.SearchProductByEANWithOpenAIUseCase
 import kotlinx.coroutines.delay
 import javax.inject.Inject
@@ -42,6 +43,7 @@ class ProductSearchServiceImpl @Inject constructor(
                         category = openAIData.category,
                         unit = openAIData.unit,
                         unitAbbreviation = openAIData.unitAbbreviation,
+                        nutritionalInfo = parseNutritionalInfo(openAIData.nutritionalInfo),
                         found = true,
                         source = "openai"
                     )
@@ -146,5 +148,44 @@ class ProductSearchServiceImpl @Inject constructor(
             category = "Diversos",
             source = "generated"
         )
+    }
+    
+    /**
+     * Converte informações nutricionais em texto para objeto estruturado
+     */
+    private fun parseNutritionalInfo(nutritionalText: String?): NutritionalInfoDto? {
+        if (nutritionalText.isNullOrBlank()) return null
+        
+        return try {
+            // Parse básico de informações nutricionais do ChatGPT
+            val text = nutritionalText.lowercase()
+            
+            NutritionalInfoDto(
+                calories = extractNutritionalValue(text, listOf("calorias", "kcal", "cal")),
+                protein = extractNutritionalValue(text, listOf("proteína", "proteinas", "protein")),
+                carbs = extractNutritionalValue(text, listOf("carboidratos", "carbs", "carboidrato")),
+                fat = extractNutritionalValue(text, listOf("gordura", "lipídios", "fat", "gorduras")),
+                fiber = extractNutritionalValue(text, listOf("fibra", "fibras", "fiber")),
+                sodium = extractNutritionalValue(text, listOf("sódio", "sodio", "sodium"))
+            )
+        } catch (e: Exception) {
+            Log.w("ProductSearchService", "Erro ao fazer parse de informações nutricionais: ${e.message}")
+            null
+        }
+    }
+    
+    /**
+     * Extrai valor numérico de informação nutricional do texto
+     */
+    private fun extractNutritionalValue(text: String, keywords: List<String>): Double? {
+        for (keyword in keywords) {
+            val pattern = "$keyword[:\\s]*([0-9]+[.,]?[0-9]*)\\s*g?".toRegex()
+            val match = pattern.find(text)
+            if (match != null) {
+                val value = match.groupValues[1].replace(",", ".")
+                return value.toDoubleOrNull()
+            }
+        }
+        return null
     }
 }
