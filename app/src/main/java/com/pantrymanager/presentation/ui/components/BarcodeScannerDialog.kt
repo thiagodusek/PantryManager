@@ -34,8 +34,7 @@ import java.util.concurrent.Executors
 /**
  * Componente de scanner de código de barras usando CameraX e ML Kit
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
-@androidx.camera.core.ExperimentalGetImage
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class, androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 fun BarcodeScannerDialog(
     isVisible: Boolean,
@@ -175,7 +174,7 @@ fun BarcodeScannerDialog(
     )
 }
 
-@androidx.camera.core.ExperimentalGetImage
+@OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 private fun CameraPreview(
     onBarcodeDetected: (String) -> Unit,
@@ -388,7 +387,7 @@ private fun FocusFrame() {
     }
 }
 
-@androidx.camera.core.ExperimentalGetImage
+@OptIn(androidx.camera.core.ExperimentalGetImage::class)
 private fun processImageProxy(
     imageProxy: ImageProxy,
     onBarcodeDetected: (String) -> Unit

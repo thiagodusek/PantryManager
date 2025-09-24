@@ -65,20 +65,7 @@ data class OpenAIUsage(
 /**
  * Resultado estruturado da pesquisa de produto via OpenAI
  * Mapeado para os campos de cadastro de produtos no Firebase
+ * 
+ * NOTA: A definição da classe ProductSearchResultOpenAI foi movida para 
+ * ProductSearchResultOpenAI.kt para evitar duplicação
  */
-@JsonClass(generateAdapter = true)
-data class ProductSearchResultOpenAI(
-    val ean: String,
-    val name: String? = null,                    // Campo 'name' no Firebase
-    val description: String? = null,             // Campo 'description' no Firebase
-    val imageUrl: String? = null,                // Campo 'imageUrl' no Firebase
-    val brand: String? = null,                   // Campo 'brand' no Firebase
-    val category: String? = null,                // Campo 'category' no Firebase
-    val unit: String? = null,                    // Campo 'measurementUnit' no Firebase
-    val unitAbbreviation: String? = null,        // Abreviação da unidade
-    val averagePrice: Double? = null,            // Preço médio em reais
-    val weight: Double? = null,                  // Peso/volume da embalagem
-    val nutritionalInfo: String? = null,         // Informações nutricionais (se alimento)
-    val found: Boolean = false,                  // Se o produto foi encontrado
-    val source: String = "openai"                // Fonte da informação
-)

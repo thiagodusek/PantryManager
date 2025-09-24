@@ -19,7 +19,7 @@ import com.pantrymanager.presentation.ui.screens.auth.RegisterScreen
 import com.pantrymanager.presentation.ui.screens.auth.ForgotPasswordScreen
 import com.pantrymanager.presentation.ui.screens.home.HomeScreen
 import com.pantrymanager.presentation.ui.screens.dashboard.DashboardScreen
-import com.pantrymanager.presentation.ui.screens.product.ProductRegisterScreen
+import com.pantrymanager.presentation.ui.screens.product.ProductRegistrationScreen
 import com.pantrymanager.presentation.ui.screens.product.ProductManagementScreen
 import com.pantrymanager.presentation.ui.screens.category.CategoryRegisterScreen
 import com.pantrymanager.presentation.ui.screens.category.CategoryManagementScreen
@@ -321,7 +321,7 @@ fun PantryManagerNavigation(
                 isLoggedIn = isLoggedIn,
                 navController = navController
             ) {
-                ProductRegisterScreen(
+                ProductRegistrationScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -368,7 +368,7 @@ fun PantryManagerNavigation(
                 navController = navController
             ) {
                 val productId = backStackEntry.arguments?.getLong("productId") ?: 0L
-                ProductRegisterScreen(
+                ProductRegistrationScreen(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -570,7 +570,6 @@ fun PantryManagerNavigation(
                 isLoggedIn = isLoggedIn,
                 navController = navController
             ) {
-                @androidx.camera.core.ExperimentalGetImage
                 com.pantrymanager.presentation.ui.screens.fiscalreceipt.FiscalReceiptScannerScreen(
                     onNavigateBack = {
                         navController.popBackStack()

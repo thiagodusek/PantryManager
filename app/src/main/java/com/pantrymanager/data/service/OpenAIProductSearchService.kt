@@ -108,9 +108,8 @@ class OpenAIProductSearchService @Inject constructor(
      */
     private fun buildProductSearchPrompt(ean: String): String {
         return """
-        |Pesquise informações sobre o produto com código EAN/código de barras: $ean
+        |Busque para mim em forma de tabela o nome do produto, descrição, unidade de medida, categoria, observações e foto do produto com EAN $ean da pesquisa
         |
-        |Sumarize em uma tabela os campos: EAN (código de barras), Nome, Descrição, Foto
         |Relacione a pesquisa aos campos de cadastro de produtos que temos no Firebase:
         |
         |Retorne em formato JSON:
@@ -126,6 +125,7 @@ class OpenAIProductSearchService @Inject constructor(
         |    "averagePrice": valor_numerico_preco_medio_em_reais,
         |    "weight": "Peso/volume/quantidade da embalagem (ex: 1.0 para 1kg, 500 para 500ml)",
         |    "nutritionalInfo": "Informações nutricionais resumidas se for alimento",
+        |    "observations": "Observações importantes sobre o produto (campo 'observation' no Firebase)",
         |    "found": true_ou_false
         |}
         |
@@ -187,14 +187,16 @@ class OpenAIProductSearchService @Inject constructor(
             if (name != null) {
                 ProductSearchResultOpenAI(
                     ean = ean,
-                    name = name,
-                    description = description,
-                    brand = brand,
-                    category = category,
+                    name = name ?: "",
+                    description = description ?: "",
+                    brand = brand ?: "",
+                    category = category ?: "",
                     unit = "Unidade", // Padrão
                     unitAbbreviation = "un",
-                    weight = null,
+                    averagePrice = 0.0,
+                    weight = "",
                     nutritionalInfo = null,
+                    observations = null,
                     found = true,
                     source = "openai_fallback"
                 )
@@ -213,16 +215,17 @@ class OpenAIProductSearchService @Inject constructor(
     private fun createNotFoundResult(ean: String): ProductSearchResultOpenAI {
         return ProductSearchResultOpenAI(
             ean = ean,
-            name = null,
-            description = null,
+            name = "",
+            description = "",
             imageUrl = null,
-            brand = null,
-            category = null,
-            unit = null,
-            unitAbbreviation = null,
-            averagePrice = null,
-            weight = null,
+            brand = "",
+            category = "",
+            unit = "",
+            unitAbbreviation = "",
+            averagePrice = 0.0,
+            weight = "",
             nutritionalInfo = null,
+            observations = null,
             found = false,
             source = "openai_not_found"
         )

@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Alignment
 import com.pantrymanager.domain.entity.Category
 import com.pantrymanager.domain.entity.MeasurementUnit
+import com.pantrymanager.domain.entity.Brand
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,14 +100,28 @@ fun ProductFormFields(
     onNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onBrandChange: (String) -> Unit,
+    onBrandIdChange: (Long) -> Unit,
     onObservationChange: (String) -> Unit,
     onPriceChange: (String) -> Unit,
     onCategoryChange: (Long) -> Unit,
     onUnitChange: (Long) -> Unit,
     onScanBarcode: () -> Unit,
     onAddNewCategory: (String) -> Unit,
-    onAddNewUnit: (String, String) -> Unit
+    onAddNewUnit: (String, String) -> Unit,
+    onAddNewBrand: (String) -> Unit,
+    onClearFocusState: () -> Unit = {}
 ) {
+    val nameFieldFocusRequester = remember { FocusRequester() }
+    
+    // Gerenciar foco no campo nome após scanear código de barras
+    LaunchedEffect(state.shouldFocusNameField) {
+        if (state.shouldFocusNameField) {
+            delay(500) // Pequeno delay para garantir que a UI foi atualizada
+            nameFieldFocusRequester.requestFocus()
+            onClearFocusState()
+        }
+    }
+    
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -154,23 +172,11 @@ fun ProductFormFields(
                     contentDescription = null
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(nameFieldFocusRequester),
             isError = state.nameError != null,
             supportingText = state.nameError?.let { { Text(it) } }
-        )
-        
-        // Marca
-        OutlinedTextField(
-            value = state.brand,
-            onValueChange = onBrandChange,
-            label = { Text("Marca") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Business,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
         )
         
         // Descrição
@@ -187,6 +193,16 @@ fun ProductFormFields(
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 3
+        )
+        
+        // Marca - Dropdown com opção de adicionar nova
+        BrandDropdownWithAdd(
+            brands = state.brands,
+            selectedBrandId = state.brandId,
+            onBrandSelected = onBrandIdChange,
+            onAddNewBrand = onAddNewBrand,
+            enabled = !state.isLoading,
+            modifier = Modifier.fillMaxWidth()
         )
         
         // Row para Categoria e Unidade
@@ -218,21 +234,6 @@ fun ProductFormFields(
             )
         }
         
-        // Preço Médio
-        OutlinedTextField(
-            value = state.averagePrice,
-            onValueChange = onPriceChange,
-            label = { Text("Preço Médio (R$)") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.AttachMoney,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-        
         // Observações
         OutlinedTextField(
             value = state.observation,
@@ -247,6 +248,29 @@ fun ProductFormFields(
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 3
+        )
+        
+        // Foto (URL da imagem)
+        OutlinedTextField(
+            value = state.imageUrl ?: "",
+            onValueChange = { /* TODO: Implementar callback para imageUrl */ },
+            label = { Text("URL da Foto") },
+            placeholder = { Text("https://exemplo.com/imagem-produto.jpg") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = null
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = false, // Somente leitura por enquanto (preenchido pelo ChatGPT)
+            supportingText = {
+                Text(
+                    text = "Este campo é preenchido automaticamente pelo ChatGPT",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         )
     }
 }
@@ -1007,6 +1031,150 @@ fun AddUnitDialog(
                         onConfirm(trimmedName, trimmedAbbreviation)
                     }
                 }
+            ) {
+                Text("Adicionar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BrandDropdownWithAdd(
+    brands: List<Brand>,
+    selectedBrandId: Long?,
+    onBrandSelected: (Long) -> Unit,
+    onAddNewBrand: (String) -> Unit,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it && enabled },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = brands.find { it.id == selectedBrandId }?.name ?: "",
+            onValueChange = { },
+            label = { Text("Marca") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Business,
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            readOnly = true,
+            isError = isError,
+            supportingText = errorMessage?.let { { Text(it) } },
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+        
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            // Opção para adicionar nova marca
+            DropdownMenuItem(
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Adicionar nova marca",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                },
+                onClick = {
+                    expanded = false
+                    showAddDialog = true
+                }
+            )
+            
+            if (brands.isNotEmpty()) {
+                HorizontalDivider()
+                
+                // Marcas existentes
+                brands.forEach { brand ->
+                    DropdownMenuItem(
+                        text = { Text(brand.name) },
+                        onClick = {
+                            onBrandSelected(brand.id)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+    
+    // Dialog para adicionar nova marca
+    if (showAddDialog) {
+        AddBrandDialog(
+            onConfirm = { brandName ->
+                onAddNewBrand(brandName)
+                showAddDialog = false
+            },
+            onDismiss = { showAddDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun AddBrandDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var brandName by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Adicionar Nova Marca") },
+        text = {
+            Column {
+                Text("Digite o nome da nova marca:")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = brandName,
+                    onValueChange = { brandName = it },
+                    label = { Text("Nome da Marca") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (brandName.trim().isNotEmpty()) {
+                        onConfirm(brandName.trim())
+                    }
+                },
+                enabled = brandName.trim().isNotEmpty()
             ) {
                 Text("Adicionar")
             }

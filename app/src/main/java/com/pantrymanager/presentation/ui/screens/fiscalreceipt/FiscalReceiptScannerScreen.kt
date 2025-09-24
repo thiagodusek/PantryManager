@@ -36,8 +36,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.pantrymanager.presentation.viewmodel.FiscalReceiptScannerViewModel
 import java.util.concurrent.Executors
 
-@OptIn(ExperimentalPermissionsApi::class)
-@androidx.camera.core.ExperimentalGetImage
+@OptIn(ExperimentalPermissionsApi::class, androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 fun FiscalReceiptScannerScreen(
     onNavigateBack: () -> Unit,

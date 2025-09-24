@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.pantrymanager.data.defaults.DefaultCategories
 import com.pantrymanager.data.defaults.DefaultMeasurementUnits
 import com.pantrymanager.data.dto.ProductSearchResult
+import com.pantrymanager.data.dto.ProductSearchResultOpenAI
 import com.pantrymanager.domain.entity.Brand
 import com.pantrymanager.domain.entity.Category
 import com.pantrymanager.domain.entity.MeasurementUnit
@@ -13,10 +14,12 @@ import com.pantrymanager.domain.entity.ProductBatch
 import com.pantrymanager.domain.repository.ProductRepository
 import com.pantrymanager.domain.usecase.auth.GetCurrentUserUseCase
 import com.pantrymanager.domain.usecase.brand.FindOrCreateBrandUseCase
+import com.pantrymanager.domain.usecase.brand.GetAllBrandsUseCase
 import com.pantrymanager.domain.usecase.category.FindOrCreateCategoryUseCase
 import com.pantrymanager.domain.usecase.category.GetAllCategoriesUseCase
 import com.pantrymanager.domain.usecase.product.AddProductUseCase
 import com.pantrymanager.domain.usecase.product.SearchProductByBarcodeUseCase
+import com.pantrymanager.domain.usecase.product.SearchProductByEANWithOpenAIUseCase
 import com.pantrymanager.domain.usecase.productbatch.AddProductBatchUseCase
 import com.pantrymanager.domain.usecase.unit.FindOrCreateMeasurementUnitUseCase
 import com.pantrymanager.domain.usecase.unit.GetAllMeasurementUnitsUseCase
@@ -45,6 +48,7 @@ data class ProductRegistrationState(
     val name: String = "",
     val description: String = "",
     val brand: String = "",
+    val brandId: Long? = null,
     val categoryId: Long? = null,
     val unitId: Long? = null,
     val observation: String = "",
@@ -66,6 +70,7 @@ data class ProductRegistrationState(
     // Dados auxiliares
     val categories: List<Category> = emptyList(),
     val units: List<MeasurementUnit> = emptyList(),
+    val brands: List<Brand> = emptyList(),
     val currentUserId: String? = null,
     
     // Estados da UI
@@ -88,12 +93,16 @@ data class ProductRegistrationState(
     
     // Estados específicos do scanner
     val lastScannedCode: String? = null,
-    val scannerError: String? = null
+    val scannerError: String? = null,
+    
+    // Estados de foco
+    val shouldFocusNameField: Boolean = false
 )
 
 @HiltViewModel
 class ProductRegistrationViewModel @Inject constructor(
     private val searchProductByBarcodeUseCase: SearchProductByBarcodeUseCase,
+    private val searchProductByEANWithOpenAIUseCase: SearchProductByEANWithOpenAIUseCase,
     private val addProductUseCase: AddProductUseCase,
     private val addProductBatchUseCase: AddProductBatchUseCase,
     private val findOrCreateBrandUseCase: FindOrCreateBrandUseCase,
@@ -101,6 +110,7 @@ class ProductRegistrationViewModel @Inject constructor(
     private val findOrCreateMeasurementUnitUseCase: FindOrCreateMeasurementUnitUseCase,
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
     private val getAllMeasurementUnitsUseCase: GetAllMeasurementUnitsUseCase,
+    private val getAllBrandsUseCase: GetAllBrandsUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val productRepository: ProductRepository
 ) : ViewModel() {
@@ -168,9 +178,16 @@ class ProductRegistrationViewModel @Inject constructor(
                     DefaultMeasurementUnits.defaultUnits
                 }
                 
+                val brands = try {
+                    getAllBrandsUseCase()
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                
                 _state.value = _state.value.copy(
                     categories = categories,
                     units = units,
+                    brands = brands,
                     currentUserId = currentUser?.id ?: "",
                     isLoading = false,
                     // Definir data de compra como hoje por padrão
@@ -217,9 +234,10 @@ class ProductRegistrationViewModel @Inject constructor(
                 result.fold(
                     onSuccess = { searchResult ->
                         if (searchResult.found) {
-                            // Produto encontrado, preencher campos e criar categoria/unidade automaticamente
+                            // Produto encontrado, preencher campos e criar categoria/unidade/marca automaticamente
                             var suggestedCategoryId = findCategoryByName(searchResult.category)
                             var suggestedUnitId = findUnitByName(searchResult.unit)
+                            var suggestedBrandId = findBrandByName(searchResult.brand)
                             
                             // Criar categoria automaticamente se não encontrada
                             if (suggestedCategoryId == null && !searchResult.category.isNullOrBlank()) {
@@ -252,17 +270,34 @@ class ProductRegistrationViewModel @Inject constructor(
                                 }
                             }
                             
+                            // Criar marca automaticamente se não encontrada
+                            if (suggestedBrandId == null && !searchResult.brand.isNullOrBlank()) {
+                                viewModelScope.launch {
+                                    try {
+                                        val brandResult = findOrCreateBrandUseCase(searchResult.brand)
+                                        if (brandResult.isSuccess) {
+                                            suggestedBrandId = brandResult.getOrThrow().id
+                                        }
+                                    } catch (e: Exception) {
+                                        // Se falhar, mantém null e deixa o usuário escolher
+                                    }
+                                }
+                            }
+                            
                             _state.value = _state.value.copy(
                                 isSearching = false,
                                 productSearchResult = searchResult,
                                 name = searchResult.name ?: "",
                                 description = searchResult.description ?: "",
                                 brand = searchResult.brand ?: "",
+                                observation = searchResult.nutritionalInfo?.let { 
+                                    "Calorias: ${it.calories ?: "N/A"} kcal, Proteínas: ${it.protein ?: "N/A"}g, Carboidratos: ${it.carbs ?: "N/A"}g, Gorduras: ${it.fat ?: "N/A"}g"
+                                } ?: "",
                                 imageUrl = searchResult.imageUrl,
-                                averagePrice = if (searchResult.averagePrice > 0) 
-                                    searchResult.averagePrice.toString() else "",
+                                averagePrice = searchResult.averagePrice?.takeIf { it > 0 }?.toString() ?: "",
                                 categoryId = suggestedCategoryId,
                                 unitId = suggestedUnitId,
+                                brandId = suggestedBrandId,
                                 successMessage = buildString {
                                     when (searchResult.source) {
                                         "openai" -> append("🤖 Produto encontrado via ChatGPT! Campos preenchidos automaticamente.")
@@ -278,22 +313,26 @@ class ProductRegistrationViewModel @Inject constructor(
                                     if (!searchResult.brand.isNullOrBlank()) {
                                         append("\n• Marca: ${searchResult.brand}")
                                     }
-                                    if (searchResult.averagePrice > 0) {
-                                        append("\n• Preço médio: R$ ${String.format("%.2f", searchResult.averagePrice)}")
+                                    searchResult.averagePrice?.takeIf { it > 0 }?.let { price ->
+                                        append("\n• Preço médio: R$ ${String.format("%.2f", price)}")
                                     }
                                 },
                                 // Gerar número de lote padrão
                                 batchNumber = generateDefaultBatchNumber(),
                                 // Limpar erros
                                 nameError = null,
-                                barcodeError = null
+                                barcodeError = null,
+                                // Focar no campo nome do produto
+                                shouldFocusNameField = true
                             )
                         } else {
                             // Produto não encontrado
                             _state.value = _state.value.copy(
                                 isSearching = false,
                                 productSearchResult = searchResult,
-                                errorMessage = "Produto não encontrado na base de dados. Preencha os dados manualmente."
+                                errorMessage = "Produto não encontrado na base de dados. Preencha os dados manualmente.",
+                                // Focar no campo nome do produto mesmo se não encontrou
+                                shouldFocusNameField = true
                             )
                         }
                     },
@@ -338,6 +377,10 @@ class ProductRegistrationViewModel @Inject constructor(
     
     fun updateBrand(brand: String) {
         _state.value = _state.value.copy(brand = brand)
+    }
+    
+    fun updateBrandId(brandId: Long) {
+        _state.value = _state.value.copy(brandId = brandId)
     }
     
     fun updateObservation(observation: String) {
@@ -591,6 +634,16 @@ class ProductRegistrationViewModel @Inject constructor(
         }?.id
     }
     
+    private fun findBrandByName(brandName: String?): Long? {
+        if (brandName == null) return null
+        // Buscar primeiro nas marcas carregadas
+        return _state.value.brands.find { brand ->
+            brand.name.equals(brandName, ignoreCase = true) ||
+            brandName.contains(brand.name, ignoreCase = true) ||
+            brand.name.contains(brandName, ignoreCase = true)
+        }?.id
+    }
+    
     // Batch Management Methods
     fun addBatch() {
         val currentState = _state.value
@@ -714,6 +767,7 @@ class ProductRegistrationViewModel @Inject constructor(
             name = "",
             description = "",
             brand = "",
+            brandId = null,
             categoryId = null,
             unitId = null,
             observation = "",
@@ -750,6 +804,12 @@ class ProductRegistrationViewModel @Inject constructor(
         )
     }
     
+    fun clearFocusState() {
+        _state.value = _state.value.copy(
+            shouldFocusNameField = false
+        )
+    }
+    
     // QR Code and automatic search functions
     fun setEanFromScanner(ean: String) {
         _state.value = _state.value.copy(
@@ -767,37 +827,45 @@ class ProductRegistrationViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                // Simulate product search (in real app, this would call an external API or Copilot)
-                kotlinx.coroutines.delay(2000)
+                // Buscar produto usando OpenAI ChatGPT
+                val result = searchProductByEANWithOpenAIUseCase(eanCode)
                 
-                val productInfo = searchProductInformation(eanCode)
-                
-                if (productInfo != null) {
-                    // Auto-fill form with found information
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        name = productInfo.name,
-                        description = productInfo.description,
-                        brand = productInfo.brand,
-                        categoryId = findCategoryId(productInfo.category),
-                        unitId = findUnitId(productInfo.unit),
-                        averagePrice = productInfo.averagePrice.toString(),
-                        errorMessage = "Produto encontrado! Dados preenchidos automaticamente. Verifique as informações e preencha os campos obrigatórios de lote."
-                    )
-                    
-                    // Automatically create/find category and unit if needed
-                    createMissingEntities(productInfo)
-                } else {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = "Produto não encontrado na base de dados. Preencha as informações manualmente."
-                    )
-                }
+                result.fold(
+                    onSuccess = { productResult ->
+                        if (productResult.found) {
+                            // Auto-fill form with found information
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                name = productResult.name ?: "",
+                                description = productResult.description ?: "",
+                                brand = productResult.brand ?: "",
+                                categoryId = findCategoryIdByName(productResult.category),
+                                unitId = findUnitIdByName(productResult.unit),
+                                averagePrice = (productResult.averagePrice ?: 0.0).toString(),
+                                errorMessage = "✅ Produto encontrado via ChatGPT! Dados preenchidos automaticamente. Verifique as informações e preencha os campos de lote."
+                            )
+                            
+                            // Automatically create/find category and unit if needed
+                            createMissingEntitiesFromOpenAI(productResult)
+                        } else {
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                errorMessage = "❌ Produto não encontrado na base de dados do ChatGPT. Preencha as informações manualmente."
+                            )
+                        }
+                    },
+                    onFailure = { exception ->
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            errorMessage = "❌ Erro ao consultar ChatGPT: ${exception.message}"
+                        )
+                    }
+                )
                 
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    errorMessage = "Erro ao buscar informações do produto: ${e.message}"
+                    errorMessage = "❌ Erro ao buscar informações do produto: ${e.message}"
                 )
             }
         }
@@ -889,8 +957,23 @@ class ProductRegistrationViewModel @Inject constructor(
             it.name.equals(categoryName, ignoreCase = true) 
         }?.id
     }
+    
+    private fun findCategoryIdByName(categoryName: String?): Long? {
+        if (categoryName.isNullOrBlank()) return null
+        return DefaultCategories.defaultCategories.find { 
+            it.name.equals(categoryName, ignoreCase = true) 
+        }?.id
+    }
 
     private fun findUnitId(unitName: String): Long? {
+        return DefaultMeasurementUnits.defaultUnits.find { 
+            it.name.equals(unitName, ignoreCase = true) ||
+            it.abbreviation.equals(unitName, ignoreCase = true)
+        }?.id
+    }
+    
+    private fun findUnitIdByName(unitName: String?): Long? {
+        if (unitName.isNullOrBlank()) return null
         return DefaultMeasurementUnits.defaultUnits.find { 
             it.name.equals(unitName, ignoreCase = true) ||
             it.abbreviation.equals(unitName, ignoreCase = true)
@@ -916,6 +999,61 @@ class ProductRegistrationViewModel @Inject constructor(
             
         } catch (e: Exception) {
             // Handle entity creation errors
+        }
+    }
+
+    private suspend fun createMissingEntitiesFromOpenAI(productResult: ProductSearchResultOpenAI) {
+        try {
+            // Create category if not found in defaults
+            if (findCategoryIdByName(productResult.category) == null && productResult.category?.isNotBlank() == true) {
+                try {
+                    val categoryResult = findOrCreateCategoryUseCase(productResult.category!!)
+                    if (categoryResult.isSuccess) {
+                        val newCategory = categoryResult.getOrNull()
+                        // Atualizar o categoryId no state após criar a categoria
+                        _state.value = _state.value.copy(categoryId = newCategory?.id)
+                    }
+                } catch (e: Exception) {
+                    // Log error but don't fail the whole process
+                    _state.value = _state.value.copy(
+                        errorMessage = (_state.value.errorMessage ?: "") + "\n⚠️ Não foi possível criar a categoria '${productResult.category}'"
+                    )
+                }
+            }
+            
+            // Create measurement unit if not found in defaults
+            if (findUnitIdByName(productResult.unit) == null && productResult.unit?.isNotBlank() == true) {
+                try {
+                    val abbreviation = productResult.unitAbbreviation?.takeIf { it.isNotBlank() } 
+                        ?: productResult.unit!!.take(3).lowercase()
+                    val unitResult = findOrCreateMeasurementUnitUseCase(productResult.unit!!, abbreviation)
+                    if (unitResult.isSuccess) {
+                        val newUnit = unitResult.getOrNull()
+                        // Atualizar o unitId no state após criar a unidade
+                        _state.value = _state.value.copy(unitId = newUnit?.id)
+                    }
+                } catch (e: Exception) {
+                    // Log error but don't fail the whole process
+                    _state.value = _state.value.copy(
+                        errorMessage = (_state.value.errorMessage ?: "") + "\n⚠️ Não foi possível criar a unidade '${productResult.unit}'"
+                    )
+                }
+            }
+            
+            // Create brand if not exists and is not blank
+            if (productResult.brand?.isNotBlank() == true) {
+                try {
+                    findOrCreateBrandUseCase(productResult.brand!!)
+                } catch (e: Exception) {
+                    // Log error but don't fail the whole process - brand is not critical
+                }
+            }
+            
+        } catch (e: Exception) {
+            // Handle entity creation errors
+            _state.value = _state.value.copy(
+                errorMessage = (_state.value.errorMessage ?: "") + "\n⚠️ Erro ao criar entidades: ${e.message}"
+            )
         }
     }
 
@@ -1058,6 +1196,56 @@ class ProductRegistrationViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     errorMessage = "Erro ao adicionar unidade: ${e.message}"
+                )
+            }
+        }
+    }
+    
+    fun addNewBrand(brandName: String) {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isLoading = true)
+                
+                // Verifica se já existe uma marca com este nome
+                val existingBrand = _state.value.brands.find { 
+                    it.name.equals(brandName.trim(), ignoreCase = true) 
+                }
+                
+                if (existingBrand != null) {
+                    // Se já existe, apenas seleciona
+                    _state.value = _state.value.copy(
+                        brandId = existingBrand.id,
+                        isLoading = false,
+                        errorMessage = "Marca já existe - selecionada automaticamente"
+                    )
+                    return@launch
+                }
+                
+                // Cria nova marca usando o use case
+                val brandResult = findOrCreateBrandUseCase(brandName.trim())
+                
+                brandResult.onSuccess { newBrand ->
+                    // Atualiza a lista de marcas
+                    val updatedBrands = _state.value.brands.toMutableList()
+                    updatedBrands.add(newBrand)
+                    
+                    _state.value = _state.value.copy(
+                        brands = updatedBrands,
+                        brandId = newBrand.id,
+                        isLoading = false,
+                        successMessage = "Marca '$brandName' adicionada com sucesso!"
+                    )
+                }.onFailure { error ->
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Erro ao criar marca: ${error.message}"
+                    )
+                }
+                
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    errorMessage = "Erro ao adicionar marca: ${e.message}"
                 )
             }
         }

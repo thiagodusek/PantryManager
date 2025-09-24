@@ -102,7 +102,31 @@ object NetworkModule {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         
+        // Interceptor para adicionar automaticamente o header de autenticação
+        val authInterceptor = okhttp3.Interceptor { chain ->
+            val originalRequest = chain.request()
+            
+            // Se a requisição já tem Authorization header, usar ela
+            if (originalRequest.header("Authorization") != null) {
+                chain.proceed(originalRequest)
+            } else {
+                // Caso contrário, adicionar automaticamente
+                try {
+                    val apiKey = com.pantrymanager.data.config.OpenAIConfig.getApiKey()
+                    val authenticatedRequest = originalRequest.newBuilder()
+                        .header("Authorization", "Bearer $apiKey")
+                        .header("Content-Type", "application/json")
+                        .build()
+                    chain.proceed(authenticatedRequest)
+                } catch (e: Exception) {
+                    // Se não conseguir obter a chave da API, prosseguir sem autenticação
+                    chain.proceed(originalRequest)
+                }
+            }
+        }
+        
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)

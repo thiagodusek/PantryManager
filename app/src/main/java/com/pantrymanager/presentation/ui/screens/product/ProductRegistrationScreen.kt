@@ -21,15 +21,27 @@ import com.pantrymanager.presentation.ui.components.StandardTopAppBarWithMenu
 import com.pantrymanager.presentation.viewmodel.ProductRegistrationState
 import com.pantrymanager.presentation.viewmodel.ProductRegistrationViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
-@androidx.camera.core.ExperimentalGetImage
+@OptIn(ExperimentalMaterial3Api::class, androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 fun ProductRegistrationScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAddCategory: () -> Unit = {},
+    onNavigateToAddUnit: () -> Unit = {},
     onOpenDrawer: () -> Unit,
+    productIdToEdit: Long? = null,
     viewModel: ProductRegistrationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    
+    // Load product for editing if productIdToEdit is provided
+    LaunchedEffect(productIdToEdit) {
+        productIdToEdit?.let { id ->
+            if (id > 0) {
+                // TODO: Implementar carregamento de produto para edição no ProductRegistrationViewModel
+                // viewModel.loadProductForEdit(id)
+            }
+        }
+    }
     
     // Efeitos para mensagens
     LaunchedEffect(state.successMessage) {
@@ -43,7 +55,7 @@ fun ProductRegistrationScreen(
     Scaffold(
         topBar = {
             StandardTopAppBarWithMenu(
-                title = "Cadastrar Produto",
+                title = if (productIdToEdit != null && productIdToEdit > 0) "Editar Produto" else "Cadastrar Produto",
                 onMenuClick = onOpenDrawer,
                 actions = {
                     // Botão Scanner
@@ -72,6 +84,7 @@ fun ProductRegistrationScreen(
         // Conteúdo principal
         ProductRegistrationContent(
             state = state,
+            viewModel = viewModel,
             onBarcodeChange = viewModel::updateBarcode,
             onNameChange = viewModel::updateName,
             onDescriptionChange = viewModel::updateDescription,
@@ -95,7 +108,8 @@ fun ProductRegistrationScreen(
             onClearMessages = viewModel::clearMessages,
             onScanBarcode = viewModel::showScanner,
             onAddNewCategory = viewModel::addNewCategory,
-            onAddNewUnit = viewModel::addNewUnit
+            onAddNewUnit = viewModel::addNewUnit,
+            onClearFocusState = viewModel::clearFocusState
         )
         }
     }
@@ -111,6 +125,7 @@ fun ProductRegistrationScreen(
 @Composable
 private fun ProductRegistrationContent(
     state: ProductRegistrationState,
+    viewModel: ProductRegistrationViewModel,
     onBarcodeChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -134,7 +149,8 @@ private fun ProductRegistrationContent(
     onClearMessages: () -> Unit,
     onScanBarcode: () -> Unit,
     onAddNewCategory: (String) -> Unit,
-    onAddNewUnit: (String, String) -> Unit
+    onAddNewUnit: (String, String) -> Unit,
+    onClearFocusState: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -160,13 +176,16 @@ private fun ProductRegistrationContent(
             onNameChange = onNameChange,
             onDescriptionChange = onDescriptionChange,
             onBrandChange = onBrandChange,
+            onBrandIdChange = viewModel::updateBrandId,
             onObservationChange = onObservationChange,
             onPriceChange = onPriceChange,
             onCategoryChange = onCategoryChange,
             onUnitChange = onUnitChange,
             onScanBarcode = onScanBarcode,
             onAddNewCategory = onAddNewCategory,
-            onAddNewUnit = onAddNewUnit
+            onAddNewUnit = onAddNewUnit,
+            onAddNewBrand = viewModel::addNewBrand,
+            onClearFocusState = onClearFocusState
         )
         
         Spacer(modifier = Modifier.height(24.dp))
