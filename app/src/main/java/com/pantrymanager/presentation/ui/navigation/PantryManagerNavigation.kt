@@ -78,6 +78,12 @@ fun PantryManagerAppWithDrawer(
             drawerContent = {
                 NavigationDrawerContent(
                     currentRoute = currentRoute,
+                    onNavigateToHome = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                        scope.launch { drawerState.close() }
+                    },
                     onNavigateToProductRegister = {
                         navController.navigate(Screen.ProductRegister.route)
                         scope.launch { drawerState.close() }

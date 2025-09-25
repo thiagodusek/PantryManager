@@ -93,16 +93,6 @@ fun ProductRegistrationScreen(
             onPriceChange = viewModel::updateAveragePrice,
             onCategoryChange = viewModel::updateCategory,
             onUnitChange = viewModel::updateUnit,
-            onBatchNumberChange = viewModel::updateBatchNumber,
-            onQuantityChange = viewModel::updateQuantity,
-            onExpiryDateChange = viewModel::updateExpiryDate,
-            onPurchaseDateChange = viewModel::updatePurchaseDate,
-            onPurchasePriceChange = viewModel::updatePurchasePrice,
-            onPurchaseLocationChange = viewModel::updatePurchaseLocation,
-            onAddBatch = viewModel::addBatch,
-            onEditBatch = viewModel::editBatch,
-            onRemoveBatch = viewModel::removeBatch,
-            onCancelBatchEdit = viewModel::cancelBatchEdit,
             onSave = viewModel::saveProduct,
             onClear = viewModel::clearForm,
             onClearMessages = viewModel::clearMessages,
@@ -134,16 +124,6 @@ private fun ProductRegistrationContent(
     onPriceChange: (String) -> Unit,
     onCategoryChange: (Long) -> Unit,
     onUnitChange: (Long) -> Unit,
-    onBatchNumberChange: (String) -> Unit,
-    onQuantityChange: (String) -> Unit,
-    onExpiryDateChange: (String) -> Unit,
-    onPurchaseDateChange: (String) -> Unit,
-    onPurchasePriceChange: (String) -> Unit,
-    onPurchaseLocationChange: (String) -> Unit,
-    onAddBatch: () -> Unit,
-    onEditBatch: (Int) -> Unit,
-    onRemoveBatch: (Int) -> Unit,
-    onCancelBatchEdit: () -> Unit,
     onSave: () -> Unit,
     onClear: () -> Unit,
     onClearMessages: () -> Unit,
@@ -186,23 +166,6 @@ private fun ProductRegistrationContent(
             onAddNewUnit = onAddNewUnit,
             onAddNewBrand = viewModel::addNewBrand,
             onClearFocusState = onClearFocusState
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // Batch Management Section
-        BatchManagementSection(
-            state = state,
-            onBatchNumberChange = onBatchNumberChange,
-            onQuantityChange = onQuantityChange,
-            onExpiryDateChange = onExpiryDateChange,
-            onPurchaseDateChange = onPurchaseDateChange,
-            onPurchasePriceChange = onPurchasePriceChange,
-            onPurchaseLocationChange = onPurchaseLocationChange,
-            onAddBatch = onAddBatch,
-            onEditBatch = onEditBatch,
-            onRemoveBatch = onRemoveBatch,
-            onCancelBatchEdit = onCancelBatchEdit
         )
         
         Spacer(modifier = Modifier.height(24.dp))

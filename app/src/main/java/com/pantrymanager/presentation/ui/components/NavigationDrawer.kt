@@ -31,6 +31,7 @@ data class DrawerSection(
 @Composable
 fun NavigationDrawerContent(
     currentRoute: String?,
+    onNavigateToHome: () -> Unit,
     onNavigateToProductRegister: () -> Unit,
     onNavigateToProductManagement: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
@@ -199,7 +200,13 @@ fun NavigationDrawerContent(
         ) {
             // Header
             item {
-                DrawerHeader(userName = userName)
+                DrawerHeader(
+                    userName = userName,
+                    onNavigateToHome = {
+                        onNavigateToHome()
+                        onCloseDrawer()
+                    }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -262,7 +269,10 @@ fun NavigationDrawerContent(
 }
 
 @Composable
-private fun DrawerHeader(userName: String?) {
+private fun DrawerHeader(
+    userName: String?,
+    onNavigateToHome: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -280,12 +290,17 @@ private fun DrawerHeader(userName: String?) {
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "PantryManager",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            TextButton(
+                onClick = onNavigateToHome,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Pantry Manager",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
             userName?.let { name ->
                 Text(
                     text = name,

@@ -392,6 +392,7 @@ private fun processImageProxy(
     imageProxy: ImageProxy,
     onBarcodeDetected: (String) -> Unit
 ) {
+    @androidx.camera.core.ExperimentalGetImage
     val mediaImage = imageProxy.image
     if (mediaImage != null) {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
