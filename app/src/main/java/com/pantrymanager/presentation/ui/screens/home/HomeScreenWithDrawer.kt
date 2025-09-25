@@ -48,12 +48,6 @@ fun HomeScreenWithDrawer(
         drawerContent = {
             NavigationDrawerContent(
                 currentRoute = currentRoute,
-                onNavigateToHome = {
-                    // Já estamos na tela home, apenas fechamos o drawer
-                    scope.launch {
-                        drawerState.close()
-                    }
-                },
                 onNavigateToProductRegister = onNavigateToProductRegister,
                 onNavigateToProductManagement = onNavigateToProductManagement,
                 onNavigateToCategoryRegister = onNavigateToCategoryRegister,
