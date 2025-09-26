@@ -26,11 +26,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pantrymanager.domain.entity.Brand
 import com.pantrymanager.presentation.viewmodel.BrandViewModel
+import com.pantrymanager.presentation.ui.components.StandardTopAppBarWithMenu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandManagementScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToBrandRegister: () -> Unit,
+    onOpenDrawer: () -> Unit,
     viewModel: BrandViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -76,53 +79,39 @@ fun BrandManagementScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text("Gerenciar Marcas") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (state.isSelectionMode) {
-                            viewModel.clearSelection()
-                        } else {
-                            onNavigateBack()
+            if (state.isSelectionMode) {
+                TopAppBar(
+                    title = { Text("${state.selectedBrands.size} selecionadas") },
+                    navigationIcon = {
+                        IconButton(onClick = viewModel::clearSelection) {
+                            Icon(Icons.Default.Close, contentDescription = "Cancelar seleção")
                         }
-                    }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
-                    }
-                },
-                actions = {
-                    if (state.isSelectionMode) {
-                        // Selection mode actions
-                        Text(
-                            text = "${state.selectedBrands.size}",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                        IconButton(onClick = viewModel::selectAllBrands) {
-                            Icon(Icons.Default.SelectAll, contentDescription = "Selecionar todas")
+                    },
+                    actions = {
+                        IconButton(onClick = { viewModel.confirmMultipleDelete() }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Excluir selecionadas")
                         }
-                        IconButton(
-                            onClick = viewModel::confirmMultipleDelete,
-                            enabled = state.selectedBrands.isNotEmpty()
-                        ) {
-                            Icon(
-                                Icons.Default.Delete, 
-                                contentDescription = "Excluir selecionadas",
-                                tint = if (state.selectedBrands.isNotEmpty()) 
-                                    MaterialTheme.colorScheme.error else 
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            )
-                        }
-                    } else {
-                        IconButton(onClick = { /* TODO: Add brand */ }) {
-                            Icon(Icons.Default.Add, contentDescription = "Adicionar marca")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 )
-            )
+            } else {
+                StandardTopAppBarWithMenu(
+                    title = "Gerenciar Marcas",
+                    onMenuClick = onOpenDrawer
+                )
+            }
+        },
+        floatingActionButton = {
+            if (!state.isSelectionMode) {
+                FloatingActionButton(
+                    onClick = { onNavigateToBrandRegister() },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Adicionar marca")
+                }
+            }
         }
     ) { paddingValues ->
         // Content

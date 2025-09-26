@@ -23,6 +23,8 @@ import com.pantrymanager.presentation.ui.screens.product.ProductRegistrationScre
 import com.pantrymanager.presentation.ui.screens.product.ProductManagementScreen
 import com.pantrymanager.presentation.ui.screens.category.CategoryRegisterScreen
 import com.pantrymanager.presentation.ui.screens.category.CategoryManagementScreen
+import com.pantrymanager.presentation.ui.screens.brand.BrandRegisterScreen
+import com.pantrymanager.presentation.ui.screens.brand.BrandManagementScreen
 import com.pantrymanager.presentation.ui.screens.unit.UnitRegisterScreen
 import com.pantrymanager.presentation.ui.screens.unit.UnitManagementScreen
 import com.pantrymanager.presentation.ui.screens.pantry.PantryItemsScreen
@@ -98,6 +100,14 @@ fun PantryManagerAppWithDrawer(
                     },
                     onNavigateToCategoryManagement = {
                         navController.navigate(Screen.CategoryManagement.route)
+                        scope.launch { drawerState.close() }
+                    },
+                    onNavigateToBrandRegister = {
+                        navController.navigate(Screen.BrandRegister.route)
+                        scope.launch { drawerState.close() }
+                    },
+                    onNavigateToBrandManagement = {
+                        navController.navigate(Screen.BrandManagement.route)
                         scope.launch { drawerState.close() }
                     },
                     onNavigateToUnitRegister = {
@@ -280,6 +290,12 @@ fun PantryManagerNavigation(
                     onNavigateToCategoryRegister = {
                         navController.navigate(Screen.CategoryRegister.route)
                     },
+                    onNavigateToBrandRegister = {
+                        navController.navigate(Screen.BrandRegister.route)
+                    },
+                    onNavigateToBrandManagement = {
+                        navController.navigate(Screen.BrandManagement.route)
+                    },
                     onNavigateToUnitRegister = {
                         navController.navigate(Screen.UnitRegister.route)
                     },
@@ -412,6 +428,37 @@ fun PantryManagerNavigation(
                 CategoryManagementScreen(
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onOpenDrawer = onOpenDrawer ?: {}
+                )
+            }
+        }
+
+        composable(Screen.BrandRegister.route) {
+            ProtectedRoute(
+                isLoggedIn = isLoggedIn,
+                navController = navController
+            ) {
+                BrandRegisterScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onOpenDrawer = onOpenDrawer ?: {}
+                )
+            }
+        }
+
+        composable(Screen.BrandManagement.route) {
+            ProtectedRoute(
+                isLoggedIn = isLoggedIn,
+                navController = navController
+            ) {
+                BrandManagementScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToBrandRegister = {
+                        navController.navigate(Screen.BrandRegister.route)
                     },
                     onOpenDrawer = onOpenDrawer ?: {}
                 )

@@ -32,6 +32,8 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onNavigateToProductRegister: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
+    onNavigateToBrandRegister: () -> Unit,
+    onNavigateToBrandManagement: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
     onNavigateToUnitManagement: () -> Unit,
     onNavigateToNFeImport: () -> Unit,
@@ -59,6 +61,20 @@ fun HomeScreen(
             description = "Organizar categorias de produtos",
             onClick = onNavigateToCategoryRegister,
             gradientColors = PantryGradients.CategoryGradients["bakery"] ?: PantryGradients.PrimaryGradient
+        ),
+        HomeMenuItem(
+            title = "Cadastrar Marcas",
+            icon = Icons.Default.Storefront,
+            description = "Cadastrar novas marcas de produtos",
+            onClick = onNavigateToBrandRegister,
+            gradientColors = PantryGradients.CategoryGradients["cleaning"] ?: PantryGradients.SecondaryGradient
+        ),
+        HomeMenuItem(
+            title = "Gerenciar Marcas",
+            icon = Icons.Default.ManageHistory,
+            description = "Gerenciar marcas existentes",
+            onClick = onNavigateToBrandManagement,
+            gradientColors = PantryGradients.CategoryGradients["personal_care"] ?: PantryGradients.AccentGradient
         ),
         HomeMenuItem(
             title = stringResource(R.string.register_units),

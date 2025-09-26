@@ -12,6 +12,8 @@ sealed class Screen(val route: String) {
     }
     object CategoryRegister : Screen("category_register")
     object CategoryManagement : Screen("category_management")
+    object BrandRegister : Screen("brand_register")
+    object BrandManagement : Screen("brand_management")
     object UnitRegister : Screen("unit_register")
     object UnitManagement : Screen("unit_management")
     object PantryItems : Screen("pantry_items")

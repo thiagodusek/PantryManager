@@ -42,6 +42,8 @@ fun HomeScreenWithMenu(
     navController: NavHostController,
     onNavigateToProductRegister: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
+    onNavigateToBrandRegister: () -> Unit,
+    onNavigateToBrandManagement: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
     onNavigateToUnitManagement: () -> Unit,
     onNavigateToPantryItems: () -> Unit,
@@ -74,6 +76,20 @@ fun HomeScreenWithMenu(
                     icon = Icons.Default.Category,
                     description = "Gerenciar categorias de produtos",
                     onClick = onNavigateToCategoryRegister,
+                    gradientColors = PantryGradients.SecondaryGradient
+                ),
+                HomeMenuItem(
+                    title = "Cadastrar Marcas",
+                    icon = Icons.Default.Storefront,
+                    description = "Cadastrar novas marcas de produtos",
+                    onClick = onNavigateToBrandRegister,
+                    gradientColors = PantryGradients.AccentGradient
+                ),
+                HomeMenuItem(
+                    title = "Gerenciar Marcas",
+                    icon = Icons.Default.ManageHistory,
+                    description = "Gerenciar marcas existentes",
+                    onClick = onNavigateToBrandManagement,
                     gradientColors = PantryGradients.SecondaryGradient
                 ),
                 HomeMenuItem(
@@ -253,8 +269,8 @@ private fun WelcomeCard(userName: String?) {
             )
             
             Text(
-                text = "PantryManager",
-                style = MaterialTheme.typography.headlineSmall,
+                text = "Pantry Manager",
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -275,14 +291,14 @@ private fun WelcomeCard(userName: String?) {
 
 @Composable
 private fun MenuCategoryCard(category: MenuCategory) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(true) } // Expandido por padrão
     
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -290,7 +306,7 @@ private fun MenuCategoryCard(category: MenuCategory) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { expanded = !expanded },
-                color = MaterialTheme.colorScheme.surfaceVariant
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
             ) {
                 Row(
                     modifier = Modifier
@@ -307,13 +323,15 @@ private fun MenuCategoryCard(category: MenuCategory) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = category.title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.weight(1f)
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Recolher" else "Expandir"
+                        contentDescription = if (expanded) "Recolher" else "Expandir",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -339,39 +357,41 @@ private fun MenuItemCard(item: HomeMenuItem) {
         modifier = Modifier.fillMaxWidth(),
         onClick = item.onClick,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(20.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = item.description,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Ir para ${item.title}",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }

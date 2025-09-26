@@ -36,6 +36,8 @@ fun NavigationDrawerContent(
     onNavigateToProductManagement: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
     onNavigateToCategoryManagement: () -> Unit,
+    onNavigateToBrandRegister: () -> Unit,
+    onNavigateToBrandManagement: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
     onNavigateToUnitManagement: () -> Unit,
     onNavigateToPantryItems: () -> Unit,
@@ -90,6 +92,24 @@ fun NavigationDrawerContent(
                         onCloseDrawer()
                     },
                     isSelected = currentRoute == "category_management"
+                ),
+                DrawerMenuItem(
+                    title = "Cadastrar Marca",
+                    icon = Icons.Default.Storefront,
+                    onClick = {
+                        onNavigateToBrandRegister()
+                        onCloseDrawer()
+                    },
+                    isSelected = currentRoute == "brand_register"
+                ),
+                DrawerMenuItem(
+                    title = "Gerenciar Marcas",
+                    icon = Icons.Default.ManageHistory,
+                    onClick = {
+                        onNavigateToBrandManagement()
+                        onCloseDrawer()
+                    },
+                    isSelected = currentRoute == "brand_management"
                 ),
                 DrawerMenuItem(
                     title = stringResource(R.string.register_units),

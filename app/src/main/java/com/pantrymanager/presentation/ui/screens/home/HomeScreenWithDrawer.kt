@@ -24,6 +24,8 @@ fun HomeScreenWithDrawer(
     onNavigateToProductManagement: () -> Unit,
     onNavigateToCategoryRegister: () -> Unit,
     onNavigateToCategoryManagement: () -> Unit,
+    onNavigateToBrandRegister: () -> Unit,
+    onNavigateToBrandManagement: () -> Unit,
     onNavigateToUnitRegister: () -> Unit,
     onNavigateToUnitManagement: () -> Unit,
     onNavigateToPantryItems: () -> Unit,
@@ -48,10 +50,17 @@ fun HomeScreenWithDrawer(
         drawerContent = {
             NavigationDrawerContent(
                 currentRoute = currentRoute,
+                onNavigateToHome = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                },
                 onNavigateToProductRegister = onNavigateToProductRegister,
                 onNavigateToProductManagement = onNavigateToProductManagement,
                 onNavigateToCategoryRegister = onNavigateToCategoryRegister,
                 onNavigateToCategoryManagement = onNavigateToCategoryManagement,
+                onNavigateToBrandRegister = onNavigateToBrandRegister,
+                onNavigateToBrandManagement = onNavigateToBrandManagement,
                 onNavigateToUnitRegister = onNavigateToUnitRegister,
                 onNavigateToUnitManagement = onNavigateToUnitManagement,
                 onNavigateToPantryItems = onNavigateToPantryItems,
@@ -117,6 +126,8 @@ fun HomeScreenWithDrawer(
                     navController = navController,
                     onNavigateToProductRegister = onNavigateToProductRegister,
                     onNavigateToCategoryRegister = onNavigateToCategoryRegister,
+                    onNavigateToBrandRegister = onNavigateToBrandRegister,
+                    onNavigateToBrandManagement = onNavigateToBrandManagement,
                     onNavigateToUnitRegister = onNavigateToUnitRegister,
                     onNavigateToUnitManagement = onNavigateToUnitManagement,
                     onNavigateToPantryItems = onNavigateToPantryItems,
