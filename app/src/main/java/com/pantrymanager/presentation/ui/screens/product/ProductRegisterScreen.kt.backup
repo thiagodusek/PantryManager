@@ -83,8 +83,9 @@ fun ProductRegisterScreen(
             // Product Registration Form Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(
@@ -92,11 +93,6 @@ fun ProductRegisterScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        "Adicionar Novo Produto",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
             // Código de Barras Field (Required) with Scanner
             OutlinedTextField(
                 value = state.ean,
@@ -249,6 +245,7 @@ fun ProductRegisterScreen(
                     }
                 }
             }
+            }
 
             // Products List
             if (state.products.isNotEmpty()) {
@@ -271,7 +268,7 @@ fun ProductRegisterScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            if (!product.ean.isNullOrBlank()) {
+                            if (product.ean.isNotBlank()) {
                                 Text(
                                     text = "EAN: ${product.ean}",
                                     style = MaterialTheme.typography.bodyMedium,

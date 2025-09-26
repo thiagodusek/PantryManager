@@ -62,6 +62,16 @@ fun CategoryManagementScreen(
         )
     }
 
+    // Diálogo de exclusão individual
+    if (state.showDeleteDialog) {
+        DeleteCategoryDialog(
+            category = state.categoryToDelete,
+            onConfirm = viewModel::deleteCategory,
+            onDismiss = viewModel::cancelDelete,
+            isLoading = state.isLoading
+        )
+    }
+
     // Diálogo de exclusão múltipla
     if (state.showMultiDeleteDialog) {
         DeleteMultipleCategoriesDialog(
@@ -86,6 +96,7 @@ fun CategoryManagementScreen(
                         }
                     },
                     actions = {
+                        // Selection mode actions
                         Text(
                             text = "${state.selectedCategories.size}",
                             style = MaterialTheme.typography.titleMedium,
@@ -128,8 +139,13 @@ fun CategoryManagementScreen(
                 .padding(16.dp)
         ) {
             // Grid com categorias (padrão + salvas)
-            val allCategories = remember(state.categories) {
-                DefaultCategories.defaultCategories + state.categories
+            val allCategories = remember(state.categories, state.isLoading) {
+                val combined = DefaultCategories.defaultCategories + state.categories
+                // Debug: Log para verificar as categorias na UI
+                println("DEBUG UI - Categorias padrão: ${DefaultCategories.defaultCategories.size}")
+                println("DEBUG UI - Categorias usuário: ${state.categories.size} = ${state.categories.map { "${it.id}:${it.name}" }}")
+                println("DEBUG UI - Total combinadas: ${combined.size}")
+                combined
             }
 
             CategoriesGridSection(
@@ -257,7 +273,7 @@ fun CategoryGridItem(
             containerColor = if (isSelected)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
             else
-                backgroundColor.copy(alpha = 0.1f)
+                MaterialTheme.colorScheme.surfaceVariant
         ),
         border = if (isSelected) {
             androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
@@ -273,68 +289,45 @@ fun CategoryGridItem(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Ícone/indicador colorido
+                // Ícone da categoria
                 Box(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(backgroundColor.copy(alpha = 0.3f)),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Category,
                         contentDescription = null,
-                        tint = backgroundColor.copy(alpha = 0.8f),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Nome da categoria
                 Text(
                     text = category.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
+                    overflow = TextOverflow.Ellipsis
                 )
 
+                // Indicador de categoria padrão
                 if (isDefaultCategory) {
                     Text(
                         text = "Sistema",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                }
-            }
-
-            // Indicador de seleção
-            if (isSelectionMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (isSelected)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isSelected) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selecionada",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
                 }
             }
         }
@@ -369,6 +362,50 @@ fun DeleteMultipleCategoriesDialog(
                     )
                 } else {
                     Text("Excluir Todas")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteCategoryDialog(
+    category: Category?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    if (category == null) return
+    
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text("Excluir Categoria") },
+        text = {
+            Text("Tem certeza que deseja excluir a categoria \"${category.name}\"?\n\nEsta ação não pode ser desfeita.")
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isLoading,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    Text("Excluir")
                 }
             }
         },

@@ -304,6 +304,8 @@ class UserRepositoryImpl @Inject constructor(
         return callbackFlow {
             val authListener = FirebaseAuth.AuthStateListener { auth ->
                 val firebaseUser = auth.currentUser
+                Log.d("UserRepository", "Auth state changed. User: ${firebaseUser?.email ?: "null"}")
+                
                 if (firebaseUser != null) {
                     // User is signed in, get user data from Firestore
                     firebaseFirestore.collection("users")
@@ -311,35 +313,71 @@ class UserRepositoryImpl @Inject constructor(
                         .get()
                         .addOnSuccessListener { userDoc ->
                             if (userDoc.exists()) {
-                                val userData = userDoc.data!!
-                                val endereco = userData["endereco"] as? Map<String, Any> ?: emptyMap()
-                                val user = User(
-                                    id = userData["id"] as? String ?: firebaseUser.uid,
-                                    nome = userData["nome"] as? String ?: "",
-                                    sobrenome = userData["sobrenome"] as? String ?: "",
-                                    email = userData["email"] as? String ?: firebaseUser.email ?: "",
-                                    cpf = userData["cpf"] as? String ?: "",
-                                    endereco = Address(
-                                        endereco = endereco["endereco"] as? String ?: "",
-                                        numero = endereco["numero"] as? String ?: "",
-                                        complemento = endereco["complemento"] as? String,
-                                        cep = endereco["cep"] as? String ?: "",
-                                        cidade = endereco["cidade"] as? String ?: "",
-                                        estado = endereco["estado"] as? String ?: "",
-                                        latitude = endereco["latitude"] as? Double,
-                                        longitude = endereco["longitude"] as? Double
-                                    ),
-                                    login = userData["login"] as? String ?: firebaseUser.email ?: "",
-                                    searchRadius = (userData["searchRadius"] as? Double) ?: 10.0,
-                                    nfePermissions = (userData["nfePermissions"] as? Boolean) ?: false
+                                try {
+                                    val userData = userDoc.data!!
+                                    val endereco = userData["endereco"] as? Map<String, Any> ?: emptyMap()
+                                    val user = User(
+                                        id = userData["id"] as? String ?: firebaseUser.uid,
+                                        nome = userData["nome"] as? String ?: "",
+                                        sobrenome = userData["sobrenome"] as? String ?: "",
+                                        email = userData["email"] as? String ?: firebaseUser.email ?: "",
+                                        cpf = userData["cpf"] as? String ?: "",
+                                        endereco = Address(
+                                            endereco = endereco["endereco"] as? String ?: "",
+                                            numero = endereco["numero"] as? String ?: "",
+                                            complemento = endereco["complemento"] as? String,
+                                            cep = endereco["cep"] as? String ?: "",
+                                            cidade = endereco["cidade"] as? String ?: "",
+                                            estado = endereco["estado"] as? String ?: "",
+                                            latitude = endereco["latitude"] as? Double,
+                                            longitude = endereco["longitude"] as? Double
+                                        ),
+                                        login = userData["login"] as? String ?: firebaseUser.email ?: "",
+                                        searchRadius = (userData["searchRadius"] as? Double) ?: 10.0,
+                                        nfePermissions = (userData["nfePermissions"] as? Boolean) ?: false
+                                    )
+                                    Log.d("UserRepository", "User data loaded successfully: ${user.email}")
+                                    trySend(user)
+                                } catch (e: Exception) {
+                                    Log.e("UserRepository", "Error parsing user data", e)
+                                    trySend(null)
+                                }
+                            } else {
+                                Log.w("UserRepository", "User document doesn't exist, creating basic user")
+                                // Create basic user from Firebase Auth data
+                                val basicUser = User(
+                                    id = firebaseUser.uid,
+                                    nome = firebaseUser.displayName?.split(" ")?.firstOrNull() ?: "",
+                                    sobrenome = firebaseUser.displayName?.split(" ")?.drop(1)?.joinToString(" ") ?: "",
+                                    email = firebaseUser.email ?: "",
+                                    cpf = "",
+                                    endereco = Address("", "", null, "", "", "", null, null),
+                                    login = firebaseUser.email ?: "",
+                                    searchRadius = 10.0,
+                                    nfePermissions = false
                                 )
-                                trySend(user)
+                                trySend(basicUser)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("UserRepository", "Error loading user from Firestore", e)
+                            // If Firestore fails, create basic user from Firebase Auth
+                            if (firebaseUser != null) {
+                                val basicUser = User(
+                                    id = firebaseUser.uid,
+                                    nome = firebaseUser.displayName?.split(" ")?.firstOrNull() ?: "",
+                                    sobrenome = firebaseUser.displayName?.split(" ")?.drop(1)?.joinToString(" ") ?: "",
+                                    email = firebaseUser.email ?: "",
+                                    cpf = "",
+                                    endereco = Address("", "", null, "", "", "", null, null),
+                                    login = firebaseUser.email ?: "",
+                                    searchRadius = 10.0,
+                                    nfePermissions = false
+                                )
+                                trySend(basicUser)
                             } else {
                                 trySend(null)
                             }
-                        }
-                        .addOnFailureListener {
-                            trySend(null)
                         }
                 } else {
                     trySend(null)

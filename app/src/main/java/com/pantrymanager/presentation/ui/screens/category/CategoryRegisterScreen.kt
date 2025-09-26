@@ -45,7 +45,7 @@ fun CategoryRegisterScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         // Top App Bar
         StandardTopAppBarWithMenu(
-            title = "Gerenciar Categorias",
+            title = "Cadastrar Categorias",
             onMenuClick = onOpenDrawer
         )
 

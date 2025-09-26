@@ -5,7 +5,9 @@ import com.pantrymanager.domain.entity.MeasurementUnit
 interface MeasurementUnitRepository {
     suspend fun insertMeasurementUnit(unit: MeasurementUnit): Long
     suspend fun updateMeasurementUnit(unit: MeasurementUnit)
+    suspend fun deleteMeasurementUnit(unit: MeasurementUnit)
     suspend fun deleteMeasurementUnit(unitId: Long)
+    suspend fun deleteMeasurementUnitById(unitId: Long)
     suspend fun getMeasurementUnitById(unitId: Long): MeasurementUnit?
     suspend fun getAllMeasurementUnits(): List<MeasurementUnit>
     suspend fun findByName(name: String): MeasurementUnit?

@@ -38,24 +38,33 @@ object FirebaseModule {
         try {
             val firestore = FirebaseFirestore.getInstance()
             
-            // Configurações para melhor conectividade
+            // Configurações avançadas para resolver problemas de conectividade
             val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true) // Cache local
+                .setPersistenceEnabled(true) // Cache local para offline
                 .setCacheSizeBytes(com.google.firebase.firestore.FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                .setHost("firestore.googleapis.com") // Host explícito
+                .setSslEnabled(true) // Forçar SSL
                 .build()
             
             firestore.firestoreSettings = settings
             
-            // Force network connectivity
-            firestore.enableNetwork().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("FirebaseModule", "Firestore network enabled successfully")
-                } else {
-                    Log.e("FirebaseModule", "Failed to enable Firestore network", task.exception)
+            // Forçar limpeza e reconexão
+            try {
+                // Primeiro desabilita e depois habilita para forçar reconexão
+                firestore.disableNetwork().addOnCompleteListener {
+                    firestore.enableNetwork().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("FirebaseModule", "Firestore network forcefully reconnected")
+                        } else {
+                            Log.w("FirebaseModule", "Failed to reconnect Firestore", task.exception)
+                        }
+                    }
                 }
+            } catch (e: Exception) {
+                Log.w("FirebaseModule", "Error during network reset, continuing...", e)
             }
             
-            Log.d("FirebaseModule", "Firebase Firestore inicializado com sucesso")
+            Log.d("FirebaseModule", "Firebase Firestore inicializado com configurações avançadas")
             return firestore
         } catch (e: Exception) {
             Log.e("FirebaseModule", "Erro ao inicializar Firebase Firestore", e)

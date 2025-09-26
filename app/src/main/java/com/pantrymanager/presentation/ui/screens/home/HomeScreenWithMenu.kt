@@ -32,8 +32,7 @@ data class HomeMenuItem(
     val title: String,
     val icon: ImageVector,
     val description: String,
-    val onClick: () -> Unit,
-    val gradientColors: List<androidx.compose.ui.graphics.Color>
+    val onClick: () -> Unit
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,43 +67,37 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.register_products),
                     icon = Icons.Default.Add,
                     description = "Cadastrar novos produtos com EAN, nome, categoria e unidade",
-                    onClick = onNavigateToProductRegister,
-                    gradientColors = PantryGradients.PrimaryGradient
+                    onClick = onNavigateToProductRegister
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.manage_categories),
                     icon = Icons.Default.Category,
                     description = "Gerenciar categorias de produtos",
-                    onClick = onNavigateToCategoryRegister,
-                    gradientColors = PantryGradients.SecondaryGradient
+                    onClick = onNavigateToCategoryRegister
                 ),
                 HomeMenuItem(
                     title = "Cadastrar Marcas",
                     icon = Icons.Default.Storefront,
                     description = "Cadastrar novas marcas de produtos",
-                    onClick = onNavigateToBrandRegister,
-                    gradientColors = PantryGradients.AccentGradient
+                    onClick = onNavigateToBrandRegister
                 ),
                 HomeMenuItem(
                     title = "Gerenciar Marcas",
                     icon = Icons.Default.ManageHistory,
                     description = "Gerenciar marcas existentes",
-                    onClick = onNavigateToBrandManagement,
-                    gradientColors = PantryGradients.SecondaryGradient
+                    onClick = onNavigateToBrandManagement
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.register_units),
                     icon = Icons.Default.Add,
                     description = "Cadastrar novas unidades de medida",
-                    onClick = onNavigateToUnitRegister,
-                    gradientColors = PantryGradients.AccentGradient
+                    onClick = onNavigateToUnitRegister
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.manage_units),
                     icon = Icons.Default.Scale,
                     description = "Gerenciar unidades de medida existentes",
-                    onClick = onNavigateToUnitManagement,
-                    gradientColors = PantryGradients.PrimaryGradient
+                    onClick = onNavigateToUnitManagement
                 )
             )
         ),
@@ -116,15 +109,13 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.pantry_items),
                     icon = Icons.Default.Inventory2,
                     description = "Visualizar e gerenciar itens da sua despensa",
-                    onClick = onNavigateToPantryItems,
-                    gradientColors = PantryGradients.PrimaryGradient
+                    onClick = onNavigateToPantryItems
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.import_nfe),
                     icon = Icons.Default.Receipt,
                     description = "Importar produtos via Nota Fiscal Eletrônica",
-                    onClick = onNavigateToNFeImport,
-                    gradientColors = PantryGradients.SecondaryGradient
+                    onClick = onNavigateToNFeImport
                 )
             )
         ),
@@ -136,29 +127,25 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.shopping_lists),
                     icon = Icons.AutoMirrored.Filled.List,
                     description = "Criar e gerenciar suas listas de compras",
-                    onClick = onNavigateToShoppingLists,
-                    gradientColors = PantryGradients.AccentGradient
+                    onClick = onNavigateToShoppingLists
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.recipes),
                     icon = Icons.Default.MenuBook,
                     description = "Gerenciar suas receitas favoritas",
-                    onClick = onNavigateToRecipes,
-                    gradientColors = PantryGradients.PrimaryGradient
+                    onClick = onNavigateToRecipes
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.nearby_stores),
                     icon = Icons.Default.Store,
                     description = "Encontrar supermercados próximos",
-                    onClick = onNavigateToNearbyStores,
-                    gradientColors = PantryGradients.SecondaryGradient
+                    onClick = onNavigateToNearbyStores
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.promotions),
                     icon = Icons.Default.LocalOffer,
                     description = "Visualizar promoções e ofertas",
-                    onClick = onNavigateToPromotions,
-                    gradientColors = PantryGradients.AccentGradient
+                    onClick = onNavigateToPromotions
                 )
             )
         ),
@@ -170,8 +157,7 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.dashboards),
                     icon = Icons.Default.Dashboard,
                     description = "Visualizar relatórios e estatísticas",
-                    onClick = onNavigateToDashboard,
-                    gradientColors = PantryGradients.PrimaryGradient
+                    onClick = onNavigateToDashboard
                 )
             )
         ),
@@ -183,15 +169,13 @@ fun HomeScreenWithMenu(
                     title = stringResource(R.string.profile),
                     icon = Icons.Default.AccountCircle,
                     description = "Editar informações do perfil",
-                    onClick = onNavigateToProfile,
-                    gradientColors = PantryGradients.SecondaryGradient
+                    onClick = onNavigateToProfile
                 ),
                 HomeMenuItem(
                     title = stringResource(R.string.settings),
                     icon = Icons.Default.Settings,
                     description = "Configurações do aplicativo",
-                    onClick = onNavigateToSettings,
-                    gradientColors = PantryGradients.AccentGradient
+                    onClick = onNavigateToSettings
                 )
             )
         )

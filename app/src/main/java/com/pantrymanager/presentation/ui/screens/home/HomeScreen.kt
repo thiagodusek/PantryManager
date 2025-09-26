@@ -22,7 +22,6 @@ import com.pantrymanager.presentation.viewmodel.AuthViewModel
 import com.pantrymanager.presentation.ui.components.ModernMenuCard
 import com.pantrymanager.presentation.ui.components.ModernWelcomeCard
 import com.pantrymanager.presentation.ui.components.StandardTopAppBarWithMenu
-import com.pantrymanager.presentation.ui.theme.PantryGradients
 import com.pantrymanager.presentation.ui.components.CompactVersionFooter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,43 +51,37 @@ fun HomeScreen(
             title = stringResource(R.string.register_products),
             icon = Icons.Default.Add,
             description = "Cadastrar novos produtos no sistema",
-            onClick = onNavigateToProductRegister,
-            gradientColors = PantryGradients.CategoryGradients["fruits"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToProductRegister
         ),
         HomeMenuItem(
             title = stringResource(R.string.manage_categories),
             icon = Icons.Default.Category,
             description = "Organizar categorias de produtos",
-            onClick = onNavigateToCategoryRegister,
-            gradientColors = PantryGradients.CategoryGradients["bakery"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToCategoryRegister
         ),
         HomeMenuItem(
             title = "Cadastrar Marcas",
             icon = Icons.Default.Storefront,
             description = "Cadastrar novas marcas de produtos",
-            onClick = onNavigateToBrandRegister,
-            gradientColors = PantryGradients.CategoryGradients["cleaning"] ?: PantryGradients.SecondaryGradient
+            onClick = onNavigateToBrandRegister
         ),
         HomeMenuItem(
             title = "Gerenciar Marcas",
             icon = Icons.Default.ManageHistory,
             description = "Gerenciar marcas existentes",
-            onClick = onNavigateToBrandManagement,
-            gradientColors = PantryGradients.CategoryGradients["personal_care"] ?: PantryGradients.AccentGradient
+            onClick = onNavigateToBrandManagement
         ),
         HomeMenuItem(
             title = stringResource(R.string.register_units),
             icon = Icons.Default.Add,
             description = "Cadastrar novas unidades de medida",
-            onClick = onNavigateToUnitRegister,
-            gradientColors = PantryGradients.CategoryGradients["pantry"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToUnitRegister
         ),
         HomeMenuItem(
             title = stringResource(R.string.manage_units),
             icon = Icons.Default.Scale,
             description = "Gerenciar unidades de medida existentes",
-            onClick = onNavigateToUnitManagement,
-            gradientColors = PantryGradients.CategoryGradients["canned"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToUnitManagement
         ),
         
         // Gestão da Despensa
@@ -96,8 +89,7 @@ fun HomeScreen(
             title = stringResource(R.string.pantry_items),
             icon = Icons.Default.Inventory,
             description = "Visualizar itens da despensa",
-            onClick = {}, // TODO: Implementar navegação
-            gradientColors = PantryGradients.CategoryGradients["frozen"] ?: PantryGradients.PrimaryGradient
+            onClick = {} // TODO: Implementar navegação
         ),
         
         // Importação e Compras
@@ -105,15 +97,13 @@ fun HomeScreen(
             title = stringResource(R.string.import_nfe),
             icon = Icons.Default.Receipt,
             description = "Importar compras via NFe",
-            onClick = onNavigateToNFeImport,
-            gradientColors = PantryGradients.CategoryGradients["cleaning"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToNFeImport
         ),
         HomeMenuItem(
             title = stringResource(R.string.shopping_lists),
             icon = Icons.Default.ShoppingCart,
             description = "Criar e gerenciar listas",
-            onClick = onNavigateToShoppingLists,
-            gradientColors = PantryGradients.CategoryGradients["beverages"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToShoppingLists
         ),
         
         // Planejamento
@@ -121,15 +111,13 @@ fun HomeScreen(
             title = stringResource(R.string.recipes),
             icon = Icons.Default.MenuBook,
             description = "Descobrir receitas incríveis",
-            onClick = onNavigateToRecipes,
-            gradientColors = PantryGradients.CategoryGradients["meat"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToRecipes
         ),
         HomeMenuItem(
             title = stringResource(R.string.nearby_stores),
             icon = Icons.Default.Store,
             description = "Encontrar supermercados próximos",
-            onClick = onNavigateToNearbyStores,
-            gradientColors = PantryGradients.CategoryGradients["dairy"] ?: PantryGradients.PrimaryGradient
+            onClick = onNavigateToNearbyStores
         ),
         
         // Análises
@@ -137,8 +125,7 @@ fun HomeScreen(
             title = stringResource(R.string.dashboards),
             icon = Icons.Default.Analytics,
             description = "Acompanhar estatísticas",
-            onClick = onNavigateToDashboard,
-            gradientColors = PantryGradients.SecondaryGradient
+            onClick = onNavigateToDashboard
         )
     )
 
@@ -175,8 +162,7 @@ fun HomeScreen(
                             title = menuItem.title,
                             description = menuItem.description,
                             icon = menuItem.icon,
-                            onClick = menuItem.onClick,
-                            gradientColors = menuItem.gradientColors
+                            onClick = menuItem.onClick
                         )
                     }
                 }

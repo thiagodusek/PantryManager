@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -48,6 +49,13 @@ fun PantryManagerAppWithDrawer(
     val currentUser by authViewModel.currentUser.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val isLoading by authViewModel.isLoading.collectAsState()
+    
+    // Verificar estado de autenticação ao iniciar o app
+    LaunchedEffect(Unit) {
+        println("DEBUG - App started, checking authentication state...")
+        authViewModel.refreshAuthenticationState()
+    }
     
     // Função para abrir o drawer
     val onOpenDrawer: () -> Unit = {
@@ -62,10 +70,36 @@ fun PantryManagerAppWithDrawer(
             navController.currentDestination?.route != Screen.Login.route && 
             navController.currentDestination?.route != Screen.Register.route &&
             navController.currentDestination?.route != Screen.ForgotPassword.route) {
+            println("DEBUG - User not logged in, redirecting to login...")
             navController.navigate(Screen.Login.route) {
                 popUpTo(0) { inclusive = true }
             }
+        } else if (isLoggedIn && navController.currentDestination?.route == Screen.Login.route) {
+            println("DEBUG - User is logged in, redirecting to home...")
+            navController.navigate(Screen.Home.route) {
+                popUpTo(0) { inclusive = true }
+            }
         }
+    }
+    
+    // Mostrar tela de carregamento durante verificação inicial de autenticação
+    if (isLoading && currentRoute == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Verificando autenticação...",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        return
     }
     
     // Mostrar drawer apenas para usuários logados e não na tela de login/register

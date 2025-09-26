@@ -113,7 +113,7 @@
     <string name="dashboard_financeiro">Dashboard Financeiro</string>
     
     <!-- Product Registration -->
-    <string name="product_registration_title">Cadastrar Produto</string>
+    <string name="product_registration_title">Cadastrar Produtos</string>
     <string name="ean_code_required">Código de Barras *</string>
     <string name="ean_code_hint">Digite o código de barras (obrigatório)</string>
     <string name="product_name">Nome do Produto *</string>

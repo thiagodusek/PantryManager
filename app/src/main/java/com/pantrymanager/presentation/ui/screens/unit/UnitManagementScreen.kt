@@ -69,6 +69,16 @@ fun UnitManagementScreen(
         )
     }
 
+    // Delete Individual Dialog
+    if (state.showDeleteDialog) {
+        DeleteUnitDialog(
+            unit = state.unitToDelete,
+            onConfirm = viewModel::deleteUnit,
+            onDismiss = viewModel::cancelDelete,
+            isLoading = state.isLoading
+        )
+    }
+
     // Delete Multiple Dialog
     if (state.showMultiDeleteDialog) {
         DeleteMultipleUnitsDialog(
@@ -389,6 +399,50 @@ fun DeleteMultipleUnitsDialog(
                     )
                 } else {
                     Text("Excluir Todas")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteUnitDialog(
+    unit: UnitEntity?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    if (unit == null) return
+    
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text("Excluir Unidade") },
+        text = {
+            Text("Tem certeza que deseja excluir a unidade \"${unit.name} (${unit.abbreviation})\"?\n\nEsta ação não pode ser desfeita.")
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isLoading,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    Text("Excluir")
                 }
             }
         },

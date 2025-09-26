@@ -45,7 +45,7 @@ fun UnitRegisterScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         // Top App Bar
         StandardTopAppBarWithMenu(
-            title = "Gerenciar Unidades de Medida",
+            title = "Cadastrar Unidades de Medida",
             onMenuClick = onOpenDrawer
         )
 

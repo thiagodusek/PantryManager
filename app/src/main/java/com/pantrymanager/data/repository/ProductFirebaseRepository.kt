@@ -178,10 +178,11 @@ class ProductFirebaseRepository @Inject constructor(
                 .add(productDto)
                 .await()
                 
-            // Firebase generates string IDs, but we need to return Long
-            // We'll use the hash of the document ID as a Long
-            docRef.id.hashCode().toLong()
+            println("DEBUG - Produto inserido com ID: ${docRef.id}")
+            // Retorna o hash do document ID como Long positivo
+            docRef.id.hashCode().toLong().let { if (it < 0) -it else it }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao inserir produto: ${e.message}")
             throw e
         }
     }
@@ -197,16 +198,35 @@ class ProductFirebaseRepository @Inject constructor(
                 }
             }
             
-            val productDto = product.toFirebaseDto().copy(
-                userId = userId,
-                updatedAt = System.currentTimeMillis()
-            )
-            
-            firestore.collection(PRODUCTS_COLLECTION)
-                .document(product.id.toString())
-                .set(productDto)
+            // Busca o documento pela combinação userId + productId
+            val snapshot = firestore.collection(PRODUCTS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
                 .await()
+                
+            // Encontra o documento correto comparando o hash do document ID
+            val docToUpdate = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == product.id
+            }
+            
+            if (docToUpdate != null) {
+                val productDto = product.toFirebaseDto().copy(
+                    userId = userId,
+                    updatedAt = System.currentTimeMillis()
+                )
+                
+                firestore.collection(PRODUCTS_COLLECTION)
+                    .document(docToUpdate.id)
+                    .set(productDto)
+                    .await()
+                    
+                println("DEBUG - Produto atualizado com sucesso: ${docToUpdate.id}")
+            } else {
+                throw IllegalArgumentException("Produto não encontrado")
+            }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao atualizar produto: ${e.message}")
             throw e
         }
     }
@@ -219,22 +239,29 @@ class ProductFirebaseRepository @Inject constructor(
         try {
             val actualUserId = userId.ifEmpty { getCurrentUserId() }
             
-            // First verify the product belongs to the user
-            val doc = firestore.collection(PRODUCTS_COLLECTION)
-                .document(id.toString())
+            // Busca o documento pela combinação userId + productId
+            val snapshot = firestore.collection(PRODUCTS_COLLECTION)
+                .whereEqualTo("userId", actualUserId)
                 .get()
                 .await()
                 
-            val productDto = doc.toObject(ProductFirebaseDto::class.java)
-            if (productDto?.userId == actualUserId) {
+            // Encontra o documento correto comparando o hash do document ID
+            val docToDelete = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == id
+            }
+            
+            if (docToDelete != null) {
                 firestore.collection(PRODUCTS_COLLECTION)
-                    .document(id.toString())
+                    .document(docToDelete.id)
                     .delete()
                     .await()
+                println("DEBUG - Produto deletado com sucesso: ${docToDelete.id}")
             } else {
-                throw SecurityException("User not authorized to delete this product")
+                throw IllegalArgumentException("Produto não encontrado")
             }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao deletar produto: ${e.message}")
             throw e
         }
     }

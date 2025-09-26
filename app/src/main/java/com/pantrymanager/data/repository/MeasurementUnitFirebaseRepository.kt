@@ -38,10 +38,17 @@ class MeasurementUnitFirebaseRepository @Inject constructor(
             
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(MeasurementUnitFirebaseDto::class.java)?.let { dto ->
-                    dto.copy(id = doc.id).toDomain()
+                    MeasurementUnit(
+                        id = doc.id.hashCode().toLong().let { if (it < 0) -it else it }, // Garantir ID positivo
+                        name = dto.name,
+                        abbreviation = dto.abbreviation,
+                        description = null, // Campo não existe no DTO
+                        multiplyQuantityByPrice = dto.multiplyQuantityByPrice
+                    )
                 }
             }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao carregar unidades de medida: ${e.message}")
             emptyList()
         }
     }
@@ -76,8 +83,11 @@ class MeasurementUnitFirebaseRepository @Inject constructor(
                 .add(unitDto)
                 .await()
                 
-            docRef.id.hashCode().toLong()
+            println("DEBUG - Unidade de medida inserida com ID: ${docRef.id}")
+            // Retorna o hash do document ID como Long positivo
+            docRef.id.hashCode().toLong().let { if (it < 0) -it else it }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao inserir unidade de medida: ${e.message}")
             throw e
         }
     }
@@ -85,15 +95,35 @@ class MeasurementUnitFirebaseRepository @Inject constructor(
     override suspend fun updateMeasurementUnit(unit: MeasurementUnit) {
         try {
             val userId = getCurrentUserId()
-            val unitDto = unit.toFirebaseDto(userId).copy(
-                updatedAt = System.currentTimeMillis()
-            )
             
-            firestore.collection(MEASUREMENT_UNITS_COLLECTION)
-                .document(unit.id.toString())
-                .set(unitDto)
+            // Busca o documento pela combinação userId + unitId
+            val snapshot = firestore.collection(MEASUREMENT_UNITS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
                 .await()
+                
+            // Encontra o documento correto comparando o hash do document ID
+            val docToUpdate = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == unit.id
+            }
+            
+            if (docToUpdate != null) {
+                val unitDto = unit.toFirebaseDto(userId).copy(
+                    updatedAt = System.currentTimeMillis()
+                )
+                
+                firestore.collection(MEASUREMENT_UNITS_COLLECTION)
+                    .document(docToUpdate.id)
+                    .set(unitDto)
+                    .await()
+                    
+                println("DEBUG - Unidade de medida atualizada com sucesso: ${docToUpdate.id}")
+            } else {
+                throw IllegalArgumentException("Unidade de medida não encontrada")
+            }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao atualizar unidade de medida: ${e.message}")
             throw e
         }
     }
@@ -102,24 +132,39 @@ class MeasurementUnitFirebaseRepository @Inject constructor(
         try {
             val userId = getCurrentUserId()
             
-            // First verify the unit belongs to the user
-            val doc = firestore.collection(MEASUREMENT_UNITS_COLLECTION)
-                .document(unitId.toString())
+            // Busca o documento pela combinação userId + unitId
+            val snapshot = firestore.collection(MEASUREMENT_UNITS_COLLECTION)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
                 
-            val unitDto = doc.toObject(MeasurementUnitFirebaseDto::class.java)
-            if (unitDto?.userId == userId) {
+            // Encontra o documento correto comparando o hash do document ID
+            val docToDelete = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == unitId
+            }
+            
+            if (docToDelete != null) {
                 firestore.collection(MEASUREMENT_UNITS_COLLECTION)
-                    .document(unitId.toString())
+                    .document(docToDelete.id)
                     .delete()
                     .await()
+                println("DEBUG - Unidade de medida deletada com sucesso: ${docToDelete.id}")
             } else {
-                throw SecurityException("User not authorized to delete this measurement unit")
+                throw IllegalArgumentException("Unidade de medida não encontrada")
             }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao deletar unidade de medida: ${e.message}")
             throw e
         }
+    }
+
+    override suspend fun deleteMeasurementUnit(unit: MeasurementUnit) {
+        deleteMeasurementUnit(unit.id)
+    }
+
+    override suspend fun deleteMeasurementUnitById(unitId: Long) {
+        deleteMeasurementUnit(unitId)
     }
 
     override suspend fun deleteMeasurementUnits(ids: List<Long>) {

@@ -66,6 +66,16 @@ fun BrandManagementScreen(
         )
     }
 
+    // Delete Individual Dialog
+    if (state.showDeleteDialog) {
+        DeleteBrandDialog(
+            brand = state.brandToDelete,
+            onConfirm = viewModel::deleteBrand,
+            onDismiss = viewModel::cancelDelete,
+            isLoading = state.isLoading
+        )
+    }
+
     // Delete Multiple Dialog
     if (state.showMultiDeleteDialog) {
         DeleteMultipleBrandsDialog(
@@ -81,19 +91,41 @@ fun BrandManagementScreen(
         topBar = {
             if (state.isSelectionMode) {
                 TopAppBar(
-                    title = { Text("${state.selectedBrands.size} selecionadas") },
+                    title = { Text("Gerenciar Marcas") },
                     navigationIcon = {
-                        IconButton(onClick = viewModel::clearSelection) {
-                            Icon(Icons.Default.Close, contentDescription = "Cancelar seleção")
+                        IconButton(onClick = {
+                            viewModel.clearSelection()
+                        }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
                         }
                     },
                     actions = {
-                        IconButton(onClick = { viewModel.confirmMultipleDelete() }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Excluir selecionadas")
+                        // Selection mode actions
+                        Text(
+                            text = "${state.selectedBrands.size}",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        IconButton(onClick = viewModel::selectAllBrands) {
+                            Icon(Icons.Default.SelectAll, contentDescription = "Selecionar todas")
+                        }
+                        IconButton(
+                            onClick = { viewModel.confirmMultipleDelete() },
+                            enabled = state.selectedBrands.isNotEmpty()
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Excluir selecionadas",
+                                tint = if (state.selectedBrands.isNotEmpty())
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
             } else {
@@ -167,7 +199,9 @@ fun BrandsGridSection(
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -175,14 +209,13 @@ fun BrandsGridSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Marcas Cadastradas",
+                    text = "Marcas Disponíveis (${brands.size})",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
-                if (brands.isNotEmpty()) {
+                if (isSelectionMode) {
                     Text(
-                        text = "${brands.size} marcas",
+                        text = "${selectedBrands.size} selecionada(s)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -235,21 +268,24 @@ fun BrandGridItem(
             containerColor = if (isSelected) 
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
             else 
-                MaterialTheme.colorScheme.surface
+                MaterialTheme.colorScheme.surfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 8.dp else 2.dp
-        )
+        border = if (isSelected) {
+            androidx.compose.foundation.BorderStroke(
+                2.dp, 
+                MaterialTheme.colorScheme.primary
+            )
+        } else null
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            contentAlignment = Alignment.Center
+                .padding(12.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Brand icon
                 Box(
@@ -269,41 +305,16 @@ fun BrandGridItem(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Brand name
                 Text(
                     text = brand.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
-
-            // Selection indicator
-            if (isSelectionMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (isSelected) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isSelected) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selecionada",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
             }
         }
     }
@@ -383,8 +394,50 @@ fun DeleteMultipleBrandsDialog(
                         modifier = Modifier.size(16.dp),
                         color = MaterialTheme.colorScheme.error
                     )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteBrandDialog(
+    brand: Brand?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    if (brand == null) return
+    
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text("Excluir Marca") },
+        text = {
+            Text("Tem certeza que deseja excluir a marca \"${brand.name}\"?\n\nEsta ação não pode ser desfeita.")
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = !isLoading,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 } else {
-                    Text("Excluir Todas")
+                    Text("Excluir")
                 }
             }
         },

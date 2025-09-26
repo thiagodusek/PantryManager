@@ -97,8 +97,7 @@ class ProductViewModel @Inject constructor(
 
     // CRUD Operations
     fun loadAllProducts() {
-        /*
-        // Código de conexão com banco comentado
+        // Código de conexão com banco
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
@@ -114,13 +113,6 @@ class ProductViewModel @Inject constructor(
                 )
             }
         }
-        */
-        
-        // Simulando lista vazia para demonstração
-        _state.value = _state.value.copy(
-            products = emptyList(),
-            isLoading = false
-        )
     }
 
     fun loadProductById(productId: Long) {
@@ -192,8 +184,7 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                /*
-                // Código de conexão com banco comentado
+                // Cadastro real do produto
                 val product = Product(
                     id = 0,
                     ean = _state.value.ean.takeIf { it.isNotBlank() },
@@ -205,22 +196,21 @@ class ProductViewModel @Inject constructor(
                     imageUrl = _state.value.imageUrl,
                     userId = currentUserId
                 )
-                )
                 
                 val result = addProductUseCase(product)
                 if (result.isSuccess) {
                     loadAllProducts() // Reload list
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        errorMessage = "Produto cadastrado com sucesso! Quantidade: ${_state.value.quantity}, Lote: ${_state.value.batch.takeIf { it.isNotBlank() } ?: "N/A"}, Validade: ${_state.value.expiryDate.takeIf { it.isNotBlank() } ?: "N/A"}"
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Erro ao cadastrar produto: ${result.exceptionOrNull()?.message}"
+                    )
                 }
-                */
-                
-                // Simulação de delay para mostrar loading
-                kotlinx.coroutines.delay(1000)
-                
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    isSuccess = true,
-                    errorMessage = "Produto cadastrado com sucesso! Quantidade: ${_state.value.quantity}, Lote: ${_state.value.batch.takeIf { it.isNotBlank() } ?: "N/A"}, Validade: ${_state.value.expiryDate.takeIf { it.isNotBlank() } ?: "N/A"}"
-                )
                 clearForm()
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
@@ -238,8 +228,7 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                /*
-                // Código de conexão com banco comentado
+                // Atualização real do produto
                 val product = _state.value.currentProduct?.copy(
                     ean = _state.value.ean.takeIf { it.isNotBlank() },
                     name = _state.value.name,
@@ -254,10 +243,17 @@ class ProductViewModel @Inject constructor(
                 val result = updateProductUseCase(product)
                 if (result.isSuccess) {
                     loadAllProducts() // Reload list
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        errorMessage = "Produto atualizado com sucesso!"
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Erro ao atualizar produto: ${result.exceptionOrNull()?.message}"
+                    )
                 }
-                */
-                
-                // Simulação de delay para mostrar loading
                 kotlinx.coroutines.delay(1000)
                 
                 _state.value = _state.value.copy(
@@ -280,24 +276,23 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                /*
-                // Código de conexão com banco comentado
+                // Exclusão real do produto
                 val result = deleteProductUseCase(product.id, currentUserId)
                 if (result.isSuccess) {
                     loadAllProducts() // Reload list
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        errorMessage = "Produto deletado com sucesso!",
+                        showDeleteDialog = false,
+                        productToDelete = null
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Erro ao excluir produto: ${result.exceptionOrNull()?.message}"
+                    )
                 }
-                */
-                
-                // Simulação de delay para mostrar loading
-                kotlinx.coroutines.delay(1000)
-                
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    isSuccess = true,
-                    errorMessage = "Produto deletado com sucesso!",
-                    showDeleteDialog = false,
-                    productToDelete = null
-                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
@@ -534,25 +529,43 @@ class ProductViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                /*
-                // Código de conexão com banco comentado
+                // Exclusão real dos produtos selecionados
+                var successCount = 0
+                var errorMessages = mutableListOf<String>()
+                
                 selectedIds.forEach { productId ->
-                    deleteProductUseCase(productId, currentUserId)
+                    val result = deleteProductUseCase(productId, currentUserId)
+                    if (result.isSuccess) {
+                        successCount++
+                    } else {
+                        errorMessages.add("Erro ao excluir produto $productId: ${result.exceptionOrNull()?.message}")
+                    }
                 }
+                
                 loadProducts()
-                */
                 
-                // Simulação de delay para mostrar loading
-                kotlinx.coroutines.delay(1500)
-                
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    isSuccess = true,
-                    selectedProducts = emptySet(),
-                    isSelectionMode = false,
-                    showMultiDeleteDialog = false,
-                    errorMessage = "${selectedIds.size} produto(s) excluído(s) com sucesso!"
-                )
+                if (successCount > 0) {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        selectedProducts = emptySet(),
+                        isSelectionMode = false,
+                        showMultiDeleteDialog = false,
+                        errorMessage = if (errorMessages.isEmpty()) {
+                            "$successCount produto(s) excluído(s) com sucesso!"
+                        } else {
+                            "$successCount produto(s) excluído(s). Erros: ${errorMessages.joinToString("; ")}"
+                        }
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        selectedProducts = emptySet(),
+                        isSelectionMode = false,
+                        showMultiDeleteDialog = false,
+                        errorMessage = "Nenhum produto foi excluído. Erros: ${errorMessages.joinToString("; ")}"
+                    )
+                }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,

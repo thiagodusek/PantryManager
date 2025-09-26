@@ -48,6 +48,15 @@ class MeasurementUnitRepositoryImpl @Inject constructor(
         measurementUnitDao.deleteMeasurementUnitById(unitId)
     }
 
+    override suspend fun deleteMeasurementUnit(measurementUnit: MeasurementUnit) = withContext(Dispatchers.IO) {
+        val entity = measurementUnitMapper.domainToEntity(measurementUnit)
+        measurementUnitDao.deleteMeasurementUnit(entity)
+    }
+
+    override suspend fun deleteMeasurementUnitById(unitId: Long) = withContext(Dispatchers.IO) {
+        measurementUnitDao.deleteMeasurementUnitById(unitId)
+    }
+
     override suspend fun findByName(name: String): MeasurementUnit? = withContext(Dispatchers.IO) {
         try {
             val entity = measurementUnitDao.findByName(name)

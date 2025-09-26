@@ -45,7 +45,7 @@ fun BrandRegisterScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         // Top App Bar
         StandardTopAppBarWithMenu(
-            title = "Gerenciar Marcas",
+            title = "Cadastrar Marcas",
             onMenuClick = onOpenDrawer
         )
 

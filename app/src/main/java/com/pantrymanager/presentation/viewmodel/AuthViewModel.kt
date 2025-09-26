@@ -56,14 +56,37 @@ class AuthViewModel @Inject constructor(
     val googleUserData: StateFlow<GoogleUserData?> = _googleUserData.asStateFlow()
 
     init {
-        getCurrentUser()
+        checkAuthenticationState()
+    }
+
+    private fun checkAuthenticationState() {
+        viewModelScope.launch {
+            try {
+                // Aguarda um pouco para garantir que o Firebase foi inicializado
+                delay(100)
+                
+                println("DEBUG - Checking authentication state...")
+                getCurrentUser()
+            } catch (e: Exception) {
+                println("DEBUG - Error checking authentication: ${e.message}")
+                _isLoggedIn.value = false
+                _currentUser.value = null
+            }
+        }
     }
 
     private fun getCurrentUser() {
         viewModelScope.launch {
-            getCurrentUserUseCase().collect { user ->
-                _currentUser.value = user
-                _isLoggedIn.value = user != null
+            try {
+                getCurrentUserUseCase().collect { user ->
+                    println("DEBUG - Current user from Firebase: ${user?.email ?: "null"}")
+                    _currentUser.value = user
+                    _isLoggedIn.value = user != null
+                }
+            } catch (e: Exception) {
+                println("DEBUG - Error getting current user: ${e.message}")
+                _isLoggedIn.value = false
+                _currentUser.value = null
             }
         }
     }
@@ -396,48 +419,6 @@ class AuthViewModel @Inject constructor(
     }
 
     /**
-     * Verifica e atualiza o estado de autenticação atual
-     */
-    fun checkAuthenticationState() {
-        viewModelScope.launch {
-            try {
-                val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-                val currentFirebaseUser = auth.currentUser
-                
-                if (currentFirebaseUser != null) {
-                    // Força reload do usuário para garantir dados atualizados
-                    currentFirebaseUser.reload().await()
-                    
-                    // Verifica se o token ainda é válido
-                    currentFirebaseUser.getIdToken(true).await()
-                    
-                    // Se chegou até aqui, o usuário está autenticado
-                    // Busca dados do usuário no Firestore
-                    try {
-                        getCurrentUserUseCase().collect { user ->
-                            if (user != null) {
-                                _currentUser.value = user
-                                _isLoggedIn.value = true
-                            } else {
-                                signOutSilently()
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // Se falhou ao buscar dados, faz logout
-                        signOutSilently()
-                    }
-                } else {
-                    // Usuário não está autenticado
-                    clearUserCache()
-                }
-            } catch (e: Exception) {
-                // Se houver erro, considera como não autenticado
-                signOutSilently()
-            }
-        }
-    }
-
-    /**
      * Testa se a nova senha está funcionando após reset
      */
     fun testPasswordAfterReset(email: String, newPassword: String, onResult: (Boolean, String?) -> Unit) {
@@ -473,6 +454,29 @@ class AuthViewModel @Inject constructor(
                     }
             } catch (e: Exception) {
                 onResult(false, "Erro ao testar nova senha: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Força uma nova verificação do estado de autenticação
+     */
+    fun refreshAuthenticationState() {
+        viewModelScope.launch {
+            try {
+                println("DEBUG - Refreshing authentication state...")
+                _isLoading.value = true
+                
+                // Força uma nova verificação do Firebase Auth
+                getCurrentUser()
+                
+                delay(1000) // Aguarda 1 segundo para permitir que o Firebase processe
+                _isLoading.value = false
+                
+                println("DEBUG - Authentication state refreshed. Logged in: ${_isLoggedIn.value}")
+            } catch (e: Exception) {
+                println("DEBUG - Error refreshing authentication: ${e.message}")
+                _isLoading.value = false
             }
         }
     }

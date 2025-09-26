@@ -2,6 +2,7 @@ package com.pantrymanager.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.util.Log
 import com.pantrymanager.data.dto.CategoryFirebaseDto
 import com.pantrymanager.data.dto.toDomain
 import com.pantrymanager.data.dto.toFirebaseDto
@@ -30,18 +31,51 @@ class CategoryFirebaseRepository @Inject constructor(
     override suspend fun getAllCategories(): List<Category> {
         return try {
             val userId = getCurrentUserId()
-            val snapshot = firestore.collection(CATEGORIES_COLLECTION)
-                .whereEqualTo("userId", userId)
-                .orderBy("name")
-                .get()
-                .await()
             
-            snapshot.documents.mapNotNull { doc ->
+            // Primeiro tenta do servidor, se falhar usa cache
+            val snapshot = try {
+                firestore.collection(CATEGORIES_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .orderBy("name")
+                    .get(com.google.firebase.firestore.Source.SERVER) // Força servidor
+                    .await()
+            } catch (serverError: Exception) {
+                Log.w("CategoryFirebaseRepository", "Server unavailable, using cache", serverError)
+                // Fallback para cache local
+                firestore.collection(CATEGORIES_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .orderBy("name")
+                    .get(com.google.firebase.firestore.Source.CACHE)
+                    .await()
+            }
+            
+            val categories = snapshot.documents.mapNotNull { doc ->
                 doc.toObject(CategoryFirebaseDto::class.java)?.let { dto ->
-                    dto.copy(id = doc.id).toDomain()
+                    Category(
+                        id = doc.id.hashCode().toLong().let { if (it < 0) -it else it }, // Garantir ID positivo
+                        name = dto.name
+                    )
                 }
             }
+            
+            Log.d("CategoryFirebaseRepository", "Loaded ${categories.size} categories")
+            categories
+            
         } catch (e: Exception) {
+            // Tratamento abrangente de erros
+            val errorMessage = when {
+                e.message?.contains("offline", ignoreCase = true) == true -> {
+                    "Firebase offline - usando dados locais se disponíveis"
+                }
+                e.message?.contains("network", ignoreCase = true) == true -> {
+                    "Problema de rede - usando dados locais se disponíveis"
+                }
+                else -> {
+                    "Erro ao carregar categorias: ${e.message}"
+                }
+            }
+            
+            Log.w("CategoryFirebaseRepository", errorMessage, e)
             emptyList()
         }
     }
@@ -76,7 +110,9 @@ class CategoryFirebaseRepository @Inject constructor(
                 .add(categoryDto)
                 .await()
                 
-            docRef.id.hashCode().toLong()
+            println("DEBUG - Categoria inserida com ID: ${docRef.id}")
+            // Retorna o hash do document ID como Long positivo
+            docRef.id.hashCode().toLong().let { if (it < 0) -it else it }
         } catch (e: Exception) {
             throw e
         }
@@ -85,15 +121,35 @@ class CategoryFirebaseRepository @Inject constructor(
     override suspend fun updateCategory(category: Category) {
         try {
             val userId = getCurrentUserId()
-            val categoryDto = category.toFirebaseDto(userId).copy(
-                updatedAt = System.currentTimeMillis()
-            )
             
-            firestore.collection(CATEGORIES_COLLECTION)
-                .document(category.id.toString())
-                .set(categoryDto)
+            // Busca o documento pela combinação userId + categoryId
+            val snapshot = firestore.collection(CATEGORIES_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
                 .await()
+                
+            // Encontra o documento correto comparando o hash do document ID
+            val docToUpdate = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == category.id
+            }
+            
+            if (docToUpdate != null) {
+                val categoryDto = category.toFirebaseDto(userId).copy(
+                    updatedAt = System.currentTimeMillis()
+                )
+                
+                firestore.collection(CATEGORIES_COLLECTION)
+                    .document(docToUpdate.id)
+                    .set(categoryDto)
+                    .await()
+                    
+                println("DEBUG - Categoria atualizada com sucesso: ${docToUpdate.id}")
+            } else {
+                throw IllegalArgumentException("Categoria não encontrada")
+            }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao atualizar categoria: ${e.message}")
             throw e
         }
     }
@@ -110,23 +166,53 @@ class CategoryFirebaseRepository @Inject constructor(
         try {
             val userId = getCurrentUserId()
             
-            // First verify the category belongs to the user
-            val doc = firestore.collection(CATEGORIES_COLLECTION)
-                .document(id.toString())
+            // Busca o documento pela combinação userId + categoryId
+            val snapshot = firestore.collection(CATEGORIES_COLLECTION)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
                 
-            val categoryDto = doc.toObject(CategoryFirebaseDto::class.java)
-            if (categoryDto?.userId == userId) {
+            // Encontra o documento correto comparando o hash do document ID
+            val docToDelete = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == id
+            }
+            
+            if (docToDelete != null) {
                 firestore.collection(CATEGORIES_COLLECTION)
-                    .document(id.toString())
+                    .document(docToDelete.id)
                     .delete()
                     .await()
+                println("DEBUG - Categoria deletada com sucesso: ${docToDelete.id}")
             } else {
-                throw SecurityException("User not authorized to delete this category")
+                throw IllegalArgumentException("Categoria não encontrada")
             }
+                
         } catch (e: Exception) {
-            throw e
+            // Tratamento avançado de erros
+            val errorMessage = when {
+                e.message?.contains("offline", ignoreCase = true) == true -> {
+                    "Sem conexão: Verifique sua internet e tente novamente"
+                }
+                e.message?.contains("network", ignoreCase = true) == true -> {
+                    "Problema de rede: Verifique sua conexão"
+                }
+                e.message?.contains("UNAVAILABLE", ignoreCase = true) == true -> {
+                    "Servidor indisponível: Tente novamente em alguns instantes"
+                }
+                e.message?.contains("DEADLINE_EXCEEDED", ignoreCase = true) == true -> {
+                    "Tempo esgotado: Conexão muito lenta"
+                }
+                e.message?.contains("permission", ignoreCase = true) == true -> {
+                    "Não autorizado a excluir esta categoria"
+                }
+                else -> {
+                    "Erro ao excluir categoria: ${e.message ?: "Erro desconhecido"}"
+                }
+            }
+            
+            Log.e("CategoryFirebaseRepository", "Error deleting category $id", e)
+            throw Exception(errorMessage)
         }
     }
 

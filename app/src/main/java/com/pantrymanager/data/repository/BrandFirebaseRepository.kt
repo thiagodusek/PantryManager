@@ -36,10 +36,14 @@ class BrandFirebaseRepository @Inject constructor(
             
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(BrandFirebaseDto::class.java)?.let { dto ->
-                    dto.copy(id = doc.id).toDomain()
+                    Brand(
+                        id = doc.id.hashCode().toLong().let { if (it < 0) -it else it }, // Garantir ID positivo
+                        name = dto.name
+                    )
                 }
             }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao carregar marcas: ${e.message}")
             emptyList()
         }
     }
@@ -117,8 +121,11 @@ class BrandFirebaseRepository @Inject constructor(
                 .add(brandDto)
                 .await()
                 
-            docRef.id.hashCode().toLong()
+            println("DEBUG - Marca inserida com ID: ${docRef.id}")
+            // Retorna o hash do document ID como Long positivo
+            docRef.id.hashCode().toLong().let { if (it < 0) -it else it }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao inserir marca: ${e.message}")
             throw e
         }
     }
@@ -126,15 +133,35 @@ class BrandFirebaseRepository @Inject constructor(
     override suspend fun updateBrand(brand: Brand) {
         try {
             val userId = getCurrentUserId()
-            val brandDto = brand.toFirebaseDto(userId).copy(
-                updatedAt = System.currentTimeMillis()
-            )
             
-            firestore.collection(BRANDS_COLLECTION)
-                .document(brand.id.toString())
-                .set(brandDto)
+            // Busca o documento pela combinação userId + brandId
+            val snapshot = firestore.collection(BRANDS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
                 .await()
+                
+            // Encontra o documento correto comparando o hash do document ID
+            val docToUpdate = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == brand.id
+            }
+            
+            if (docToUpdate != null) {
+                val brandDto = brand.toFirebaseDto(userId).copy(
+                    updatedAt = System.currentTimeMillis()
+                )
+                
+                firestore.collection(BRANDS_COLLECTION)
+                    .document(docToUpdate.id)
+                    .set(brandDto)
+                    .await()
+                    
+                println("DEBUG - Marca atualizada com sucesso: ${docToUpdate.id}")
+            } else {
+                throw IllegalArgumentException("Marca não encontrada")
+            }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao atualizar marca: ${e.message}")
             throw e
         }
     }
@@ -143,22 +170,29 @@ class BrandFirebaseRepository @Inject constructor(
         try {
             val userId = getCurrentUserId()
             
-            // First verify the brand belongs to the user
-            val doc = firestore.collection(BRANDS_COLLECTION)
-                .document(brandId.toString())
+            // Busca o documento pela combinação userId + brandId
+            val snapshot = firestore.collection(BRANDS_COLLECTION)
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
                 
-            val brandDto = doc.toObject(BrandFirebaseDto::class.java)
-            if (brandDto?.userId == userId) {
+            // Encontra o documento correto comparando o hash do document ID
+            val docToDelete = snapshot.documents.find { doc ->
+                val hashId = doc.id.hashCode().toLong().let { if (it < 0) -it else it }
+                hashId == brandId
+            }
+            
+            if (docToDelete != null) {
                 firestore.collection(BRANDS_COLLECTION)
-                    .document(brandId.toString())
+                    .document(docToDelete.id)
                     .delete()
                     .await()
+                println("DEBUG - Marca deletada com sucesso: ${docToDelete.id}")
             } else {
-                throw SecurityException("User not authorized to delete this brand")
+                throw IllegalArgumentException("Marca não encontrada")
             }
         } catch (e: Exception) {
+            println("DEBUG - Erro ao deletar marca: ${e.message}")
             throw e
         }
     }
